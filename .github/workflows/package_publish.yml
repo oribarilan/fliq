@@ -13,9 +13,6 @@ permissions:
 
 jobs:
 
-  core_build:
-    uses: ./.github/workflows/core_build.yml
-
   deploy:
 
     runs-on: ubuntu-latest
