@@ -1,5 +1,34 @@
+from dataclasses import dataclass
+
+
+@dataclass
+class TestClass:
+    a: int
+
+    def __hash__(self):
+        return hash(self.a)
+
+
 class Params:
     sig = "iter_type,iterable"
+
+    @staticmethod
+    def iterable_obj_multi():
+        return [
+            ("list", [TestClass(0), TestClass(1), TestClass(2), TestClass(3), TestClass(4)]),
+            ("generator", (TestClass(i) for i in range(5))),
+            ("tuple", (TestClass(0), TestClass(1), TestClass(2), TestClass(3), TestClass(4))),
+            ("set", {TestClass(0), TestClass(1), TestClass(2), TestClass(3), TestClass(4)}),
+        ]
+
+    @staticmethod
+    def iterable_obj_single():
+        return [
+            ("list", [TestClass(0)]),
+            ("generator", (TestClass(i) for i in range(1))),
+            ("tuple", (TestClass(0),)),
+            ("set", {TestClass(0)}),
+        ]
 
     @staticmethod
     def iterable_multi():

@@ -21,13 +21,13 @@ lint:
 
 # execute quality utils
 quality:
-    mypy .
+    mypy fliq
 
 # execute all code checks (linting and quality)
 check:
-    -just lint
-    -just quality
-    -just test-coverage
+    just lint
+    just quality
+    just test-coverage
 
 # build and run docs
 docs:

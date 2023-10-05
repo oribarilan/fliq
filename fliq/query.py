@@ -1,7 +1,6 @@
 from fliq.collector import Collector
-from fliq.queryable import Queryable
 
 
-class Query(Collector, Queryable):
+class Query(Collector):
     def __iter__(self):
         return self.all()
