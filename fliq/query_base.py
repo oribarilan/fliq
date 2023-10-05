@@ -2,7 +2,7 @@ from types import GeneratorType
 from typing import Iterable
 
 
-class QueryableBase:
+class QueryBase:
     def __init__(self, iterable: Iterable):
         self.items = None
 

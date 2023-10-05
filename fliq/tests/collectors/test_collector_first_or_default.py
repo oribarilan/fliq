@@ -3,7 +3,6 @@ from unittest.mock import Mock
 import pytest
 
 from fliq import q
-from fliq.exceptions import NoItemsFoundException
 from fliq.tests.fliq_test_utils import Params
 
 

@@ -28,8 +28,8 @@ class Collector(Carrier):
     def first(self, predicate: Optional[Predicate] = None) -> Any:
         """
         Collector.
-        Returns the first item in the iterable that satisfies the predicate (if provided).
-        This assumes at least one item exists in the iterable.
+        Returns the first item that satisfies the predicate (if provided).
+        This assumes at least one item exists in the query.
         If no items exist, a NoItemsFoundException is raised.
         :param predicate: Optional. The predicate to filter the iterable by.
         """
@@ -44,7 +44,7 @@ class Collector(Carrier):
                          default: Any = None) -> Any:
         """
         Collector.
-        Returns the first item in the iterable that satisfies the predicate (if provided).
+        Returns the first item that satisfies the predicate (if provided).
         If no items exist, the default value is returned (None, if not provided).
         :param predicate: Optional. The predicate to filter the iterable by.
         :param default: Optional. The default value to return if no items are found.

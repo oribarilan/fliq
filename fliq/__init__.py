@@ -1,1 +1,1 @@
-from .query import Query as q
+from .query import Query as q  # noqa: F401
