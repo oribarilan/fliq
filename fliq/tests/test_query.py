@@ -29,7 +29,8 @@ class TestQuery(TestCase):
 
     def test_query_withGenerator(self):
         iterable = (i for i in range(5))
-        q(iterable)
+        q_iterable = q(iterable)
+        assert isinstance(q_iterable._items, list)
 
     def test_query_withNone(self):
         iterable = None
