@@ -1,0 +1,49 @@
+name: Code Coverage Check
+
+on: [push, pull_request]
+
+env:
+  GLOBAL_COVERAGE_THRESHOLD: 95
+  SINGLE_COVERAGE_THRESHOLD: 90
+
+jobs:
+  coverage-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Create coverage report
+        run: |
+          coverage run --omit 'oplog/tests/*','*/__pycache__/*','examples' -m pytest --ignore=examples
+          coverage xml -o coverage.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: ./coverage.xml
+        
+      - name: Run Global Code Coverage
+        run: |
+          coverage report -m --fail-under=$GLOBAL_COVERAGE_THRESHOLD
+
+      - name: Check coverage per file
+        run: |
+          if [ -f coverage.xml ]; then
+              python scripts/single_file_coverage_check.py $SINGLE_COVERAGE_THRESHOLD
+          else
+              echo "Coverage report not found, failing the workflow"
+              exit 1
+          fi
