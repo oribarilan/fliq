@@ -6,7 +6,13 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
+  core_build:
+    uses: ./.github/workflows/core_build.yml
+
   deploy:
     runs-on: ubuntu-latest
     steps:
