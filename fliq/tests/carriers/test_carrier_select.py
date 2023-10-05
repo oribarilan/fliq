@@ -1,9 +1,7 @@
-from dataclasses import dataclass
-
 import pytest
 
-from fliq.tests.fliq_test_utils import Params
 from fliq import q
+from fliq.tests.fliq_test_utils import Params
 
 
 class TestCarrierSelect:

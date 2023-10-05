@@ -8,5 +8,5 @@ class Carry:
     def __call__(self, iterable: Iterable[Any]) -> Any:
         return self._func(iterable)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return f"Carry({self._func.__name__})"

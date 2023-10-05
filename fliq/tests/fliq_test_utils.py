@@ -15,10 +15,27 @@ class Params:
     @staticmethod
     def iterable_obj_multi():
         return [
-            ("list", [TestClass(0), TestClass(1), TestClass(2), TestClass(3), TestClass(4)]),
+            ("list", [
+                TestClass(0),
+                TestClass(1),
+                TestClass(2),
+                TestClass(3),
+                TestClass(4)
+            ]),
             ("generator", (TestClass(i) for i in range(5))),
-            ("tuple", (TestClass(0), TestClass(1), TestClass(2), TestClass(3), TestClass(4))),
-            ("set", {TestClass(0), TestClass(1), TestClass(2), TestClass(3), TestClass(4)}),
+            ("tuple", (
+                TestClass(0),
+                TestClass(1),
+                TestClass(2),
+                TestClass(3),
+                TestClass(4))),
+            ("set", {
+                TestClass(0),
+                TestClass(1),
+                TestClass(2),
+                TestClass(3),
+                TestClass(4)
+            }),
         ]
 
     @staticmethod
