@@ -1,9 +1,0 @@
-parameterized==0.9.0
-mkdocs==1.5.2
-mkdocs-material==9.1.21
-mkdocs-awesome-pages-plugin==2.9.1
-ruff
-pytest==6.2.4
-coverage
-build
-mypy==1.5.1
