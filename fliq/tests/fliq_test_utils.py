@@ -1,6 +1,6 @@
-class FliqTestUtils:
+class Params:
 
-    iterable_parameters_multi = [
+    iterable_multi = [
         ("list", [0, 1, 2, 3, 4]),
         ("generator", (i for i in range(5))),
         ("range", (range(5))),
@@ -11,7 +11,7 @@ class FliqTestUtils:
         ("bytearray", bytearray(b'\x00\x01\x02\x03\x04')),
     ]
 
-    iterable_parameters_single = [
+    iterable_single = [
         ("list", [0]),
         ("generator", (i for i in range(1))),
         ("range", (range(1))),
@@ -22,7 +22,7 @@ class FliqTestUtils:
         ("bytearray", bytearray(b'\x00')),
     ]
 
-    iterable_parameters_empty = [
+    iterable_empty = [
         ("list", []),
         ("generator", (i for i in range(0))),
         ("range", (range(0))),
