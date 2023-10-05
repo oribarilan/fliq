@@ -4,12 +4,8 @@ from typing import Iterable
 
 class QueryBase:
     def __init__(self, iterable: Iterable):
-        self.items = None
-
         if iterable is None:
             raise TypeError("iterable cannot be None")
 
-        if isinstance(iterable, GeneratorType):
-            iterable = list(iterable)
-
+        self._collected = False
         self._items = iterable

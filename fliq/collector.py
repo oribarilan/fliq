@@ -1,4 +1,4 @@
-from typing import Iterable, Optional, Any, Sized, List
+from typing import Iterable, Optional, Any, Sized, List, Generator
 
 from fliq.carrier import Carrier
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
@@ -9,7 +9,11 @@ class Collector(Carrier):
     def __init__(self, iterable: Iterable):
         super().__init__(iterable)
 
-    def all(self) -> Iterable:
+    def collect(self) -> Iterable:
+        if self._collected:
+            raise StopIteration()
+        self._collected = True
+
         items = self._items
         while self._carries:
             c = self._carries.pop(0)
@@ -18,12 +22,17 @@ class Collector(Carrier):
 
     def get(self, predicate: Optional[Predicate] = None) -> Any:
         self.where(predicate)
-        count = self.count()
-        if count == 0:
+        try:
+            first = next(self.collect())
+        except StopIteration:
             raise NoItemsFoundException()
-        elif count > 1:
-            raise MultipleItemsFoundException()
-        return self.first()
+
+        try:
+            next(self.collect())
+        except StopIteration:
+            return first
+
+        raise MultipleItemsFoundException()
 
     def first(self, predicate: Optional[Predicate] = None) -> Any:
         """
@@ -35,7 +44,7 @@ class Collector(Carrier):
         """
         self.where(predicate)
         try:
-            return next(iter(self.all()))
+            return next(iter(self.collect()))
         except StopIteration:
             raise NoItemsFoundException()
 
@@ -55,7 +64,7 @@ class Collector(Carrier):
             return default
 
     def count(self) -> int:
-        iterable = self.all()
+        iterable = self.collect()
 
         # If the iterable is sized, return the length
         if isinstance(iterable, Sized):
@@ -65,4 +74,4 @@ class Collector(Carrier):
         return sum(1 for _ in iterable)
 
     def to_list(self) -> List:
-        return list(self.all())
+        return list(self.collect())
