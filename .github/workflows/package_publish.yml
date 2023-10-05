@@ -2,10 +2,9 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
 name: Upload Python Package
 
-on: [push]
-#on:
-#  release:
-#    types: [published]
+on:
+  release:
+    types: [published]
 
 jobs:
   deploy:
