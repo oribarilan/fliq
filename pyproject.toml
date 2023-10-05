@@ -1,0 +1,23 @@
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel", "setuptools_scm>=6.3.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fliq"
+version = "0.1.0"
+description = "Fluent-based Lazily-evaluated Integrated Query for Python"
+readme = "README.md"
+authors = [{ name = "Ori Bar-ilan", email = "python.oplog@gmail.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["fliq", "lazy", "fluent", "lisp", "linq"]
+dependencies = [
+]
+requires-python = ">=3.9"
+
+[project.urls]
+Homepage = "https://github.com/oribarilan/fliq"
