@@ -1,7 +1,7 @@
 import typing
 from typing import Callable, Any, Iterable, Optional, List, Union
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from fliq.query import Query
 
 from fliq.carry import Carry

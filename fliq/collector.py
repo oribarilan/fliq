@@ -1,4 +1,4 @@
-from typing import Iterable, Optional, Any, Sized, List, Generator
+from typing import Iterable, Optional, Any, Sized, List, Iterator
 
 from fliq.carrier import Carrier
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
@@ -9,16 +9,14 @@ class Collector(Carrier):
     def __init__(self, iterable: Iterable):
         super().__init__(iterable)
 
-    def collect(self) -> Iterable:
-        if self._collected:
-            raise StopIteration()
-        self._collected = True
-
+    def collect(self) -> Iterator:
         items = self._items
         while self._carries:
             c = self._carries.pop(0)
             items = c(items)
-        return (i for i in items)
+
+        self._items = (i for i in items)
+        return self._items
 
     def get(self, predicate: Optional[Predicate] = None) -> Any:
         self.where(predicate)

@@ -1,4 +1,3 @@
-from types import GeneratorType
 from typing import Iterable
 
 
@@ -7,5 +6,7 @@ class QueryBase:
         if iterable is None:
             raise TypeError("iterable cannot be None")
 
-        self._collected = False
+        if not isinstance(iterable, Iterable):
+            raise TypeError("iterable must be an iterable")
+
         self._items = iterable
