@@ -1,12 +1,15 @@
 import collections.abc
-from collections import deque
-from typing import Iterable, List, Optional, Union, Callable, Any, Sized, Iterator
+from typing import Iterable, List, Optional, Callable, Any, Sized, Iterator
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate
 
 
 class Query(collections.abc.Iterable):
+    def __init__(self, iterable: Iterable):
+        self._items = iterable
+        self._internal_iter: Iterator = None
+
     def __iter__(self):
         if self._internal_iter is None:
             self._internal_iter = iter(self.collect())
@@ -17,34 +20,20 @@ class Query(collections.abc.Iterable):
             self._internal_iter = iter(self.collect())
         return next(self._internal_iter)
 
-    def __init__(self, iterable: Iterable):
-        self._items = iterable
-        self._carries: deque = deque()
-        self._internal_iter: Iterator = None
-
-    def where(self, predicate: Optional[Predicate] = None) -> Union['Query', 'Carrier']:
+    def where(self, predicate: Optional[Predicate] = None) -> 'Query':
         if predicate is None:
             # supported to ease syntax in higher level carriers and collectors
             return self
 
-        def where_wrapper(iterable: Iterable) -> Iterable:
-            return filter(predicate, iterable)
-        self._carries.append(where_wrapper)
+        self._items = filter(predicate, self._items)
         return self
 
-    def select(self, selector: Callable[[Any], Any]) -> Union['Query', 'Carrier']:
-        def select_wrapper(iterable: Iterable) -> Iterable:
-            return map(selector, iterable)
-        self._carries.append(select_wrapper)
+    def select(self, selector: Callable[[Any], Any]) -> 'Query':
+        self._items = map(selector, self._items)
         return self
 
-    def collect(self) -> Iterator:
-        items = self._items
-        while self._carries:
-            c = self._carries.popleft()
-            items = c(items)
-
-        return items
+    def collect(self) -> Iterable:
+        return self._items
 
     def get(self, predicate: Optional[Predicate] = None) -> Any:
         self.where(predicate)

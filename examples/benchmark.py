@@ -28,8 +28,8 @@ def using_standard_lib(num: int):
 results = []
 for b in [100, 1000, 10_000, 100_000, 1_000_000]:
     print(f"running benchmark: {b} items")
-    fliq_time = timeit.timeit(using_fliq(b), number=50)
-    std_lib_time = timeit.timeit(using_standard_lib(b), number=50)
+    fliq_time = timeit.timeit(using_fliq(b), number=100)
+    std_lib_time = timeit.timeit(using_standard_lib(b), number=100)
     print(f"Using fliq: {fliq_time:.5f} seconds")
     print(f"Using standard lib: {std_lib_time:.5f} seconds")
     print(f"Ratio: fliq is {fliq_time / std_lib_time:.2f} times slower")
