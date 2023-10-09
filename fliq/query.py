@@ -1,33 +1,41 @@
+import collections.abc
 from collections import deque
 from typing import Iterable, List, Optional, Union, Callable, Any, Sized, Iterator
 
-from fliq.collector import Collector
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate
 
 
-class Query:
+class Query(collections.abc.Iterable):
     def __iter__(self):
-        return self.collect()
+        if self._internal_iter is None:
+            self._internal_iter = iter(self.collect())
+        return self
+
+    def __next__(self):
+        if self._internal_iter is None:
+            self._internal_iter = iter(self.collect())
+        return next(self._internal_iter)
 
     def __init__(self, iterable: Iterable):
-        if not isinstance(iterable, Iterable):
-            raise TypeError(f"Expected an iterable, got {type(iterable)}")
         self._items = iterable
         self._carries: deque = deque()
+        self._internal_iter: Iterator = None
 
     def where(self, predicate: Optional[Predicate] = None) -> Union['Query', 'Carrier']:
         if predicate is None:
             # supported to ease syntax in higher level carriers and collectors
             return self
 
-        c = lambda iterable: filter(predicate, iterable)
-        self._carries.append(c)
+        def where_wrapper(iterable: Iterable) -> Iterable:
+            return filter(predicate, iterable)
+        self._carries.append(where_wrapper)
         return self
 
     def select(self, selector: Callable[[Any], Any]) -> Union['Query', 'Carrier']:
-        c = lambda iterable: map(selector, iterable)
-        self._carries.append(c)
+        def select_wrapper(iterable: Iterable) -> Iterable:
+            return map(selector, iterable)
+        self._carries.append(select_wrapper)
         return self
 
     def collect(self) -> Iterator:
@@ -36,18 +44,17 @@ class Query:
             c = self._carries.popleft()
             items = c(items)
 
-        self._items = (i for i in items)
-        return self._items
+        return items
 
     def get(self, predicate: Optional[Predicate] = None) -> Any:
         self.where(predicate)
         try:
-            first = next(self.collect())
+            first = next(self)
         except StopIteration:
             raise NoItemsFoundException()
 
         try:
-            next(self.collect())
+            next(self)
         except StopIteration:
             return first
 
