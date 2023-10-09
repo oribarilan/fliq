@@ -11,6 +11,8 @@ class Query:
         return self.collect()
 
     def __init__(self, iterable: Iterable):
+        if not isinstance(iterable, Iterable):
+            raise TypeError(f"Expected an iterable, got {type(iterable)}")
         self._items = iterable
         self._carries: deque = deque()
 
