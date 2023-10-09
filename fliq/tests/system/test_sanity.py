@@ -15,5 +15,10 @@ class TestSanity(TestCase):
         self.items = (Item(i, i % 5) for i in range(100))
 
     def test_sanity(self):
-        price = q(self.items).where(lambda x: x.price > 50).select(lambda x: x.price).first_or_default(default=0)
+        price = (
+            q(self.items)
+            .where(lambda x: x.price > 50)
+            .select(lambda x: x.price)
+            .first_or_default(default=0)
+        )
         assert price == 51

@@ -17,12 +17,21 @@ def gen_data(num: int):
 
 
 def using_fliq(num: int):
-    return lambda: q(gen_data(num)).where(lambda p: p.age > 25).select(lambda p: p.name).select(lambda name: name[-1]).first_or_default(default=Person("No one", 0))
+    return lambda: (
+        q(gen_data(num))
+        .where(lambda p: p.age > 25)
+        .select(lambda p: p.name)
+        .select(lambda name: name[-1])
+        .first_or_default(default=Person("No one", 0))
+    )
 
 
 # Standard library
 def using_standard_lib(num: int):
-    return lambda: next(map(lambda name: name[-1], map(lambda p: p.name, filter(lambda p: p.age > 25, gen_data(num))))) or Person("No one", 0)
+    return lambda: next(
+        map(lambda name: name[-1],
+            map(lambda p: p.name,
+                filter(lambda p: p.age > 25, gen_data(num))))) or Person("No one", 0)
 
 
 results = []
@@ -36,4 +45,5 @@ for b in [100, 1000, 10_000, 100_000, 1_000_000]:
     results.append(fliq_time / std_lib_time)
     print()
 
-print(f"on avg, fliq is {sum(results) / len(results):.2f} times slower than standard lib")
+print(f"on avg, fliq is {sum(results) / len(results):.2f} "
+      f"times slower than standard lib")

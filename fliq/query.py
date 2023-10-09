@@ -8,7 +8,7 @@ from fliq.types import Predicate
 class Query(collections.abc.Iterable):
     def __init__(self, iterable: Iterable):
         self._items = iterable
-        self._internal_iter: Iterator = None
+        self._internal_iter: Optional[Iterator] = None
 
     def __iter__(self):
         if self._internal_iter is None:
@@ -79,14 +79,12 @@ class Query(collections.abc.Iterable):
             return default
 
     def count(self) -> int:
-        iterable = self.collect()
-
         # If the iterable is sized, return the length
-        if isinstance(iterable, Sized):
-            return len(iterable)
+        if isinstance(self._items, Sized):
+            return len(self._items)
 
         # Otherwise, iterate over the iterable
-        return sum(1 for _ in iterable)
+        return sum(1 for _ in self._items)
 
     def to_list(self) -> List:
-        return list(self.collect())
+        return list(self)
