@@ -2,27 +2,38 @@ from dataclasses import dataclass
 from fliq import q
 import timeit
 
+
 @dataclass
 class Person:
     name: str
     age: int
 
 
-people = [Person(f"Person {i}", i) for i in range(10_000_000)]
+big_experiment = 10_000_000
+small_experiment = 100
 
 
-def using_fliq():
-    return q(people).where(lambda p: p.age > 25).select(lambda p: p.name).select(lambda name: name[-1]).first_or_default(default=Person("No one", 0))
+def gen_data(num: int):
+    return (Person(f"Person {i}", i) for i in range(num))
+
+
+# get the last letter of the name of the first person over 25 years old
+
+
+def using_fliq(num: int):
+    return lambda: q(gen_data(num)).where(lambda p: p.age > 25).select(lambda p: p.name).select(lambda name: name[-1]).first_or_default(default=Person("No one", 0))
 
 
 # Standard library
-def using_standard_lib():
-    return next(map(lambda name: name[-1], map(lambda p: p.name, filter(lambda p: p.age > 25, people)))) or Person("No one", 0)
+def using_standard_lib(num: int):
+    return lambda: next(map(lambda name: name[-1], map(lambda p: p.name, filter(lambda p: p.age > 25, gen_data(num))))) or Person("No one", 0)
 
 
-# Benchmark
-fliq_time = timeit.timeit(using_fliq, number=10000)
-std_lib_time = timeit.timeit(using_standard_lib, number=10000)
-
-print(f"Using fliq: {fliq_time:.5f} seconds")
-print(f"Using standard lib: {std_lib_time:.5f} seconds")
+for b in [100, 1000, 10_000, 100_000, 1_000_000, 10_000_000]:
+    print(f"running benchmark: {b} items")
+    fliq_time = timeit.timeit(using_fliq(b), number=10000)
+    std_lib_time = timeit.timeit(using_standard_lib(b), number=10000)
+    print(f"Using fliq: {fliq_time:.5f} seconds")
+    print(f"Using standard lib: {std_lib_time:.5f} seconds")
+    print(f"Ratio: fliq is {fliq_time / std_lib_time:.2f} times slower")
+    print()
