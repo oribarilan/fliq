@@ -14,7 +14,7 @@ small_experiment = 100
 
 
 def gen_data(num: int):
-    return (Person(f"Person {i}", i) for i in range(num))
+    return [Person(f"Person {i}", i) for i in range(num)]
 
 
 # get the last letter of the name of the first person over 25 years old
@@ -28,11 +28,12 @@ def using_fliq(num: int):
 def using_standard_lib(num: int):
     return lambda: next(map(lambda name: name[-1], map(lambda p: p.name, filter(lambda p: p.age > 25, gen_data(num))))) or Person("No one", 0)
 
+
 results = []
 for b in [100, 1000, 10_000, 100_000, 1_000_000, 10_000_000]:
     print(f"running benchmark: {b} items")
-    fliq_time = timeit.timeit(using_fliq(b), number=10000)
-    std_lib_time = timeit.timeit(using_standard_lib(b), number=10000)
+    fliq_time = timeit.timeit(using_fliq(b), number=100)
+    std_lib_time = timeit.timeit(using_standard_lib(b), number=100)
     print(f"Using fliq: {fliq_time:.5f} seconds")
     print(f"Using standard lib: {std_lib_time:.5f} seconds")
     print(f"Ratio: fliq is {fliq_time / std_lib_time:.2f} times slower")
