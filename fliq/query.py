@@ -20,6 +20,8 @@ class Query(collections.abc.Iterable):
             self._iterator = iter(self._items)
         return next(self._iterator)
 
+    # region Carriers
+
     def where(self, predicate: Optional[Predicate] = None) -> 'Query':
         if predicate is None:
             # supported to ease syntax in higher level carriers and collectors
@@ -31,6 +33,14 @@ class Query(collections.abc.Iterable):
     def select(self, selector: Callable[[Any], Any]) -> 'Query':
         self._items = map(selector, self._items)
         return self
+
+    def exclude(self, predicate: Predicate) -> 'Query':
+        self._items = filter(lambda x: not predicate(x), self._items)
+        return self
+
+    # endregion
+
+    # region Collectors
 
     def get(self, predicate: Optional[Predicate] = None) -> Any:
         self.where(predicate)
@@ -85,3 +95,5 @@ class Query(collections.abc.Iterable):
 
     def to_list(self) -> List:
         return list(self)
+
+    # endregion
