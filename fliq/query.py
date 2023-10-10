@@ -38,6 +38,14 @@ class Query(collections.abc.Iterable):
         self._items = filter(lambda x: not predicate(x), self._items)
         return self
 
+    def distinct(self, preserve_order: bool = True) -> 'Query':
+        """
+        Yields distinct elements from iterable, preserving order if specified.
+        :param preserve_order: Optional. Whether to preserve the order of the items. Defaults to True.
+        """
+        self._items = dict.fromkeys(self._items).keys() if preserve_order else set(self._items)
+        return self
+
     # endregion
 
     # region Collectors

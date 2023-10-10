@@ -20,8 +20,8 @@ class TestCarrierExclude:
         assert list(q(iterable).exclude(lambda x: int(x) < 1)) == iterable_list[1:]
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
-    def test_exclude_hasSingleItem(self,
-                                   iter_type,
-                                   iterable,
-                                   iterable_list):
+    def test_exclude_hasMultipleItem(self,
+                                     iter_type,
+                                     iterable,
+                                     iterable_list):
         assert list(q(iterable).exclude(lambda x: int(x) < 1)) == iterable_list[1:]

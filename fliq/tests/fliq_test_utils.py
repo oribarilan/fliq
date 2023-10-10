@@ -100,6 +100,19 @@ class Params:
         ]
 
     @staticmethod
+    def iterable_multi_dup():
+        """
+        type_name, iterable, iterable_list
+        """
+        return [
+            ("list", [0, 1, 2, 1, 3, 3, 4], [0, 1, 2, 1, 3, 3, 4]),
+            ("generator", (i for i in [0, 1, 2, 1, 3, 3, 4]), [0, 1, 2, 1, 3, 3, 4]),
+            ("tuple", (0, 1, 2, 1, 3, 3, 4), [0, 1, 2, 1, 3, 3, 4]),
+            ("set", {0, 1, 2, 3, 4}, [0, 1, 2, 3, 4]),
+            ("str", "0121334", ['0', '1', '2', '1', '3', '3', '4']),
+        ]
+
+    @staticmethod
     def iterable_multi():
         """
         type_name, iterable, iterable_list
