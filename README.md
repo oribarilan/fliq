@@ -11,3 +11,33 @@ Abstraction overhead is kept to a minimum, keeping CPython performance.
 - **Lazy**: All operations are lazy, and only evaluated when needed. 
 This provides a performance boost for cases where user would have used list-comprehension otherwise.
 - **Compatible**: Compatible with APIs consuming iterables.
+
+## Roadmap:
+### Carriers
+- [x] where (aka filter)
+- [x] select (aka map)
+- [ ] exclude  
+- [ ] distinct
+- [ ] group_by
+- [ ] order_by
+- [ ] reverse
+- [ ] skip
+- [ ] take
+- [ ] zip
+- [ ] remove
+- [ ] append
+- [ ] prepend
+- [ ] concat
+
+### Collectors
+- [x] first
+- [x] first_or_default
+- [x] get
+- [x] to_list
+- [x] count
+- [ ] any
+- [ ] all
+- [ ] sum
+- [ ] min
+- [ ] max
+- [ ] average
