@@ -16,7 +16,7 @@ This provides a performance boost for cases where user would have used list-comp
 ### Carriers
 - [x] where (aka filter)
 - [x] select (aka map)
-- [ ] exclude  
+- [ ] exclude (aka where_not) 
 - [ ] distinct
 - [ ] group_by
 - [ ] order_by
