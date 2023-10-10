@@ -2,6 +2,12 @@
 
 Fluent-syntax Lazily-evaluated Integrated Query.
 
+Fliq is a lightweight Python library for high-performance processing of iterables,
+inspired by [Django's ORM](https://docs.djangoproject.com/en/4.2/topics/db/queries/)
+and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/).
+It provides a fluent syntax for lazily-evaluated operations on iterables, 
+and it is tested to have on-par performance with the standard library.
+
 Fluent is:
 
 - **Readable & Easy**: Designed for readability and ease of use. Using fluent syntax.

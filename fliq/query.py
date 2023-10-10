@@ -1,5 +1,5 @@
 import collections.abc
-from typing import Iterable, List, Optional, Callable, Any, Sized, Iterator
+from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate
@@ -8,17 +8,17 @@ from fliq.types import Predicate
 class Query(collections.abc.Iterable):
     def __init__(self, iterable: Iterable):
         self._items = iterable
-        self._internal_iter: Optional[Iterator] = None
+        self._iterator: Optional[Iterator] = None
 
     def __iter__(self):
-        if self._internal_iter is None:
-            self._internal_iter = iter(self.collect())
+        if self._iterator is None:
+            self._iterator = iter(self._items)
         return self
 
     def __next__(self):
-        if self._internal_iter is None:
-            self._internal_iter = iter(self.collect())
-        return next(self._internal_iter)
+        if self._iterator is None:
+            self._iterator = iter(self._items)
+        return next(self._iterator)
 
     def where(self, predicate: Optional[Predicate] = None) -> 'Query':
         if predicate is None:
@@ -31,9 +31,6 @@ class Query(collections.abc.Iterable):
     def select(self, selector: Callable[[Any], Any]) -> 'Query':
         self._items = map(selector, self._items)
         return self
-
-    def collect(self) -> Iterable:
-        return self._items
 
     def get(self, predicate: Optional[Predicate] = None) -> Any:
         self.where(predicate)
@@ -59,7 +56,7 @@ class Query(collections.abc.Iterable):
         """
         self.where(predicate)
         try:
-            return next(iter(self.collect()))
+            return next(iter(self))
         except StopIteration:
             raise NoItemsFoundException()
 
