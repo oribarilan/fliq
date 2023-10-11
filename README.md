@@ -23,9 +23,9 @@ This provides a performance boost for cases where user would have used list-comp
 - [x] where (aka filter)
 - [x] select (aka map)
 - [x] exclude (aka where_not) 
-- [ ] distinct
+- [x] distinct
 - [ ] group_by
-- [ ] order_by
+- [x] order_by
 - [ ] reverse
 - [ ] skip
 - [ ] take

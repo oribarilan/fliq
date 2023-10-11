@@ -21,3 +21,6 @@ requires-python = ">=3.9"
 
 [project.urls]
 Homepage = "https://github.com/oribarilan/fliq"
+
+[tool.ruff]
+line-length = 100  # defaults to 88 like black

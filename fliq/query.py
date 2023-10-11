@@ -40,11 +40,31 @@ class Query(collections.abc.Iterable):
 
     def distinct(self, preserve_order: bool = True) -> 'Query':
         """
-        Yields distinct elements from iterable, preserving order if specified.
-        :param preserve_order: Optional. Whether to preserve the order of the items. Defaults to True.
+        Yields distinct elements, preserving order if specified.
+        :param preserve_order: Optional. Whether to
+            preserve the order of the items. Defaults to True.
         """
         self._items = dict.fromkeys(self._items).keys() if preserve_order else set(self._items)
         return self
+
+    def order_by(self,
+                 selector: Optional[Callable[[Any], Any]] = None,
+                 ascending: bool = True) -> 'Query':
+        """
+        Yields sorted elements in an ascending or descending order,
+            based on the selector or default ordering.
+        :param selector: Optional. The selector to sort the iterable by.
+            If not provided, default ordering is used.
+        :param ascending: Optional. Whether to sort in ascending or
+            descending order. Defaults to ascending.
+        """
+        if selector is None:
+            # natural order
+            self._items = sorted(self._items, reverse=not ascending)
+        else:
+            self._items = sorted(self._items, key=selector, reverse=not ascending)
+        return self
+
 
     # endregion
 

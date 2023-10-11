@@ -34,10 +34,11 @@ class TestCarrierDistinct:
         assert list(q(iterable).distinct(preserve_order=True)) == sorted(list(set(iterable_list)))
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi_dup())
-    def test_exclude_hasMultipleItemsWithDups_preserveOrder(self,
-                                                            iter_type,
-                                                            iterable,
-                                                            iterable_list):
+    def test_exclude_hasMultipleItemsWithDups_noPreserveOrder(
+            self,
+            iter_type,
+            iterable,
+            iterable_list):
         items = set(q(iterable).distinct(preserve_order=False))
         assert items == set(iterable_list)
         assert len(items) == len(set(iterable_list))
