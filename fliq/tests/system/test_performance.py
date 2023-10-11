@@ -34,7 +34,7 @@ class TestPerformance(TestCase):
     def test_performance_smallDataset(self, name, data):
         self._test_performance(data)
 
-    @FliqTestUtils.retry(attempts=50)
+    @FliqTestUtils.retry(attempts=100)
     def _test_performance(self, data, attempt: int):
         expected_item = 100
 

@@ -26,7 +26,7 @@ This provides a performance boost for cases where user would have used list-comp
 - [x] distinct
 - [ ] group_by
 - [x] order_by
-- [ ] reverse
+- [x] reverse
 - [ ] skip
 - [ ] take
 - [ ] zip

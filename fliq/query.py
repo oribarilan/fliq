@@ -65,6 +65,19 @@ class Query(collections.abc.Iterable):
             self._items = sorted(self._items, key=selector, reverse=not ascending)
         return self
 
+    def reverse(self) -> 'Query':
+        """
+        Yields elements in reverse order.
+        Notes:
+         - in case of an irreversible iterable, TypeError is raised (e.g., set)
+         - in case of a generator, the iterable is first converted to a list, then reversed,
+            this has a performance impact, and assume a finite generator
+        """
+        if isinstance(self._items, collections.abc.Generator):
+            self._items = reversed(list(self._items))
+        else:
+            self._items = reversed(self._items)  # type: ignore
+        return self
 
     # endregion
 
