@@ -4,7 +4,7 @@ from fliq.tests.fliq_test_utils import Params
 from fliq import q
 
 
-class TestCarrierExclude:
+class TestStreamerExclude:
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_empty())
     def test_exclude_hasNoItems(self,
                                 iter_type,

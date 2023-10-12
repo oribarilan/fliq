@@ -4,7 +4,7 @@ from fliq import q
 from fliq.tests.fliq_test_utils import Params
 
 
-class TestCarrierOrderBy:
+class TestStreamerOrderBy:
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_empty())
     def test_orderBy_hasNoItems(self,
                                 iter_type,

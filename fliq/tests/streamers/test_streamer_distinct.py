@@ -4,7 +4,7 @@ from fliq import q
 from fliq.tests.fliq_test_utils import Params
 
 
-class TestCarrierDistinct:
+class TestStreamerDistinct:
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_empty())
     def test_distinct_hasNoItems(self,
                                  iter_type,

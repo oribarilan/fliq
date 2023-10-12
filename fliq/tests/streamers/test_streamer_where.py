@@ -4,7 +4,7 @@ from fliq.tests.fliq_test_utils import Params
 from fliq import q
 
 
-class TestCarrierWhere:
+class TestStreamerWhere:
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_empty())
     def test_where_hasNoItems_withPredicate(self,
                                             iter_type,

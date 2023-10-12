@@ -1,8 +1,13 @@
 import collections.abc
+import typing
+from itertools import islice
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate
+
+if typing.TYPE_CHECKING:
+    from fliq import q  # noqa: F401 (used in docs)  # pragma: no cover
 
 
 class Query(collections.abc.Iterable):
@@ -20,11 +25,11 @@ class Query(collections.abc.Iterable):
             self._iterator = iter(self._items)
         return next(self._iterator)
 
-    # region Carriers
+    # region Streamers
 
     def where(self, predicate: Optional[Predicate] = None) -> 'Query':
         if predicate is None:
-            # supported to ease syntax in higher level carriers and collectors
+            # supported to ease syntax in higher level streamers and collectors
             return self
 
         self._items = filter(predicate, self._items)
@@ -77,6 +82,19 @@ class Query(collections.abc.Iterable):
             self._items = reversed(list(self._items))
         else:
             self._items = reversed(self._items)  # type: ignore
+        return self
+
+    def slice(self, start: int = 0, stop: Optional[int] = None, step: int = 1) -> 'Query':
+        """
+        Yields a slice of the iterable.
+        Examples:
+            >>> q(range(10)).slice(start=1, stop=6, step=2)
+            [1, 3, 5]
+        :param start: Optional. The start index of the slice. Defaults to 0.
+        :param stop: Optional. The stop index of the slice. Defaults to None.
+        :param step: Optional. The step of the slice. Defaults to 1.
+        """
+        self._items = islice(self._items, start, stop, step)
         return self
 
     # endregion

@@ -31,7 +31,7 @@ query_module = [m for m in modules if m.name == 'query'][0]
 query_class = [c for c in query_module.members if c.name == 'Query'][0]
 
 query_carrier = copy(query_class)
-query_carrier.name = 'Carriers'
+query_carrier.name = 'Streamers'
 query_carrier.members = [m for m in query_class.members
                          if not m.name.startswith('_') and m.return_type == "'Query'"]
 
@@ -51,7 +51,8 @@ with open(api_md_path, 'w') as f:
     f.writelines(api_content)
 
 
-# merge api.md and readme_base.md to README.md, by replace {{autoapi}} in readme_base.md with api_content
+# merge api.md and readme_base.md to README.md,
+# by replace {{autoapi}} in readme_base.md with api_content
 def replace_autoapi_in_readme(content: str) -> str:
     with open(readme_base_md_path, 'r') as readme_base:
         readme_template = readme_base.read()

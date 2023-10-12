@@ -30,7 +30,7 @@ This provides a performance boost for cases where user would have used list-comp
 {{auto_api}}
 
 ## Roadmap
-### Carriers
+### Streamers
 - [x] where (aka filter)
 - [x] select (aka map)
 - [x] exclude (aka where_not) 
@@ -38,7 +38,9 @@ This provides a performance boost for cases where user would have used list-comp
 - [ ] group_by
 - [x] order_by
 - [x] reverse
+- [x] slice
 - [ ] skip
+- [ ] skip_last
 - [ ] take
 - [ ] zip
 - [ ] remove
