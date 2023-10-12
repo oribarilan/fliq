@@ -30,5 +30,5 @@ check:
     just test-coverage
 
 # build and run docs
-docs:
-    mkdocs serve
+doc:
+    python scripts/generate_docs.py

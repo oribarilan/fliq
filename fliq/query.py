@@ -42,7 +42,7 @@ class Query(collections.abc.Iterable):
         """
         Yields distinct elements, preserving order if specified.
         :param preserve_order: Optional. Whether to
-            preserve the order of the items. Defaults to True.
+        preserve the order of the items. Defaults to True.
         """
         self._items = dict.fromkeys(self._items).keys() if preserve_order else set(self._items)
         return self
@@ -52,11 +52,11 @@ class Query(collections.abc.Iterable):
                  ascending: bool = True) -> 'Query':
         """
         Yields sorted elements in an ascending or descending order,
-            based on the selector or default ordering.
+        based on the selector or default ordering.
         :param selector: Optional. The selector to sort the iterable by.
-            If not provided, default ordering is used.
+        If not provided, default ordering is used.
         :param ascending: Optional. Whether to sort in ascending or
-            descending order. Defaults to ascending.
+        descending order. Defaults to ascending.
         """
         if selector is None:
             # natural order
@@ -71,7 +71,7 @@ class Query(collections.abc.Iterable):
         Notes:
          - in case of an irreversible iterable, TypeError is raised (e.g., set)
          - in case of a generator, the iterable is first converted to a list, then reversed,
-            this has a performance impact, and assume a finite generator
+         this has a performance impact, and assume a finite generator
         """
         if isinstance(self._items, collections.abc.Generator):
             self._items = reversed(list(self._items))
@@ -127,6 +127,11 @@ class Query(collections.abc.Iterable):
             return default
 
     def count(self) -> int:
+        """
+        Returns the number of elements in the iterable
+        :return: The number of the elemtns
+        :rtype: int
+        """
         # If the iterable is sized, return the length
         if isinstance(self._items, Sized):
             return len(self._items)
