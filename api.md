@@ -1,20 +1,20 @@
-* [Query Carriers Methods](#query.Query Carriers Methods)
+* [Carriers](#query.Carriers)
   * [where](#query.Query.where)
   * [select](#query.Query.select)
   * [exclude](#query.Query.exclude)
   * [distinct](#query.Query.distinct)
   * [order\_by](#query.Query.order_by)
   * [reverse](#query.Query.reverse)
-* [Query Collectors Methods](#query.Query Collectors Methods)
+* [Collectors](#query.Collectors)
   * [get](#query.Query.get)
   * [first](#query.Query.first)
   * [first\_or\_default](#query.Query.first_or_default)
   * [count](#query.Query.count)
   * [to\_list](#query.Query.to_list)
 
-<a id="query.Query Carriers Methods"></a>
+<a id="query.Carriers"></a>
 
-### Query Carriers Methods
+### Carriers
 
 <a id="query.Query.where"></a>
 
@@ -82,9 +82,9 @@ Notes:
  - in case of a generator, the iterable is first converted to a list, then reversed,
  this has a performance impact, and assume a finite generator
 
-<a id="query.Query Collectors Methods"></a>
+<a id="query.Collectors"></a>
 
-### Query Collectors Methods
+### Collectors
 
 <a id="query.Query.get"></a>
 

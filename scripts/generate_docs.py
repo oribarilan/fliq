@@ -6,11 +6,12 @@ from pydoc_markdown.contrib.loaders.python import PythonLoader
 from pydoc_markdown.contrib.renderers.markdown import MarkdownRenderer
 
 context = Context(directory='.')
+# loader = PythonLoader(search_path=['../fliq'])  # for debugging
 loader = PythonLoader(search_path=['fliq'])
 renderer = MarkdownRenderer(render_module_header=False,
                             descriptive_class_title=False,
                             classdef_code_block=False,
-                            # signature_with_def=False, # Bug here
+                            # signature_with_def=False, # Lib bug here, can't disable
                             render_toc=True,
                             render_toc_title=False,
                             header_level_by_type={
@@ -30,12 +31,12 @@ query_module = [m for m in modules if m.name == 'query'][0]
 query_class = [c for c in query_module.members if c.name == 'Query'][0]
 
 query_carrier = copy(query_class)
-query_carrier.name = 'Query Carriers Methods'
+query_carrier.name = 'Carriers'
 query_carrier.members = [m for m in query_class.members
                          if not m.name.startswith('_') and m.return_type == "'Query'"]
 
 query_collector = copy(query_class)
-query_collector.name = 'Query Collectors Methods'
+query_collector.name = 'Collectors'
 query_collector.members = [m for m in query_class.members
                            if not m.name.startswith('_') and m.return_type != "'Query'"]
 

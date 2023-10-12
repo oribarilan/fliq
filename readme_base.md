@@ -25,7 +25,7 @@ Abstraction overhead is kept to a minimum, keeping CPython performance.
 This provides a performance boost for cases where user would have used list-comprehension otherwise.
 - **Compatible**: Compatible with APIs consuming iterables.
 
-## API
+## Query (aka q) API
 
 {{auto_api}}
 
