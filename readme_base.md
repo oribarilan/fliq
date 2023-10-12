@@ -29,7 +29,7 @@ This provides a performance boost for cases where user would have used list-comp
 
 {{auto_api}}
 
-## Roadmap:
+## Roadmap
 ### Carriers
 - [x] where (aka filter)
 - [x] select (aka map)
