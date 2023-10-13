@@ -12,6 +12,9 @@ if typing.TYPE_CHECKING:
 
 class Query(collections.abc.Iterable):
     def __init__(self, iterable: Iterable):
+        """
+        Create a Query object to allow fluent iterable processing
+        """
         self._items = iterable
         self._iterator: Optional[Iterator] = None
 
@@ -28,6 +31,18 @@ class Query(collections.abc.Iterable):
     # region Streamers
 
     def where(self, predicate: Optional[Predicate] = None) -> 'Query':
+        """
+        Yields elements that satisfy the predicate (aka filter).
+
+        Example:
+            >>> q(range(10)).where(lambda x: x % 2 == 0)
+            [0, 2, 4, 6, 8]
+
+        Args:
+            <br />
+            predicate: Optional. The predicate to filter the iterable by. If None is
+            given, no filtering takes place.
+        """
         if predicate is None:
             # supported to ease syntax in higher level streamers and collectors
             return self
@@ -36,38 +51,71 @@ class Query(collections.abc.Iterable):
         return self
 
     def select(self, selector: Callable[[Any], Any]) -> 'Query':
+        """
+        Yields the result of applying the selector function to each element (aka map).
+
+        Example:
+            >>> q(range(5)).select(lambda x: x * 2 == 0)
+            [0, 2, 4, 6, 8, 10]
+
+        Args:
+            <br />
+            selector: The selector function to apply to each element.
+        """
         self._items = map(selector, self._items)
         return self
 
     def exclude(self, predicate: Predicate) -> 'Query':
+        """
+        Yields elements that do not satisfy the predicate.
+
+        Example:
+            >>> q(range(5)).exclude(lambda x: x > 3)
+            [0, 1, 2, 3]
+
+        Args:
+            <br />
+            predicate: The predicate to filter the iterable by.
+        """
         self._items = filter(lambda x: not predicate(x), self._items)
         return self
 
     def distinct(self, preserve_order: bool = True) -> 'Query':
         """
         Yields distinct elements, preserving order if specified.
-        :param preserve_order: Optional. Whether to
-        preserve the order of the items. Defaults to True.
+
+        Example:
+            >>> q([0, 1, 0, 2, 2]).distinct()
+            [0, 1, 2]
+
+        Args:
+            <br />
+            preserve_order: Optional. Whether to preserve the order of the items. Defaults to True.
         """
         self._items = dict.fromkeys(self._items).keys() if preserve_order else set(self._items)
         return self
 
-    def order_by(self,
-                 selector: Optional[Callable[[Any], Any]] = None,
-                 ascending: bool = True) -> 'Query':
+    def order(self,
+              by: Optional[Callable[[Any], Any]] = None,
+              ascending: bool = True) -> 'Query':
+        """Yields elements in sorted order.
+
+        Example:
+            >>> q([4, 3, 2, 1, 0]).order()
+            [0, 1, 2, 3, 4]
+
+        Args:
+            <br />
+            by: a selector function to extract the key from an item, defaults to None.
+            If None, the default ordering is used.
+            <br />
+            ascending: whether to sort in ascending or descending order, defaults to True.
         """
-        Yields sorted elements in an ascending or descending order,
-        based on the selector or default ordering.
-        :param selector: Optional. The selector to sort the iterable by.
-        If not provided, default ordering is used.
-        :param ascending: Optional. Whether to sort in ascending or
-        descending order. Defaults to ascending.
-        """
-        if selector is None:
+        if by is None:
             # natural order
             self._items = sorted(self._items, reverse=not ascending)
         else:
-            self._items = sorted(self._items, key=selector, reverse=not ascending)
+            self._items = sorted(self._items, key=by, reverse=not ascending)
         return self
 
     def reverse(self) -> 'Query':
@@ -77,6 +125,10 @@ class Query(collections.abc.Iterable):
          - in case of an irreversible iterable, TypeError is raised (e.g., set)
          - in case of a generator, the iterable is first converted to a list, then reversed,
          this has a performance impact, and assume a finite generator
+
+         Example:
+            >>> q([0, 1, 2, 3, 4]).order()
+            [4, 3, 2, 1, 0]
         """
         if isinstance(self._items, collections.abc.Generator):
             self._items = reversed(list(self._items))
@@ -90,9 +142,14 @@ class Query(collections.abc.Iterable):
         Examples:
             >>> q(range(10)).slice(start=1, stop=6, step=2)
             [1, 3, 5]
-        :param start: Optional. The start index of the slice. Defaults to 0.
-        :param stop: Optional. The stop index of the slice. Defaults to None.
-        :param step: Optional. The step of the slice. Defaults to 1.
+
+        Args:
+            <br />
+            start: Optional. The start index of the slice. Defaults to 0.
+            <br />
+            stop: Optional. The stop index of the slice. Defaults to None.
+            <br />
+            step: Optional. The step of the slice. Defaults to 1.
         """
         self._items = islice(self._items, start, stop, step)
         return self

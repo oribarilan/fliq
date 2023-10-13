@@ -3,7 +3,7 @@
   * [select](#query.Query.select)
   * [exclude](#query.Query.exclude)
   * [distinct](#query.Query.distinct)
-  * [order\_by](#query.Query.order_by)
+  * [order](#query.Query.order)
   * [reverse](#query.Query.reverse)
   * [slice](#query.Query.slice)
 * [Collectors](#query.Collectors)
@@ -25,6 +25,17 @@
 def where(predicate: Optional[Predicate] = None) -> 'Query'
 ```
 
+Yields elements that satisfy the predicate (aka filter).
+
+Example:
+    >>> q(range(10)).where(lambda x: x % 2 == 0)
+    [0, 2, 4, 6, 8]
+
+Args:
+    <br />
+    predicate: Optional. The predicate to filter the iterable by. If None is
+    given, no filtering takes place.
+
 <a id="query.Query.select"></a>
 
 ### select
@@ -33,6 +44,16 @@ def where(predicate: Optional[Predicate] = None) -> 'Query'
 def select(selector: Callable[[Any], Any]) -> 'Query'
 ```
 
+Yields the result of applying the selector function to each element (aka map).
+
+Example:
+    >>> q(range(5)).select(lambda x: x * 2 == 0)
+    [0, 2, 4, 6, 8, 10]
+
+Args:
+    <br />
+    selector: The selector function to apply to each element.
+
 <a id="query.Query.exclude"></a>
 
 ### exclude
@@ -40,6 +61,16 @@ def select(selector: Callable[[Any], Any]) -> 'Query'
 ```python
 def exclude(predicate: Predicate) -> 'Query'
 ```
+
+Yields elements that do not satisfy the predicate.
+
+Example:
+    >>> q(range(5)).exclude(lambda x: x > 3)
+    [0, 1, 2, 3]
+
+Args:
+    <br />
+    predicate: The predicate to filter the iterable by.
 
 <a id="query.Query.distinct"></a>
 
@@ -50,24 +81,36 @@ def distinct(preserve_order: bool = True) -> 'Query'
 ```
 
 Yields distinct elements, preserving order if specified.
-:param preserve_order: Optional. Whether to
-preserve the order of the items. Defaults to True.
 
-<a id="query.Query.order_by"></a>
+Example:
+    >>> q([0, 1, 0, 2, 2]).distinct()
+    [0, 1, 2]
 
-### order\_by
+Args:
+    <br />
+    preserve_order: Optional. Whether to preserve the order of the items. Defaults to True.
+
+<a id="query.Query.order"></a>
+
+### order
 
 ```python
-def order_by(selector: Optional[Callable[[Any], Any]] = None,
-             ascending: bool = True) -> 'Query'
+def order(by: Optional[Callable[[Any], Any]] = None,
+          ascending: bool = True) -> 'Query'
 ```
 
-Yields sorted elements in an ascending or descending order,
-based on the selector or default ordering.
-:param selector: Optional. The selector to sort the iterable by.
-If not provided, default ordering is used.
-:param ascending: Optional. Whether to sort in ascending or
-descending order. Defaults to ascending.
+Yields elements in sorted order.
+
+Example:
+    >>> q([4, 3, 2, 1, 0]).order()
+    [0, 1, 2, 3, 4]
+
+Args:
+    <br />
+    by: a selector function to extract the key from an item, defaults to None.
+    If None, the default ordering is used.
+    <br />
+    ascending: whether to sort in ascending or descending order, defaults to True.
 
 <a id="query.Query.reverse"></a>
 
@@ -83,6 +126,10 @@ Notes:
  - in case of a generator, the iterable is first converted to a list, then reversed,
  this has a performance impact, and assume a finite generator
 
+ Example:
+    >>> q([0, 1, 2, 3, 4]).order()
+    [4, 3, 2, 1, 0]
+
 <a id="query.Query.slice"></a>
 
 ### slice
@@ -97,9 +144,14 @@ Yields a slice of the iterable.
 Examples:
     >>> q(range(10)).slice(start=1, stop=6, step=2)
     [1, 3, 5]
-:param start: Optional. The start index of the slice. Defaults to 0.
-:param stop: Optional. The stop index of the slice. Defaults to None.
-:param step: Optional. The step of the slice. Defaults to 1.
+
+Args:
+    <br />
+    start: Optional. The start index of the slice. Defaults to 0.
+    <br />
+    stop: Optional. The stop index of the slice. Defaults to None.
+    <br />
+    step: Optional. The step of the slice. Defaults to 1.
 
 <a id="query.Collectors"></a>
 
