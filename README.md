@@ -15,7 +15,13 @@ and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/).
 It provides a fluent syntax for lazily-evaluated operations on iterables, 
 and it is tested to have on-par performance with the standard library.
 
-Fluent is:
+## Installation
+
+```shell
+pip install fliq
+````
+
+## Fliq
 
 - **Readable & Easy**: Designed for readability and ease of use. Using fluent syntax.
 - **Lightweight**: Thin wrapper for the standard library. No dependencies.
