@@ -168,9 +168,37 @@ class Query(collections.abc.Iterable):
         self._items = islice(self._items, start, stop, step)
         return self
 
+    def take(self, n: int, predicate: Optional[Predicate] = None) -> 'Query':
+        """
+        Yields up to n items that satisfies the predicate (if provided).
+        In case the iterable is ordered, the first n items are returned.
+        Args:
+            <br />
+            n: Optional. The number of items to take. Defaults to 1.
+            <br />
+            predicate: Optional. The predicate to filter the iterable by.
+        """
+        self.where(predicate)
+        self.slice(stop=n)
+        return self
+
     # endregion
 
     # region Collectors
+
+    def first(self, predicate: Optional[Predicate] = None) -> Any:
+        self.where(predicate)
+        try:
+            return next(self)
+        except StopIteration:
+            raise NoItemsFoundException()
+
+    def first_or_default(self, default: Any = None, predicate: Optional[Predicate] = None) -> Any:
+        self.where(predicate)
+        try:
+            return next(self)
+        except StopIteration:
+            return default
 
     def single(self, predicate: Optional[Predicate] = None) -> Any:
         self.where(predicate)
@@ -199,35 +227,6 @@ class Query(collections.abc.Iterable):
             return first
 
         raise MultipleItemsFoundException()
-
-    def first(self, predicate: Optional[Predicate] = None) -> Any:
-        """
-        Collector.
-        Returns the first item that satisfies the predicate (if provided).
-        This assumes at least one item exists in the query.
-        If no items exist, a NoItemsFoundException is raised.
-        :param predicate: Optional. The predicate to filter the iterable by.
-        """
-        self.where(predicate)
-        try:
-            return next(iter(self))
-        except StopIteration:
-            raise NoItemsFoundException()
-
-    def first_or_default(self,
-                         predicate: Optional[Predicate] = None,
-                         default: Any = None) -> Any:
-        """
-        Collector.
-        Returns the first item that satisfies the predicate (if provided).
-        If no items exist, the default value is returned (None, if not provided).
-        :param predicate: Optional. The predicate to filter the iterable by.
-        :param default: Optional. The default value to return if no items are found.
-        """
-        try:
-            return self.first(predicate)
-        except NoItemsFoundException:
-            return default
 
     def count(self) -> int:
         """

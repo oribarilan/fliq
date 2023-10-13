@@ -4,7 +4,7 @@ from fliq import q
 from fliq.tests.fliq_test_utils import Params
 
 
-class TestStreamerSkip:
+class TestStreamerSlice:
     # start
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_empty())
     def test_skip_empty_start(self, iter_type, iterable, iterable_list):

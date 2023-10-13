@@ -38,4 +38,4 @@ class TestCollectorFirstOrDefault:
                                                         iter_type,
                                                         iterable,
                                                         iterable_list):
-        assert q(iterable).first_or_default(lambda x: int(x) > 10) is None
+        assert q(iterable).first_or_default(predicate=lambda x: int(x) > 10) is None

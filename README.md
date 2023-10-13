@@ -278,8 +278,8 @@ def to_list() -> List
 - [x] order_by
 - [x] reverse
 - [x] slice
-- [ ] first
-- [ ] first_or_default
+- [x] first
+- [x] first_or_default
 - [ ] zip
 - [ ] remove
 - [ ] append
@@ -289,6 +289,8 @@ def to_list() -> List
 ### Collectors
 - [x] single
 - [x] single_or_default
+- [x] first
+- [x] first_or_default
 - [x] to_list
 - [x] count
 - [ ] any
