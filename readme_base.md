@@ -27,9 +27,8 @@ This provides a performance boost for cases where user would have used list-comp
 
 ## Query (aka q) API
 
-### Custom types
-
-```Predicate = Callable[[Any], bool]```
+Note that API docs may contain custom types to improve readability:
+- Predicates. ```Predicate = Callable[[Any], bool]```
 
 {{auto_api}}
 
