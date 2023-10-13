@@ -35,7 +35,9 @@ class Query(collections.abc.Iterable):
         Yields elements that satisfy the predicate (aka filter).
 
         Example:
+            <br />
             >>> q(range(10)).where(lambda x: x % 2 == 0)
+            <br />
             [0, 2, 4, 6, 8]
 
         Args:
@@ -55,7 +57,9 @@ class Query(collections.abc.Iterable):
         Yields the result of applying the selector function to each element (aka map).
 
         Example:
+            <br />
             >>> q(range(5)).select(lambda x: x * 2 == 0)
+            <br />
             [0, 2, 4, 6, 8, 10]
 
         Args:
@@ -70,7 +74,9 @@ class Query(collections.abc.Iterable):
         Yields elements that do not satisfy the predicate.
 
         Example:
+            <br />
             >>> q(range(5)).exclude(lambda x: x > 3)
+            <br />
             [0, 1, 2, 3]
 
         Args:
@@ -85,7 +91,9 @@ class Query(collections.abc.Iterable):
         Yields distinct elements, preserving order if specified.
 
         Example:
+            <br />
             >>> q([0, 1, 0, 2, 2]).distinct()
+            <br />
             [0, 1, 2]
 
         Args:
@@ -101,7 +109,9 @@ class Query(collections.abc.Iterable):
         """Yields elements in sorted order.
 
         Example:
+            <br />
             >>> q([4, 3, 2, 1, 0]).order()
+            <br />
             [0, 1, 2, 3, 4]
 
         Args:
@@ -127,7 +137,9 @@ class Query(collections.abc.Iterable):
          this has a performance impact, and assume a finite generator
 
          Example:
+            <br />
             >>> q([0, 1, 2, 3, 4]).order()
+            <br />
             [4, 3, 2, 1, 0]
         """
         if isinstance(self._items, collections.abc.Generator):
@@ -140,7 +152,9 @@ class Query(collections.abc.Iterable):
         """
         Yields a slice of the iterable.
         Examples:
+            <br />
             >>> q(range(10)).slice(start=1, stop=6, step=2)
+            <br />
             [1, 3, 5]
 
         Args:
