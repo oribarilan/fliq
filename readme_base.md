@@ -27,6 +27,10 @@ This provides a performance boost for cases where user would have used list-comp
 
 ## Query (aka q) API
 
+### Custom types
+
+```Predicate = Callable[[Any], bool]```
+
 {{auto_api}}
 
 ## Roadmap
