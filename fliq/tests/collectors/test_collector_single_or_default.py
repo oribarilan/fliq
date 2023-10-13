@@ -1,7 +1,7 @@
 import pytest
 
 from fliq import q
-from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
+from fliq.exceptions import MultipleItemsFoundException
 from fliq.tests.fliq_test_utils import Params
 
 

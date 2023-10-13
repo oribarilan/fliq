@@ -1,8 +1,7 @@
 import pytest
 
-from fliq.exceptions import NotEnoughItemsFoundException
-from fliq.tests.fliq_test_utils import Params
 from fliq import q
+from fliq.tests.fliq_test_utils import Params
 
 
 class TestStreamerTake:
@@ -11,14 +10,14 @@ class TestStreamerTake:
                              iter_type,
                              iterable,
                              iterable_list):
-        assert list(q(iterable).take()) == iterable_list
+        assert list(q(iterable).take(n=5)) == iterable_list
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_single())
     def test_take_hasSingleItem(self,
                                 iter_type,
                                 iterable,
                                 iterable_list):
-        assert list(q(iterable).take()) == iterable_list
+        assert list(q(iterable).take(n=5)) == iterable_list
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
     def test_take_hasMultipleItems_withoutPredicate(self,
@@ -33,7 +32,7 @@ class TestStreamerTake:
                                                  iter_type,
                                                  iterable,
                                                  iterable_list):
-        query = q(iterable).take(predicate=lambda x: int(x) > 1)
+        query = q(iterable).take(n=1, predicate=lambda x: int(x) > 1)
         assert list(query) == iterable_list[2:3]
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
