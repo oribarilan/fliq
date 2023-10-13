@@ -241,6 +241,19 @@ class Query(collections.abc.Iterable):
         # Otherwise, iterate over the iterable
         return sum(1 for _ in self._items)
 
+    def any(self, predicate: Optional[Predicate] = None) -> bool:
+        """
+        Returns whether any element in the iterable evaluates to true.
+        If a predicate is provided, only elements that satisfy the predicate are considered.
+        Args:
+            predicate: Optional. The predicate to filter the iterable by.
+
+        Returns:
+            True if any element evaluates to true, False otherwise.
+        """
+        self.where(predicate)
+        return any(self._items)
+
     def to_list(self) -> List:
         return list(self)
 

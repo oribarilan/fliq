@@ -15,13 +15,7 @@ and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/).
 It provides a fluent syntax for lazily-evaluated operations on iterables, 
 and it is tested to have on-par performance with the standard library.
 
-## Installation
-
-```shell
-pip install fliq
-````
-
-## Fliq
+Fluent is:
 
 - **Readable & Easy**: Designed for readability and ease of use. Using fluent syntax.
 - **Lightweight**: Thin wrapper for the standard library. No dependencies.
@@ -44,11 +38,14 @@ Note that API docs may contain custom types to improve readability:
   * [order](#query.Query.order)
   * [reverse](#query.Query.reverse)
   * [slice](#query.Query.slice)
+  * [take](#query.Query.take)
 * [Collectors](#query.Collectors)
-  * [get](#query.Query.get)
   * [first](#query.Query.first)
   * [first\_or\_default](#query.Query.first_or_default)
+  * [single](#query.Query.single)
+  * [single\_or\_default](#query.Query.single_or_default)
   * [count](#query.Query.count)
+  * [any](#query.Query.any)
   * [to\_list](#query.Query.to_list)
 
 <a id="query.Streamers"></a>
@@ -205,17 +202,25 @@ Args:
     <br />
     step: Optional. The step of the slice. Defaults to 1.
 
+<a id="query.Query.take"></a>
+
+### take
+
+```python
+def take(n: int, predicate: Optional[Predicate] = None) -> 'Query'
+```
+
+Yields up to n items that satisfies the predicate (if provided).
+In case the iterable is ordered, the first n items are returned.
+Args:
+    <br />
+    n: Optional. The number of items to take. Defaults to 1.
+    <br />
+    predicate: Optional. The predicate to filter the iterable by.
+
 <a id="query.Collectors"></a>
 
 ### Collectors
-
-<a id="query.Query.get"></a>
-
-### get
-
-```python
-def get(predicate: Optional[Predicate] = None) -> Any
-```
 
 <a id="query.Query.first"></a>
 
@@ -225,26 +230,31 @@ def get(predicate: Optional[Predicate] = None) -> Any
 def first(predicate: Optional[Predicate] = None) -> Any
 ```
 
-Collector.
-Returns the first item that satisfies the predicate (if provided).
-This assumes at least one item exists in the query.
-If no items exist, a NoItemsFoundException is raised.
-:param predicate: Optional. The predicate to filter the iterable by.
-
 <a id="query.Query.first_or_default"></a>
 
 ### first\_or\_default
 
 ```python
-def first_or_default(predicate: Optional[Predicate] = None,
-                     default: Any = None) -> Any
+def first_or_default(default: Any = None,
+                     predicate: Optional[Predicate] = None) -> Any
 ```
 
-Collector.
-Returns the first item that satisfies the predicate (if provided).
-If no items exist, the default value is returned (None, if not provided).
-:param predicate: Optional. The predicate to filter the iterable by.
-:param default: Optional. The default value to return if no items are found.
+<a id="query.Query.single"></a>
+
+### single
+
+```python
+def single(predicate: Optional[Predicate] = None) -> Any
+```
+
+<a id="query.Query.single_or_default"></a>
+
+### single\_or\_default
+
+```python
+def single_or_default(predicate: Optional[Predicate] = None,
+                      default: Any = None) -> Any
+```
 
 <a id="query.Query.count"></a>
 
@@ -257,6 +267,22 @@ def count() -> int
 Returns the number of elements in the iterable
 :return: The number of the elemtns
 :rtype: int
+
+<a id="query.Query.any"></a>
+
+### any
+
+```python
+def any(predicate: Optional[Predicate] = None) -> bool
+```
+
+Returns whether any element in the iterable evaluates to true.
+If a predicate is provided, only elements that satisfy the predicate are considered.
+Args:
+    predicate: Optional. The predicate to filter the iterable by.
+
+Returns:
+    True if any element evaluates to true, False otherwise.
 
 <a id="query.Query.to_list"></a>
 
@@ -278,8 +304,9 @@ def to_list() -> List
 - [x] order_by
 - [x] reverse
 - [x] slice
-- [x] first
-- [x] first_or_default
+- [ ] skip
+- [ ] skip_last
+- [ ] take
 - [ ] zip
 - [ ] remove
 - [ ] append
@@ -287,10 +314,9 @@ def to_list() -> List
 - [ ] concat
 
 ### Collectors
-- [x] single
-- [x] single_or_default
 - [x] first
 - [x] first_or_default
+- [x] get
 - [x] to_list
 - [x] count
 - [ ] any
