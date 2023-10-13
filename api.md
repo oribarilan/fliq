@@ -29,9 +29,9 @@ Yields elements that satisfy the predicate (aka filter).
 
 Example:
     <br />
-    >>> q(range(10)).where(lambda x: x % 2 == 0)
+    `q(range(10)).where(lambda x: x % 2 == 0)`
     <br />
-    [0, 2, 4, 6, 8]
+    `[0, 2, 4, 6, 8]`
 
 Args:
     <br />
@@ -50,9 +50,9 @@ Yields the result of applying the selector function to each element (aka map).
 
 Example:
     <br />
-    >>> q(range(5)).select(lambda x: x * 2 == 0)
+    `q(range(5)).select(lambda x: x * 2 == 0)`
     <br />
-    [0, 2, 4, 6, 8, 10]
+    `[0, 2, 4, 6, 8, 10]`
 
 Args:
     <br />
@@ -70,9 +70,9 @@ Yields elements that do not satisfy the predicate.
 
 Example:
     <br />
-    >>> q(range(5)).exclude(lambda x: x > 3)
+    `q(range(5)).exclude(lambda x: x > 3)`
     <br />
-    [0, 1, 2, 3]
+    `[0, 1, 2, 3]`
 
 Args:
     <br />
@@ -90,9 +90,9 @@ Yields distinct elements, preserving order if specified.
 
 Example:
     <br />
-    >>> q([0, 1, 0, 2, 2]).distinct()
+    `q([0, 1, 0, 2, 2]).distinct()`
     <br />
-    [0, 1, 2]
+    `[0, 1, 2]`
 
 Args:
     <br />
@@ -111,9 +111,9 @@ Yields elements in sorted order.
 
 Example:
     <br />
-    >>> q([4, 3, 2, 1, 0]).order()
+    `q([4, 3, 2, 1, 0]).order()`
     <br />
-    [0, 1, 2, 3, 4]
+    `[0, 1, 2, 3, 4]`
 
 Args:
     <br />
@@ -138,9 +138,9 @@ Notes:
 
  Example:
     <br />
-    >>> q([0, 1, 2, 3, 4]).order()
+    `q([0, 1, 2, 3, 4]).order()`
     <br />
-    [4, 3, 2, 1, 0]
+    `[4, 3, 2, 1, 0]`
 
 <a id="query.Query.slice"></a>
 
@@ -155,9 +155,9 @@ def slice(start: int = 0,
 Yields a slice of the iterable.
 Examples:
     <br />
-    >>> q(range(10)).slice(start=1, stop=6, step=2)
+    `q(range(10)).slice(start=1, stop=6, step=2)`
     <br />
-    [1, 3, 5]
+    `[1, 3, 5]`
 
 Args:
     <br />
