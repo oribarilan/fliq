@@ -172,12 +172,26 @@ class Query(collections.abc.Iterable):
 
     # region Collectors
 
-    def get(self, predicate: Optional[Predicate] = None) -> Any:
+    def single(self, predicate: Optional[Predicate] = None) -> Any:
         self.where(predicate)
         try:
             first = next(self)
         except StopIteration:
             raise NoItemsFoundException()
+
+        try:
+            next(self)
+        except StopIteration:
+            return first
+
+        raise MultipleItemsFoundException()
+
+    def single_or_default(self, predicate: Optional[Predicate] = None, default: Any = None) -> Any:
+        self.where(predicate)
+        try:
+            first = next(self)
+        except StopIteration:
+            return default
 
         try:
             next(self)
