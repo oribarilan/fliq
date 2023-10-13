@@ -25,15 +25,20 @@ Abstraction overhead is kept to a minimum, keeping CPython performance.
 This provides a performance boost for cases where user would have used list-comprehension otherwise.
 - **Compatible**: Compatible with APIs consuming iterables.
 
-## API
+## Query (aka q) API
 
-* [Carriers](#query.Carriers)
+### Custom types
+
+```Predicate = Callable[[Any], bool]```
+
+* [Streamers](#query.Streamers)
   * [where](#query.Query.where)
   * [select](#query.Query.select)
   * [exclude](#query.Query.exclude)
   * [distinct](#query.Query.distinct)
   * [order\_by](#query.Query.order_by)
   * [reverse](#query.Query.reverse)
+  * [slice](#query.Query.slice)
 * [Collectors](#query.Collectors)
   * [get](#query.Query.get)
   * [first](#query.Query.first)
@@ -41,9 +46,9 @@ This provides a performance boost for cases where user would have used list-comp
   * [count](#query.Query.count)
   * [to\_list](#query.Query.to_list)
 
-<a id="query.Carriers"></a>
+<a id="query.Streamers"></a>
 
-### Carriers
+### Streamers
 
 <a id="query.Query.where"></a>
 
@@ -111,6 +116,24 @@ Notes:
  - in case of a generator, the iterable is first converted to a list, then reversed,
  this has a performance impact, and assume a finite generator
 
+<a id="query.Query.slice"></a>
+
+### slice
+
+```python
+def slice(start: int = 0,
+          stop: Optional[int] = None,
+          step: int = 1) -> 'Query'
+```
+
+Yields a slice of the iterable.
+Examples:
+    >>> q(range(10)).slice(start=1, stop=6, step=2)
+    [1, 3, 5]
+:param start: Optional. The start index of the slice. Defaults to 0.
+:param stop: Optional. The stop index of the slice. Defaults to None.
+:param step: Optional. The step of the slice. Defaults to 1.
+
 <a id="query.Collectors"></a>
 
 ### Collectors
@@ -174,8 +197,8 @@ def to_list() -> List
 
 
 
-## Roadmap:
-### Carriers
+## Roadmap
+### Streamers
 - [x] where (aka filter)
 - [x] select (aka map)
 - [x] exclude (aka where_not) 
@@ -183,7 +206,9 @@ def to_list() -> List
 - [ ] group_by
 - [x] order_by
 - [x] reverse
+- [x] slice
 - [ ] skip
+- [ ] skip_last
 - [ ] take
 - [ ] zip
 - [ ] remove
