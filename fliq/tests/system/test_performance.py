@@ -34,7 +34,7 @@ class TestPerformance(TestCase):
     def test_performance_smallDataset(self, name, data):
         self._test_performance(data)
 
-    @FliqTestUtils.retry(attempts=100)
+    @FliqTestUtils.retry(attempts=10)
     def _test_performance(self, data, attempt: int):
         expected_item = 100
 
@@ -54,6 +54,9 @@ class TestPerformance(TestCase):
             fliq_item,
             'Fliq query returned incorrect result'
         )
+        if abs(fliq_t.elapsed - baseline_t.elapsed) < 0.001:
+            # If the difference is less than 1ms, compare is not meaningful, due to noise
+            return
         FliqTestUtils.assertSmallerOrCloseTo(
             fliq_t.elapsed,
             baseline_t.elapsed,

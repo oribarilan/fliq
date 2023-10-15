@@ -30,7 +30,7 @@ class FliqTestUtils:
         assert actual_diff <= max_diff, (
             f"{a:.10f} and {b:.10f} "
             f"differ by more than {max_diff:.10f} ({tolerance * 100}%),"
-            f" actual difference: {actual_diff:.10f}"
+            f" actual difference: {actual_diff:.10f} ({actual_diff / a * 100}%)"
             f" {msg if msg else ''}"
         )
 
