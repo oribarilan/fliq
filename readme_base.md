@@ -93,8 +93,8 @@ Note that API docs may contain custom types to improve readability:
 - [x] get
 - [x] to_list
 - [x] count
-- [ ] any
-- [ ] all
+- [x] any
+- [x] all
 - [ ] sum
 - [ ] min
 - [ ] max

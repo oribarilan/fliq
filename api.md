@@ -14,6 +14,7 @@
   * [single\_or\_default](#query.Query.single_or_default)
   * [count](#query.Query.count)
   * [any](#query.Query.any)
+  * [all](#query.Query.all)
   * [to\_list](#query.Query.to_list)
 
 <a id="query.Streamers"></a>
@@ -251,6 +252,22 @@ Args:
 
 Returns:
     True if any element evaluates to true, False otherwise.
+
+<a id="query.Query.all"></a>
+
+### all
+
+```python
+def all(predicate: Optional[Predicate] = None) -> bool
+```
+
+Returns whether all elements in the iterable evaluate to true.
+If a predicate is provided, only elements that satisfy the predicate are considered.
+Args:
+    predicate: Optional. The predicate to filter the iterable by.
+
+Returns:
+    True if all elements evaluate to true, False otherwise.
 
 <a id="query.Query.to_list"></a>
 

@@ -10,11 +10,11 @@ class TestCollectorAny:
         assert not q(iterable).any()
 
     def test_any_hasSingleItem_integer(self):
-        assert not q([0, 0]).any()
+        assert not q([0]).any()
 
     def test_any_hasSingleItem_nones(self):
-        assert not q([None, None]).any()
+        assert not q([None]).any()
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
-    def test_get_hasMultipleItems(self, iter_type, iterable, iterable_list):
+    def test_any_hasMultipleItems(self, iter_type, iterable, iterable_list):
         assert q(iterable).any()
