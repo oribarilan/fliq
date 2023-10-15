@@ -8,7 +8,7 @@ Fluent-syntax Lazily-evaluated Integrated Query.
 [![coverage](https://img.shields.io/github/actions/workflow/status/oribarilan/fliq/coverage.yml?label=coverage%3E95%25)](https://github.com/oribarilan/fliq/actions/workflows/coverage.yml)
 
 [![Python Versions](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11-blue)](https://www.python.org/downloads/)
-[![PyPI - Version](https://img.shields.io/pypi/v/fliq?label=pypi%20version)]((https://pypi.org/project/fliq/))
+[![PyPI - Version](https://img.shields.io/pypi/v/fliq?label=pypi%20version)](https://pypi.org/project/fliq/)
 [![Downloads](https://img.shields.io/pypi/dm/fliq?link=https%3A%2F%2Fpypi.org%2Fproject%2Fop-log%2F)](https://pypi.org/project/fliq/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
