@@ -34,6 +34,33 @@ Abstraction overhead is kept to a minimum, keeping CPython performance.
 This provides a performance boost for cases where user would have used list-comprehension otherwise.
 - **Compatible**: Compatible with APIs consuming iterables.
 
+## Motivation
+
+What is the output of the following code?
+```python
+next(map(lambda x: x * 2, filter(lambda x: x % 2, [1, 2, 3, 4, 5]))) or -1
+```
+
+And what about this?
+```python
+from fliq import q
+
+(q([1, 2, 3, 4, 5])
+    .where(lambda x: x % 2 == 0)
+    .select(lambda x: x * 2)
+    .first_or_default(-1))
+```
+
+And this is just a simple example.
+
+Python's standard library provides a rich set of functions for processing iterables.
+However, it is not always easy to read and use. 
+
+This is especially true when chaining multiple operations together.
+This is where Fliq comes in.
+Fliq provides a fluent, easy to read syntax for processing iterables, while keeping
+performance on-par with the standard library.
+
 ## Query (aka q) API
 
 Note that API docs may contain custom types to improve readability:
