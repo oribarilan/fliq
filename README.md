@@ -1,4 +1,4 @@
-#  <img src="assets/flick_emoji_2_small.png" alt="drawing" width="40" height="40"/> Fliq
+#  <img src="https://github.com/oribarilan/fliq/blob/main/assets/flick_emoji_2_small.png?raw=true" alt="drawing" width="40" height="40"/> Fliq
 
 Fluent-syntax Lazily-evaluated Integrated Query.
 
