@@ -1,12 +1,15 @@
-#  <img src="https://github.com/oribarilan/fliq/blob/main/assets/flick_emoji_2_small.png?raw=true" alt="drawing" width="40" height="40"/> Fliq
+#  <img src="assets/flick_emoji_2_small.png" alt="drawing" width="40" height="40"/> Fliq
 
 Fluent-syntax Lazily-evaluated Integrated Query.
 
-[![Python Versions](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11-blue)](https://www.python.org/downloads/)
-[![Downloads](https://img.shields.io/pypi/dm/fliq?link=https%3A%2F%2Fpypi.org%2Fproject%2Fop-log%2F)](https://pypi.org/project/fliq/)
+[//]: # (bages using https://shields.io/badges/)
 [![build](https://img.shields.io/github/actions/workflow/status/oribarilan/fliq/package_build.yml)](https://github.com/oribarilan/fliq/actions/workflows/package_build.yml)
 [![lint](https://img.shields.io/github/actions/workflow/status/oribarilan/fliq/lint.yml?label=lint)](https://github.com/oribarilan/fliq/actions/workflows/lint.yml)
 [![coverage](https://img.shields.io/github/actions/workflow/status/oribarilan/fliq/coverage.yml?label=coverage%3E95%25)](https://github.com/oribarilan/fliq/actions/workflows/coverage.yml)
+
+[![Python Versions](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11-blue)](https://www.python.org/downloads/)
+![PyPI - Version](https://img.shields.io/pypi/v/fliq?label=pypi%20version)
+[![Downloads](https://img.shields.io/pypi/dm/fliq?link=https%3A%2F%2Fpypi.org%2Fproject%2Fop-log%2F)](https://pypi.org/project/fliq/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 Fliq is a lightweight Python library for high-performance processing of iterables,
