@@ -1,12 +1,11 @@
 import collections.abc
-import typing
 from itertools import islice
-from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable
+from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, Set, TYPE_CHECKING
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from fliq import q  # noqa: F401 (used in docs)  # pragma: no cover
 
 
@@ -100,7 +99,19 @@ class Query(collections.abc.Iterable):
             <br />
             preserve_order: Optional. Whether to preserve the order of the items. Defaults to True.
         """
-        self._items = dict.fromkeys(self._items).keys() if preserve_order else set(self._items)
+        if preserve_order:
+            seen = set()
+
+            def generator(items: Iterable):
+                for item in items:
+                    if item not in seen:
+                        seen.add(item)
+                        yield item
+
+            self._items = generator(self._items)
+        else:
+            self._items = set(self._items)
+
         return self
 
     def order(self,
@@ -134,13 +145,16 @@ class Query(collections.abc.Iterable):
         Notes:
          - in case of an irreversible iterable, TypeError is raised (e.g., set)
          - in case of a generator, the iterable is first converted to a list, then reversed,
-         this has a performance impact, and assume a finite generator
+         this has a performance and memory impact, and assumes a finite generator
 
          Example:
             <br />
             `q([0, 1, 2, 3, 4]).order()`
             <br />
             `[4, 3, 2, 1, 0]`
+
+        Raises:
+            TypeError: In case the iterable is irreversible.
         """
         if isinstance(self._items, collections.abc.Generator):
             self._items = reversed(list(self._items))
@@ -231,7 +245,7 @@ class Query(collections.abc.Iterable):
     def count(self) -> int:
         """
         Returns the number of elements in the iterable
-        :return: The number of the elemtns
+        :return: The number of the elements in the iterable
         :rtype: int
         """
         # If the iterable is sized, return the length

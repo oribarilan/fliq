@@ -1,6 +1,6 @@
 #  <img src="assets/flick_emoji_2_small.png" alt="drawing" width="40" height="40"/> Fliq
 
-Fluent-syntax Lazily-evaluated Integrated Query.
+Fluent-syntaxed Lazily-evaluated Integrated Query.
 
 [//]: # (bages using https://shields.io/badges/)
 [![build](https://img.shields.io/github/actions/workflow/status/oribarilan/fliq/package_build.yml)](https://github.com/oribarilan/fliq/actions/workflows/package_build.yml)
