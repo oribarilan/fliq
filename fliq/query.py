@@ -1,6 +1,6 @@
 import collections.abc
 from itertools import islice
-from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, Set, TYPE_CHECKING
+from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate
@@ -16,6 +16,16 @@ class Query(collections.abc.Iterable):
         """
         self._items = iterable
         self._iterator: Optional[Iterator] = None
+        self._snap_mode: bool = False
+
+    @staticmethod
+    def _create_snapshot(iterable: Iterable) -> 'Query':
+        """
+        Returns a new query with the snapshot as the iterable
+        """
+        query = Query(iterable)
+        query._snap_mode = True
+        return query
 
     def __iter__(self):
         if self._iterator is None:
@@ -26,6 +36,46 @@ class Query(collections.abc.Iterable):
         if self._iterator is None:
             self._iterator = iter(self._items)
         return next(self._iterator)
+
+    def _self(self, iterable: Optional[Iterable] = None) -> 'Query':
+        """
+        Adjusts the iterable of the query, and returns the query itself.
+        In case a snapshot exists, a new query is created with snapped iterable.
+        """
+
+        items = self._items if iterable is None else iterable
+        if self._snap_mode:
+            return self._create_snapshot(items)
+        else:
+            self._items = items
+            return self
+
+    def __repr__(self) -> str:  # pragma: no cover
+        return f"Query({repr(self._items)}, snap_mode={self._snap_mode})"
+
+    def snap(self) -> 'Query':
+        """
+        Yields the same elements, and creates a snapshot for the query.
+        This snapshot allows for multiple iterations over the same elements,
+        as they were at the point of the snapshot.
+        If multiple snapshots are created, only the last one is considered.
+
+        Assumes a finite iterable.
+
+        Example:
+            <br />
+            `evens = q(range(10)).where(lambda x: x % 2 == 0).cache()`
+            <br />
+            `count = evens.count()  # 5`
+            <br />
+            `first_even = evens.first()  # 0`
+            <br />
+            `even_pows = evens.select(lambda x: x ** 2)  # [0, 4, 16, 36, 64]`
+        """
+        # iterator is set to None to ensure subsequent iterations start from the beginning
+        items = list(self._items)
+        self._snap_mode = True
+        return self._self(items)
 
     # region Streamers
 
@@ -46,10 +96,10 @@ class Query(collections.abc.Iterable):
         """
         if predicate is None:
             # supported to ease syntax in higher level streamers and collectors
-            return self
+            return self._self()
 
-        self._items = filter(predicate, self._items)
-        return self
+        items = filter(predicate, self._items)
+        return self._self(items)
 
     def select(self, selector: Callable[[Any], Any]) -> 'Query':
         """
@@ -65,8 +115,8 @@ class Query(collections.abc.Iterable):
             <br />
             selector: The selector function to apply to each element.
         """
-        self._items = map(selector, self._items)
-        return self
+        items = map(selector, self._items)
+        return self._self(items)
 
     def exclude(self, predicate: Predicate) -> 'Query':
         """
@@ -82,8 +132,8 @@ class Query(collections.abc.Iterable):
             <br />
             predicate: The predicate to filter the iterable by.
         """
-        self._items = filter(lambda x: not predicate(x), self._items)
-        return self
+        items = filter(lambda x: not predicate(x), self._items)
+        return self._self(items)
 
     def distinct(self, preserve_order: bool = True) -> 'Query':
         """
@@ -102,17 +152,17 @@ class Query(collections.abc.Iterable):
         if preserve_order:
             seen = set()
 
-            def generator(items: Iterable):
-                for item in items:
+            def generator(internal_items: Iterable):
+                for item in internal_items:
                     if item not in seen:
                         seen.add(item)
                         yield item
 
-            self._items = generator(self._items)
+            items = generator(self._items)
         else:
-            self._items = set(self._items)
+            items = set(self._items)
 
-        return self
+        return self._self(items)
 
     def order(self,
               by: Optional[Callable[[Any], Any]] = None,
@@ -134,10 +184,10 @@ class Query(collections.abc.Iterable):
         """
         if by is None:
             # natural order
-            self._items = sorted(self._items, reverse=not ascending)
+            items = sorted(self._items, reverse=not ascending)
         else:
-            self._items = sorted(self._items, key=by, reverse=not ascending)
-        return self
+            items = sorted(self._items, key=by, reverse=not ascending)
+        return self._self(items)
 
     def reverse(self) -> 'Query':
         """
@@ -157,10 +207,10 @@ class Query(collections.abc.Iterable):
             TypeError: In case the iterable is irreversible.
         """
         if isinstance(self._items, collections.abc.Generator):
-            self._items = reversed(list(self._items))
+            items = reversed(list(self._items))
         else:
-            self._items = reversed(self._items)  # type: ignore
-        return self
+            items = reversed(self._items)  # type: ignore
+        return self._self(items)
 
     def slice(self, start: int = 0, stop: Optional[int] = None, step: int = 1) -> 'Query':
         """
@@ -179,8 +229,8 @@ class Query(collections.abc.Iterable):
             <br />
             step: Optional. The step of the slice. Defaults to 1.
         """
-        self._items = islice(self._items, start, stop, step)
-        return self
+        items = islice(self._items, start, stop, step)
+        return self._self(items)
 
     def take(self, n: int, predicate: Optional[Predicate] = None) -> 'Query':
         """
@@ -192,51 +242,51 @@ class Query(collections.abc.Iterable):
             <br />
             predicate: Optional. The predicate to filter the iterable by.
         """
-        self.where(predicate)
-        self.slice(stop=n)
-        return self
+        query = self.where(predicate)
+        query.slice(stop=n)
+        return query
 
     # endregion
 
     # region Collectors
 
     def first(self, predicate: Optional[Predicate] = None) -> Any:
-        self.where(predicate)
+        query = self.where(predicate)
         try:
-            return next(self)
+            return next(query)
         except StopIteration:
             raise NoItemsFoundException()
 
-    def first_or_default(self, default: Any = None, predicate: Optional[Predicate] = None) -> Any:
-        self.where(predicate)
+    def first_or_default(self, predicate: Optional[Predicate] = None, default: Any = None) -> Any:
+        query = self.where(predicate)
         try:
-            return next(self)
+            return next(query)
         except StopIteration:
             return default
 
     def single(self, predicate: Optional[Predicate] = None) -> Any:
-        self.where(predicate)
+        query = self.where(predicate)
         try:
-            first = next(self)
+            first = next(query)
         except StopIteration:
             raise NoItemsFoundException()
 
         try:
-            next(self)
+            second = next(query)
         except StopIteration:
             return first
 
-        raise MultipleItemsFoundException()
+        raise MultipleItemsFoundException(f"Found at least two items: {first}, {second}")
 
     def single_or_default(self, predicate: Optional[Predicate] = None, default: Any = None) -> Any:
-        self.where(predicate)
+        query = self.where(predicate)
         try:
-            first = next(self)
+            first = next(query)
         except StopIteration:
             return default
 
         try:
-            next(self)
+            next(query)
         except StopIteration:
             return first
 
@@ -265,8 +315,8 @@ class Query(collections.abc.Iterable):
         Returns:
             True if any element evaluates to true, False otherwise.
         """
-        self.where(predicate)
-        return any(self._items)
+        query = self.where(predicate)
+        return any(query._items)
 
     def all(self, predicate: Optional[Predicate] = None) -> bool:
         """
@@ -278,8 +328,8 @@ class Query(collections.abc.Iterable):
         Returns:
             True if all elements evaluate to true, False otherwise.
         """
-        self.where(predicate)
-        return all(self._items)
+        query = self.where(predicate)
+        return all(query._items)
 
     def to_list(self) -> List:
         return list(self)
