@@ -26,13 +26,11 @@ pip install fliq
 
 ## Fliq
 
-- **Readable & Easy**: Designed for readability and ease of use. Using fluent syntax.
-- **Lightweight**: Thin wrapper for the standard library. No dependencies.
-- **Performant**: On-par with the standard library. 
-Abstraction overhead is kept to a minimum, keeping CPython performance. 
-- **Lazy**: All operations are lazy, and only evaluated when needed. 
-This provides a performance boost for cases where user would have used list-comprehension otherwise.
-- **Compatible**: Compatible with APIs consuming iterables.
+- **Intuitive** to use. Built for readability and usability.
+- **Lightweight** wrapper for the standard library. No dependencies or bloat.
+- **Efficient** as the standard library. Abstraction overhead is kept to a minimum. 
+- **Lazy** operations, evaluated only when needed and only as needed.
+- **Compatible** with APIs consuming iterables.
 
 ## Motivation
 
@@ -98,6 +96,7 @@ Note that API docs may contain custom types to improve readability:
 def snap() -> 'Query'
 ```
 
+Snap is a unique streamer.
 Yields the same elements, and creates a snapshot for the query.
 This snapshot allows for multiple iterations over the same elements,
 as they were at the point of the snapshot.
@@ -106,14 +105,11 @@ If multiple snapshots are created in a query lifetime, the last one is considere
 Assumes a finite iterable.
 
 Example:
-    <br />
-    `evens = q(range(10)).where(lambda x: x % 2 == 0).cache()`
-    <br />
-    `count = evens.count()  # 5`
-    <br />
-    `first_even = evens.first()  # 0`
-    <br />
-    `even_pows = evens.select(lambda x: x ** 2)  # [0, 4, 16, 36, 64]`
+
+    evens = q(range(10)).where(lambda x: x % 2 == 0).cache()
+    count = evens.count()                       # <-- 5
+    first_even = evens.first()                  # <-- 0
+    even_pows = evens.select(lambda x: x ** 2)  # <-- [0, 4, 16, 36, 64]
 
 <a id="query.Query.where"></a>
 
@@ -126,10 +122,9 @@ def where(predicate: Optional[Predicate] = None) -> 'Query'
 Yields elements that satisfy the predicate (aka filter).
 
 Example:
-    <br />
-    `q(range(10)).where(lambda x: x % 2 == 0)`
-    <br />
-    `[0, 2, 4, 6, 8]`
+
+    q(range(10)).where(lambda x: x % 2 == 0)
+    >> [0, 2, 4, 6, 8]
 
 Args:
     <br />
@@ -147,10 +142,9 @@ def select(selector: Callable[[Any], Any]) -> 'Query'
 Yields the result of applying the selector function to each element (aka map).
 
 Example:
-    <br />
-    `q(range(5)).select(lambda x: x * 2 == 0)`
-    <br />
-    `[0, 2, 4, 6, 8, 10]`
+
+    q(range(5)).select(lambda x: x * 2 == 0)
+    >> [0, 2, 4, 6, 8, 10]
 
 Args:
     <br />
@@ -167,10 +161,9 @@ def exclude(predicate: Predicate) -> 'Query'
 Yields elements that do not satisfy the predicate.
 
 Example:
-    <br />
-    `q(range(5)).exclude(lambda x: x > 3)`
-    <br />
-    `[0, 1, 2, 3]`
+
+    q(range(5)).exclude(lambda x: x > 3)
+    >> [0, 1, 2, 3]
 
 Args:
     <br />
@@ -187,10 +180,8 @@ def distinct(preserve_order: bool = True) -> 'Query'
 Yields distinct elements, preserving order if specified.
 
 Example:
-    <br />
-    `q([0, 1, 0, 2, 2]).distinct()`
-    <br />
-    `[0, 1, 2]`
+    q([0, 1, 0, 2, 2]).distinct()
+    >> [0, 1, 2]
 
 Args:
     <br />
@@ -208,10 +199,9 @@ def order(by: Optional[Callable[[Any], Any]] = None,
 Yields elements in sorted order.
 
 Example:
-    <br />
-    `q([4, 3, 2, 1, 0]).order()`
-    <br />
-    `[0, 1, 2, 3, 4]`
+
+    q([4, 3, 2, 1, 0]).order()
+    >> [0, 1, 2, 3, 4]
 
 Args:
     <br />
@@ -235,12 +225,12 @@ Notes:
  this has a performance and memory impact, and assumes a finite generator
 
  Example:
-    <br />
-    `q([0, 1, 2, 3, 4]).order()`
-    <br />
-    `[4, 3, 2, 1, 0]`
+
+    q([0, 1, 2, 3, 4]).order()
+    >> [4, 3, 2, 1, 0]
 
 Raises:
+    <br />
     TypeError: In case the iterable is irreversible.
 
 <a id="query.Query.slice"></a>
@@ -254,11 +244,10 @@ def slice(start: int = 0,
 ```
 
 Yields a slice of the iterable.
-Examples:
-    <br />
-    `q(range(10)).slice(start=1, stop=6, step=2)`
-    <br />
-    `[1, 3, 5]`
+Example:
+
+    q(range(10)).slice(start=1, stop=6, step=2)
+    >> [1, 3, 5]
 
 Args:
     <br />
@@ -377,6 +366,10 @@ def to_list() -> List
 
 
 ## Roadmap
+
+### Special Functionality
+- [x] snap (aka cache)
+
 ### Streamers
 - [x] where (aka filter)
 - [x] select (aka map)

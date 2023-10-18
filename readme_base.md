@@ -67,6 +67,10 @@ Note that API docs may contain custom types to improve readability:
 {{auto_api}}
 
 ## Roadmap
+
+### Special Functionality
+- [x] snap (aka cache)
+
 ### Streamers
 - [x] where (aka filter)
 - [x] select (aka map)
