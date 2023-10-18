@@ -23,6 +23,7 @@ class Query(collections.abc.Iterable):
         # 1 means the previous operation was a snapshot
         # ...
         self._cow_pending: bool = False
+
     def __iter__(self):
         if self._iterator is None:
             self._iterator = iter(self._items)
@@ -190,9 +191,9 @@ class Query(collections.abc.Iterable):
         """
         Yields elements in reverse order.
         Notes:
-         - in case of an irreversible iterable, TypeError is raised (e.g., set)
-         - in case of a generator, the iterable is first converted to a list, then reversed,
-         this has a performance and memory impact, and assumes a finite generator
+         - in case of an irreversible iterable, TypeError is raised (e.g., set).
+         - in case of an iterator, it is first converted to a list, then reversed,
+         this has a performance and memory impact, and assumes a finite iterator.
 
          Example:
 
@@ -203,7 +204,7 @@ class Query(collections.abc.Iterable):
             <br />
             TypeError: In case the iterable is irreversible.
         """
-        if isinstance(self._items, collections.abc.Generator):
+        if isinstance(self._items, collections.abc.Iterator):
             items = reversed(list(self._items))
         else:
             items = reversed(self._items)  # type: ignore
@@ -228,10 +229,11 @@ class Query(collections.abc.Iterable):
         items = islice(self._items, start, stop, step)
         return self._self(items)
 
-    def take(self, n: int, predicate: Optional[Predicate] = None) -> 'Query':
+    def take(self, n: int = 1, predicate: Optional[Predicate] = None) -> 'Query':
         """
         Yields up to n items that satisfies the predicate (if provided).
         In case the iterable is ordered, the first n items are returned.
+
         Args:
             <br />
             n: Optional. The number of items to take. Defaults to 1.
@@ -240,7 +242,18 @@ class Query(collections.abc.Iterable):
         """
         query = self.where(predicate)
         query = query.slice(stop=n)
-        return query
+        return self._self(query._items)
+
+    def skip(self, n: int = 1) -> 'Query':
+        """
+        Yields the items after skipping the first n items (as returned from the iterator).
+
+        Args:
+            <br />
+            n: Optional. The number of items to take. Defaults to 1.
+        """
+        query = self.slice(start=n)
+        return self._self(query._items)
 
     # endregion
 

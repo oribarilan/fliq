@@ -82,7 +82,7 @@ Note that API docs may contain custom types to improve readability:
 - [x] slice
 - [ ] skip
 - [ ] skip_last
-- [ ] take
+- [x] take
 - [ ] zip
 - [ ] remove
 - [ ] append

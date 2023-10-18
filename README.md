@@ -74,6 +74,7 @@ Note that API docs may contain custom types to improve readability:
   * [reverse](#query.Query.reverse)
   * [slice](#query.Query.slice)
   * [take](#query.Query.take)
+  * [skip](#query.Query.skip)
 * [Collectors](#query.Collectors)
   * [first](#query.Query.first)
   * [first\_or\_default](#query.Query.first_or_default)
@@ -220,9 +221,9 @@ def reverse() -> 'Query'
 
 Yields elements in reverse order.
 Notes:
- - in case of an irreversible iterable, TypeError is raised (e.g., set)
- - in case of a generator, the iterable is first converted to a list, then reversed,
- this has a performance and memory impact, and assumes a finite generator
+ - in case of an irreversible iterable, TypeError is raised (e.g., set).
+ - in case of an iterator, it is first converted to a list, then reversed,
+ this has a performance and memory impact, and assumes a finite iterator.
 
  Example:
 
@@ -262,16 +263,31 @@ Args:
 ### take
 
 ```python
-def take(n: int, predicate: Optional[Predicate] = None) -> 'Query'
+def take(n: int = 1, predicate: Optional[Predicate] = None) -> 'Query'
 ```
 
 Yields up to n items that satisfies the predicate (if provided).
 In case the iterable is ordered, the first n items are returned.
+
 Args:
     <br />
     n: Optional. The number of items to take. Defaults to 1.
     <br />
     predicate: Optional. The predicate to filter the iterable by.
+
+<a id="query.Query.skip"></a>
+
+### skip
+
+```python
+def skip(n: int = 1) -> 'Query'
+```
+
+Yields the items after skipping the first n items (as returned from the iterator).
+
+Args:
+    <br />
+    n: Optional. The number of items to take. Defaults to 1.
 
 <a id="query.Collectors"></a>
 
@@ -381,7 +397,7 @@ def to_list() -> List
 - [x] slice
 - [ ] skip
 - [ ] skip_last
-- [ ] take
+- [x] take
 - [ ] zip
 - [ ] remove
 - [ ] append
