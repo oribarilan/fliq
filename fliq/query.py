@@ -16,7 +16,13 @@ class Query(collections.abc.Iterable):
         """
         self._items = iterable
         self._iterator: Optional[Iterator] = None
-        self._snap_mode: bool = False
+
+        # described the operation distance from the last snapshot.
+        # -1 means there was no snapshot
+        # 0 means the last operation was a snapshot
+        # 1 means the previous operation was a snapshot
+        # ...
+        self._snap_dist: int = -1
 
     @staticmethod
     def _create_snapshot(iterable: Iterable) -> 'Query':
@@ -24,7 +30,7 @@ class Query(collections.abc.Iterable):
         Returns a new query with the snapshot as the iterable
         """
         query = Query(iterable)
-        query._snap_mode = True
+        query._snap_dist = 0  # this query's last op is a snapshot
         return query
 
     def __iter__(self):
@@ -37,21 +43,23 @@ class Query(collections.abc.Iterable):
             self._iterator = iter(self._items)
         return next(self._iterator)
 
-    def _self(self, iterable: Optional[Iterable] = None) -> 'Query':
+    def _self(self, iterable: Optional[Iterable] = None, snap: bool = False) -> 'Query':
         """
         Adjusts the iterable of the query, and returns the query itself.
-        In case a snapshot exists, a new query is created with snapped iterable.
+        This method abstract the need to create a new Query in some situations, to support
+        the snapshot functionality.
         """
-
         items = self._items if iterable is None else iterable
-        if self._snap_mode:
+        should_keep_snapping = -1 < self._snap_dist < 2
+        should_snap = snap or should_keep_snapping
+        if should_snap:
             return self._create_snapshot(items)
         else:
             self._items = items
             return self
 
     def __repr__(self) -> str:  # pragma: no cover
-        return f"Query({repr(self._items)}, snap_mode={self._snap_mode})"
+        return f"Query({repr(self._items)}, snap_dist={self._snap_dist})"
 
     def snap(self) -> 'Query':
         """
@@ -72,10 +80,8 @@ class Query(collections.abc.Iterable):
             <br />
             `even_pows = evens.select(lambda x: x ** 2)  # [0, 4, 16, 36, 64]`
         """
-        # iterator is set to None to ensure subsequent iterations start from the beginning
         items = list(self._items)
-        self._snap_mode = True
-        return self._self(items)
+        return self._self(items, snap=True)
 
     # region Streamers
 
@@ -243,7 +249,7 @@ class Query(collections.abc.Iterable):
             predicate: Optional. The predicate to filter the iterable by.
         """
         query = self.where(predicate)
-        query.slice(stop=n)
+        query = query.slice(stop=n)
         return query
 
     # endregion
