@@ -9,6 +9,7 @@
   * [slice](#query.Query.slice)
   * [take](#query.Query.take)
   * [skip](#query.Query.skip)
+  * [zip](#query.Query.zip)
 * [Collectors](#query.Collectors)
   * [first](#query.Query.first)
   * [first\_or\_default](#query.Query.first_or_default)
@@ -219,9 +220,34 @@ def skip(n: int = 1) -> 'Query'
 
 Yields the items after skipping the first n items (as returned from the iterator).
 
+Example:
+
+    q(range(10)).skip(n=5)
+    >> [5, 6, 7, 8, 9]
+
 Args:
     <br />
     n: Optional. The number of items to take. Defaults to 1.
+
+<a id="query.Query.zip"></a>
+
+### zip
+
+```python
+def zip(*iterables: Iterable) -> 'Query'
+```
+
+Yields tuples of the items of the iterable with the input iterables.
+The iteration stops as soon as one of the input iterables is exhausted.
+
+Example:
+
+    q(range(5)).zip(range(5, 10), range(10, 15)
+    >> [(0, 5, 10), (1, 6, 11), (2, 7, 12), (3, 8, 13), (4, 9, 14)]
+
+Args:
+    <br />
+    *iterables: One or more iterables to zip with the iterable.
 
 <a id="query.Collectors"></a>
 

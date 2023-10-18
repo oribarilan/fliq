@@ -80,10 +80,10 @@ Note that API docs may contain custom types to improve readability:
 - [x] order_by
 - [x] reverse
 - [x] slice
-- [ ] skip
+- [x] skip
 - [ ] skip_last
 - [x] take
-- [ ] zip
+- [x] zip
 - [ ] remove
 - [ ] append
 - [ ] prepend

@@ -248,12 +248,34 @@ class Query(collections.abc.Iterable):
         """
         Yields the items after skipping the first n items (as returned from the iterator).
 
+        Example:
+
+            q(range(10)).skip(n=5)
+            >> [5, 6, 7, 8, 9]
+
         Args:
             <br />
             n: Optional. The number of items to take. Defaults to 1.
         """
         query = self.slice(start=n)
         return self._self(query._items)
+
+    def zip(self, *iterables: Iterable) -> 'Query':
+        """
+        Yields tuples of the items of the iterable with the input iterables.
+        The iteration stops as soon as one of the input iterables is exhausted.
+
+        Example:
+
+            q(range(5)).zip(range(5, 10), range(10, 15)
+            >> [(0, 5, 10), (1, 6, 11), (2, 7, 12), (3, 8, 13), (4, 9, 14)]
+
+        Args:
+            <br />
+            *iterables: One or more iterables to zip with the iterable.
+        """
+        items = zip(self._items, *iterables)
+        return self._self(items)
 
     # endregion
 
