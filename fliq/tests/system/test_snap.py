@@ -75,3 +75,19 @@ class TestSnap:
 
         assert first1 == 0
         assert first2 == 0
+
+    @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
+    def test_snap_streamerAndCollector(self, iter_type, iterable, iterable_list):
+        evens = (
+            q((i for i in range(5)))
+            .where(lambda x: int(x) % 2 == 0)
+            .snap()
+        )  # [0, 2, 4]
+
+        count = evens.count()
+        first_doubled1 = evens.select(lambda x: x * 2).first()
+        first_doubled2 = evens.select(lambda x: x * 2).first()
+
+        assert count == 3
+        assert first_doubled1 == 0
+        assert first_doubled2 == 0

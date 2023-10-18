@@ -22,17 +22,7 @@ class Query(collections.abc.Iterable):
         # 0 means the last operation was a snapshot
         # 1 means the previous operation was a snapshot
         # ...
-        self._snap_dist: int = -1
-
-    @staticmethod
-    def _create_snapshot(iterable: Iterable) -> 'Query':
-        """
-        Returns a new query with the snapshot as the iterable
-        """
-        query = Query(iterable)
-        query._snap_dist = 0  # this query's last op is a snapshot
-        return query
-
+        self._cow_pending: bool = False
     def __iter__(self):
         if self._iterator is None:
             self._iterator = iter(self._items)
@@ -43,30 +33,39 @@ class Query(collections.abc.Iterable):
             self._iterator = iter(self._items)
         return next(self._iterator)
 
-    def _self(self, iterable: Optional[Iterable] = None, snap: bool = False) -> 'Query':
+    def _self(self, updated_items: Optional[Iterable] = None, in_snap: bool = False) -> 'Query':
         """
         Adjusts the iterable of the query, and returns the query itself.
         This method abstract the need to create a new Query in some situations, to support
         the snapshot functionality.
         """
-        items = self._items if iterable is None else iterable
-        should_keep_snapping = -1 < self._snap_dist < 2
-        should_snap = snap or should_keep_snapping
-        if should_snap:
-            return self._create_snapshot(items)
+        updated_items = self._items if updated_items is None else updated_items
+
+        if in_snap:
+            # COW prep: coming from snap, transform to list, don't copy object
+            # This will allow multiple passes on this snapshot
+            self._items = list(updated_items)
+            return self
+        elif self._cow_pending:
+            # COW mode: coming from operation in COW mode, copy object
+            # This will create a new query object in the first streamer following a snapshot
+            # Following streamers will work on that same query object, minimizing object creations
+            snapped_query = Query(iterable=updated_items)
+            return snapped_query
         else:
-            self._items = items
+            # non-COW mode: coming from operation in non-COW mode, update iterable
+            self._items = updated_items
             return self
 
     def __repr__(self) -> str:  # pragma: no cover
-        return f"Query({repr(self._items)}, snap_dist={self._snap_dist})"
+        return f"Query({repr(self._items)}, cow_pending={self._cow_pending})"
 
     def snap(self) -> 'Query':
         """
         Yields the same elements, and creates a snapshot for the query.
         This snapshot allows for multiple iterations over the same elements,
         as they were at the point of the snapshot.
-        If multiple snapshots are created, only the last one is considered.
+        If multiple snapshots are created in a query lifetime, the last one is considered.
 
         Assumes a finite iterable.
 
@@ -80,8 +79,8 @@ class Query(collections.abc.Iterable):
             <br />
             `even_pows = evens.select(lambda x: x ** 2)  # [0, 4, 16, 36, 64]`
         """
-        items = list(self._items)
-        return self._self(items, snap=True)
+        self._cow_pending = True
+        return self._self(in_snap=True)
 
     # region Streamers
 
