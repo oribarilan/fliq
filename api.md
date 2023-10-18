@@ -1,4 +1,5 @@
 * [Streamers](#query.Streamers)
+  * [snap](#query.Query.snap)
   * [where](#query.Query.where)
   * [select](#query.Query.select)
   * [exclude](#query.Query.exclude)
@@ -20,6 +21,31 @@
 <a id="query.Streamers"></a>
 
 ### Streamers
+
+<a id="query.Query.snap"></a>
+
+### snap
+
+```python
+def snap() -> 'Query'
+```
+
+Yields the same elements, and creates a snapshot for the query.
+This snapshot allows for multiple iterations over the same elements,
+as they were at the point of the snapshot.
+If multiple snapshots are created in a query lifetime, the last one is considered.
+
+Assumes a finite iterable.
+
+Example:
+    <br />
+    `evens = q(range(10)).where(lambda x: x % 2 == 0).cache()`
+    <br />
+    `count = evens.count()  # 5`
+    <br />
+    `first_even = evens.first()  # 0`
+    <br />
+    `even_pows = evens.select(lambda x: x ** 2)  # [0, 4, 16, 36, 64]`
 
 <a id="query.Query.where"></a>
 
@@ -138,13 +164,16 @@ Yields elements in reverse order.
 Notes:
  - in case of an irreversible iterable, TypeError is raised (e.g., set)
  - in case of a generator, the iterable is first converted to a list, then reversed,
- this has a performance impact, and assume a finite generator
+ this has a performance and memory impact, and assumes a finite generator
 
  Example:
     <br />
     `q([0, 1, 2, 3, 4]).order()`
     <br />
     `[4, 3, 2, 1, 0]`
+
+Raises:
+    TypeError: In case the iterable is irreversible.
 
 <a id="query.Query.slice"></a>
 
@@ -204,8 +233,8 @@ def first(predicate: Optional[Predicate] = None) -> Any
 ### first\_or\_default
 
 ```python
-def first_or_default(default: Any = None,
-                     predicate: Optional[Predicate] = None) -> Any
+def first_or_default(predicate: Optional[Predicate] = None,
+                     default: Any = None) -> Any
 ```
 
 <a id="query.Query.single"></a>
@@ -234,7 +263,7 @@ def count() -> int
 ```
 
 Returns the number of elements in the iterable
-:return: The number of the elemtns
+:return: The number of the elements in the iterable
 :rtype: int
 
 <a id="query.Query.any"></a>
