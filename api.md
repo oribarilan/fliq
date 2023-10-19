@@ -23,6 +23,8 @@
   * [any](#query.Query.any)
   * [all](#query.Query.all)
   * [aggregate](#query.Query.aggregate)
+  * [max](#query.Query.max)
+  * [min](#query.Query.min)
   * [sum](#query.Query.sum)
   * [to\_list](#query.Query.to_list)
 
@@ -470,6 +472,50 @@ Args:
     initial: Optional. The initial value of the accumulator. Defaults to None.
     If provided, it will also serve as the default value for an empty iterable.
     If not provided, the first element of the iterable will be used as the initial value.
+
+<a id="query.Query.max"></a>
+
+### max
+
+```python
+def max(by: Optional[Selector] = None) -> Any
+```
+
+Returns the maximal element in the query.
+If a selector is provided, the maximal selected attribute is returned.
+
+Custom types must provide a selector function or implement value comparisons
+(see https://docs.python.org/3/reference/expressions.html#value-comparisons).
+
+Args:
+    <br />
+    by: Optional. The selector function to test for the maximal element.
+
+Raises:
+    <br />
+    ValueError: In case the query is empty.
+
+<a id="query.Query.min"></a>
+
+### min
+
+```python
+def min(by: Optional[Selector] = None) -> Any
+```
+
+Returns the minimal element in the query.
+If a selector is provided, the minimal selected attribute is returned.
+
+Custom types must provide a selector function or implement value comparisons
+(see https://docs.python.org/3/reference/expressions.html#value-comparisons).
+
+Args:
+    <br />
+    by: Optional. The selector function to test for the minimal element.
+
+Raises:
+    <br />
+    ValueError: In case the query is empty.
 
 <a id="query.Query.sum"></a>
 

@@ -71,6 +71,7 @@ Note that API docs may contain custom types to improve readability:
 
 ### Special Functionality
 - [x] snap (aka cache, materialize)
+- [ ] membership (aka contains, in)
 
 ### Streamers
 - [x] where (aka filter)
@@ -100,8 +101,8 @@ Note that API docs may contain custom types to improve readability:
 - [x] all
 - [x] aggregate
 
-#### Math Collectors
+#### Numeric Collectors
 - [x] sum
-- [ ] min
-- [ ] max
+- [x] min
+- [x] max
 - [ ] average

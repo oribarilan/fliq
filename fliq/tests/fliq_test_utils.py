@@ -56,6 +56,21 @@ class MyTestClass:
     a: int
     b: int
 
+    def __lt__(self, other):
+        return self.a < other.a
+
+    def __gt__(self, other):
+        return self.a > other.a
+
+    def __le__(self, other):
+        return self.a <= other.a
+
+    def __ge__(self, other):
+        return self.a >= other.a
+
+    def __eq__(self, other):
+        return self.a == other.a
+
     def __add__(self, other):
         if not isinstance(other, MyTestClass):
             raise TypeError(f"Cannot add {type(self)} and {type(other)}")
@@ -67,9 +82,6 @@ class MyTestClass:
         elif isinstance(other, MyTestClass):
             return MyTestClass(self.a + other.a, self.b + other.b)
         raise TypeError(f"Cannot add {type(self)} and {type(other)}")
-
-    def __eq__(self, other):
-        return self.a == other.a and self.b == other.b
 
     def __hash__(self):
         return hash(self.a)

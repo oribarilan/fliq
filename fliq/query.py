@@ -11,6 +11,11 @@ if TYPE_CHECKING:
 
 
 class Query(collections.abc.Iterable):
+    # TODO - in docs, use "yield query" instead of "iterable"
+    # TODO - use elements instead of items
+    # TODO - use attributes when referring to selector
+    # TODO - use custom types instead of custom classes
+
     def __init__(self, iterable: Iterable):
         """
         Create a Query object to allow fluent iterable processing
@@ -485,6 +490,50 @@ class Query(collections.abc.Iterable):
         else:
             return reduce(by, self._items)
 
+    def max(self, by: Optional[Selector] = None) -> Any:
+        """
+        Returns the maximal element in the query.
+        If a selector is provided, the maximal selected attribute is returned.
+
+        Custom types must provide a selector function or implement value comparisons
+        (see https://docs.python.org/3/reference/expressions.html#value-comparisons).
+
+        Args:
+            <br />
+            by: Optional. The selector function to test for the maximal element.
+
+        Raises:
+            <br />
+            ValueError: In case the query is empty.
+        """
+        if by is None:
+            return max(self)
+        else:
+            return max(self, key=by)
+
+    def min(self, by: Optional[Selector] = None) -> Any:
+        """
+        Returns the minimal element in the query.
+        If a selector is provided, the minimal selected attribute is returned.
+
+        Custom types must provide a selector function or implement value comparisons
+        (see https://docs.python.org/3/reference/expressions.html#value-comparisons).
+
+        Args:
+            <br />
+            by: Optional. The selector function to test for the minimal element.
+
+        Raises:
+            <br />
+            ValueError: In case the query is empty.
+        """
+        if by is None:
+            return min(self)
+        else:
+            return min(self, key=by)
+
+    # region Numeric Collectors
+
     def sum(self, by: Optional[NumericSelector] = None, accumulator: Any = 0) -> Any:
         """
         Returns the sum of the elements in the iterable.
@@ -509,6 +558,8 @@ class Query(collections.abc.Iterable):
         if by is not None:
             query = self.select(by)
         return sum(query, start=accumulator)
+
+    # endregion
 
     def to_list(self) -> List:
         return list(self)
