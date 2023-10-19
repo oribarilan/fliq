@@ -440,11 +440,14 @@ class Query(collections.abc.Iterable):
         """
         Returns whether any element in the iterable evaluates to true.
         If a predicate is provided, only elements that satisfy the predicate are considered.
-        Args:
-            predicate: Optional. The predicate to filter the iterable by.
 
-        Returns:
-            True if any element evaluates to true, False otherwise.
+        In most cases, for custom types, user would want to use a predicate or
+         consider implementing `__bool__` or `__len__` to support this method.
+         see https://docs.python.org/3/reference/datamodel.html#object.__bool__ .
+
+        Args:
+            <br />
+            predicate: Optional. The predicate to filter the iterable by.
         """
         query = self.where(predicate)
         return any(query)
@@ -453,11 +456,13 @@ class Query(collections.abc.Iterable):
         """
         Returns whether all elements in the iterable evaluate to true.
         If a predicate is provided, only elements that satisfy the predicate are considered.
+
+        In most cases, for custom types, user would want to use a predicate or
+         consider implementing `__bool__` or `__len__` to support this method.
+         see https://docs.python.org/3/reference/datamodel.html#object.__bool__ .
+
         Args:
             predicate: Optional. The predicate to filter the iterable by.
-
-        Returns:
-            True if all elements evaluate to true, False otherwise.
         """
         query = self.where(predicate)
         return all(query)

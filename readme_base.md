@@ -99,7 +99,9 @@ Note that API docs may contain custom types to improve readability:
 - [x] any
 - [x] all
 - [x] aggregate
-- [ס] sum
+
+#### Math Collectors
+- [x] sum
 - [ ] min
 - [ ] max
 - [ ] average
