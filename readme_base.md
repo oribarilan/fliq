@@ -62,7 +62,8 @@ performance on-par with the standard library.
 ## Query (aka q) API
 
 Note that API docs may contain custom types to improve readability:
-- Predicates. ```Predicate = Callable[[Any], bool]```
+- Predicate. ```Predicate = Callable[[Any], bool]```
+- Selector. ```Selector = Callable[[Any], Any]```
 
 {{auto_api}}
 
@@ -97,6 +98,7 @@ Note that API docs may contain custom types to improve readability:
 - [x] count
 - [x] any
 - [x] all
+- [x] aggregate
 - [ ] sum
 - [ ] min
 - [ ] max

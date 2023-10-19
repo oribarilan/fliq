@@ -62,7 +62,8 @@ performance on-par with the standard library.
 ## Query (aka q) API
 
 Note that API docs may contain custom types to improve readability:
-- Predicates. ```Predicate = Callable[[Any], bool]```
+- Predicate. ```Predicate = Callable[[Any], bool]```
+- Selector. ```Selector = Callable[[Any], Any]```
 
 * [Streamers](#query.Streamers)
   * [snap](#query.Query.snap)
@@ -88,6 +89,7 @@ Note that API docs may contain custom types to improve readability:
   * [count](#query.Query.count)
   * [any](#query.Query.any)
   * [all](#query.Query.all)
+  * [aggregate](#query.Query.aggregate)
   * [to\_list](#query.Query.to_list)
 
 <a id="query.Streamers"></a>
@@ -142,7 +144,7 @@ Args:
 ### select
 
 ```python
-def select(selector: Callable[[Any], Any]) -> 'Query'
+def select(selector: Selector) -> 'Query'
 ```
 
 Yields the result of applying the selector function to each element (aka map).
@@ -207,8 +209,7 @@ Raises:
 ### order
 
 ```python
-def order(by: Optional[Callable[[Any], Any]] = None,
-          ascending: bool = True) -> 'Query'
+def order(by: Optional[Selector] = None, ascending: bool = True) -> 'Query'
 ```
 
 Yields elements in sorted order.
@@ -512,6 +513,23 @@ Args:
 Returns:
     True if all elements evaluate to true, False otherwise.
 
+<a id="query.Query.aggregate"></a>
+
+### aggregate
+
+```python
+def aggregate(by: Callable[[Any, Any], Any], initial: Any = None)
+```
+
+Applies an accumulator function over the iterable.
+
+Args:
+    <br />
+    by: The accumulator function to apply to each two elements.
+    initial: Optional. The initial value of the accumulator. Defaults to None.
+    If provided, it will also serve as the default value for an empty iterable.
+    If not provided, the first element of the iterable will be used as the initial value.
+
 <a id="query.Query.to_list"></a>
 
 ### to\_list
@@ -553,6 +571,7 @@ def to_list() -> List
 - [x] count
 - [x] any
 - [x] all
+- [x] aggregate
 - [ ] sum
 - [ ] min
 - [ ] max

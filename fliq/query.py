@@ -1,9 +1,10 @@
 import collections.abc
+from functools import reduce
 from itertools import islice, chain
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
-from fliq.types import Predicate
+from fliq.types import Predicate, Selector
 
 if TYPE_CHECKING:
     from fliq import q  # noqa: F401 (used in docs)  # pragma: no cover
@@ -104,7 +105,7 @@ class Query(collections.abc.Iterable):
         items = filter(predicate, self._items)
         return self._self(items)
 
-    def select(self, selector: Callable[[Any], Any]) -> 'Query':
+    def select(self, selector: Selector) -> 'Query':
         """
         Yields the result of applying the selector function to each element (aka map).
 
@@ -173,7 +174,7 @@ class Query(collections.abc.Iterable):
         return self._self(items)
 
     def order(self,
-              by: Optional[Callable[[Any], Any]] = None,
+              by: Optional[Selector] = None,
               ascending: bool = True) -> 'Query':
         """Yields elements in sorted order.
 
@@ -433,7 +434,7 @@ class Query(collections.abc.Iterable):
             return len(self._items)
 
         # Otherwise, iterate over the iterable
-        return sum(1 for _ in self._items)
+        return sum(1 for _ in self)
 
     def any(self, predicate: Optional[Predicate] = None) -> bool:
         """
@@ -446,7 +447,7 @@ class Query(collections.abc.Iterable):
             True if any element evaluates to true, False otherwise.
         """
         query = self.where(predicate)
-        return any(query._items)
+        return any(query)
 
     def all(self, predicate: Optional[Predicate] = None) -> bool:
         """
@@ -459,7 +460,43 @@ class Query(collections.abc.Iterable):
             True if all elements evaluate to true, False otherwise.
         """
         query = self.where(predicate)
-        return all(query._items)
+        return all(query)
+
+    def aggregate(self, by: Callable[[Any, Any], Any], initial: Any = None):
+        """
+        Applies an accumulator function over the iterable.
+
+        Args:
+            <br />
+            by: The accumulator function to apply to each two elements.
+            initial: Optional. The initial value of the accumulator. Defaults to None.
+            If provided, it will also serve as the default value for an empty iterable.
+            If not provided, the first element of the iterable will be used as the initial value.
+        """
+        if initial is not None:
+            return reduce(by, self._items, initial)
+        else:
+            return reduce(by, self._items)
+
+    # def sum(self, by: Optional[Selector] = None, accumulator: Any = 0) -> Any:
+    #     """
+    #     Returns the sum of the elements in the iterable.
+    #     If a selector is provided, the sum of the selected elements is returned.
+    #     If an accumulator is provided, it is used as the initial value for the summation.
+    #     For use with custom classes, the class must implement `__add__`.
+    #
+    #     Args:
+    #         <br />
+    #         by: Optional. The selector function to apply to each element.
+    #         accumulator: Optional. The initial value of the sum. Defaults to 0.
+    #
+    #     Returns:
+    #         The sum of the elements in the iterable.
+    #     """
+    #     query = self
+    #     if by is None:
+    #         query = self.select(lambda x: x)
+    #     return sum(query, start=accumulator)
 
     def to_list(self) -> List:
         return list(self)
