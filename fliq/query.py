@@ -1,5 +1,5 @@
 import collections.abc
-from itertools import islice
+from itertools import islice, chain
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
@@ -275,6 +275,48 @@ class Query(collections.abc.Iterable):
             *iterables: One or more iterables to zip with the iterable.
         """
         items = zip(self._items, *iterables)
+        return self._self(items)
+
+    def append(self, *single_items) -> 'Query':
+        """
+        Yields the items of the iterable, followed by the item(s) given.
+        API also supports multiple arguments, where each is considered as a single item.
+
+        Infinite iterables are supported, behaving as expected.
+
+        Examples:
+
+            q(range(5)).append(5)
+            >> [0, 1, 2, 3, 4, 5]
+
+            q(range(5)).append(5, 6, 7)
+            >> [0, 1, 2, 3, 4, 5, 6, 7]
+
+        Args:
+            *single_items: One or more items to add to the end of the iterable.
+        """
+        items = chain(self._items, single_items)
+        return self._self(items)
+
+    def prepend(self, *single_items) -> 'Query':
+        """
+        Yields the item(s) given, followed by the items of the iterable.
+        API also supports multiple arguments, where each is considered as a single item.
+
+        Infinite iterables are supported, behaving as expected.
+
+        Examples:
+
+            q(range(5)).prepend(5)
+            >> [5, 0, 1, 2, 3, 4]
+
+            q(range(5)).prepend(5, 6, 7)
+            >> [5, 6, 7, 0, 1, 2, 3, 4]
+
+        Args:
+            *single_items: One or more items to add to the start of the iterable.
+        """
+        items = chain(single_items, self._items)
         return self._self(items)
 
     # endregion

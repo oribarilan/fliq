@@ -10,6 +10,8 @@
   * [take](#query.Query.take)
   * [skip](#query.Query.skip)
   * [zip](#query.Query.zip)
+  * [append](#query.Query.append)
+  * [prepend](#query.Query.prepend)
 * [Collectors](#query.Collectors)
   * [first](#query.Query.first)
   * [first\_or\_default](#query.Query.first_or_default)
@@ -248,6 +250,54 @@ Example:
 Args:
     <br />
     *iterables: One or more iterables to zip with the iterable.
+
+<a id="query.Query.append"></a>
+
+### append
+
+```python
+def append(*single_items) -> 'Query'
+```
+
+Yields the items of the iterable, followed by the item(s) given.
+API also supports multiple arguments, where each is considered as a single item.
+
+Infinite iterables are supported, behaving as expected.
+
+Examples:
+
+    q(range(5)).append(5)
+    >> [0, 1, 2, 3, 4, 5]
+
+    q(range(5)).append(5, 6, 7)
+    >> [0, 1, 2, 3, 4, 5, 6, 7]
+
+Args:
+    *single_items: One or more items to add to the end of the iterable.
+
+<a id="query.Query.prepend"></a>
+
+### prepend
+
+```python
+def prepend(*single_items) -> 'Query'
+```
+
+Yields the item(s) given, followed by the items of the iterable.
+API also supports multiple arguments, where each is considered as a single item.
+
+Infinite iterables are supported, behaving as expected.
+
+Examples:
+
+    q(range(5)).prepend(5)
+    >> [5, 0, 1, 2, 3, 4]
+
+    q(range(5)).prepend(5, 6, 7)
+    >> [5, 6, 7, 0, 1, 2, 3, 4]
+
+Args:
+    *single_items: One or more items to add to the start of the iterable.
 
 <a id="query.Collectors"></a>
 

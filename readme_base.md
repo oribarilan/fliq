@@ -24,7 +24,7 @@ and it is tested to have on-par performance with the standard library.
 pip install fliq
 ````
 
-## Fliq
+## Fliq is:
 
 - **Intuitive** to use. Built for readability and usability.
 - **Lightweight** wrapper for the standard library. No dependencies or bloat.
@@ -69,12 +69,12 @@ Note that API docs may contain custom types to improve readability:
 ## Roadmap
 
 ### Special Functionality
-- [x] snap (aka cache)
+- [x] snap (aka cache, materialize)
 
 ### Streamers
 - [x] where (aka filter)
 - [x] select (aka map)
-- [x] exclude (aka where_not) 
+- [x] exclude (aka where_not, remove_all) 
 - [x] distinct
 - [ ] group_by
 - [x] order_by
@@ -84,10 +84,10 @@ Note that API docs may contain custom types to improve readability:
 - [ ] skip_last
 - [x] take
 - [x] zip
-- [ ] remove
-- [ ] append
-- [ ] prepend
-- [ ] concat
+- [x] append
+- [x] prepend
+- [ ] append_many
+- [ ] prepend_many
 
 ### Collectors
 - [x] first
