@@ -71,7 +71,7 @@ Note that API docs may contain custom types to improve readability:
 
 ### Special Functionality
 - [x] snap (aka cache, materialize)
-- [ ] membership (aka contains, in)
+- [x] in (aka membership)
 - [ ] equality (aka equals, ==)
 - [ ] inequality (aka not_equals, !=)
 - [ ] arithmetic (aka add, +, subtract, -, multiply, *, divide, /, modulo, %)
@@ -106,6 +106,7 @@ Note that API docs may contain custom types to improve readability:
 - [x] any
 - [x] all
 - [x] aggregate
+- [x] contains
 
 #### Numeric Collectors
 - [x] sum

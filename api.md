@@ -25,12 +25,16 @@
   * [aggregate](#query.Query.aggregate)
   * [max](#query.Query.max)
   * [min](#query.Query.min)
+  * [contains](#query.Query.contains)
   * [sum](#query.Query.sum)
   * [to\_list](#query.Query.to_list)
 
 <a id="query.Streamers"></a>
 
 ### Streamers
+
+Query is an iterable processing fluent-based API.
+It is lazy, and supports infinite iterables where applicable.
 
 <a id="query.Query.snap"></a>
 
@@ -72,7 +76,7 @@ Example:
 
 Args:
     <br />
-    predicate: Optional. The predicate to filter the iterable by. If None is
+    predicate: Optional. The predicate to filter the query by. If None is
     given, no filtering takes place.
 
 <a id="query.Query.select"></a>
@@ -111,7 +115,7 @@ Example:
 
 Args:
     <br />
-    predicate: The predicate to filter the iterable by.
+    predicate: The predicate to filter the query by.
 
 <a id="query.Query.distinct"></a>
 
@@ -122,8 +126,8 @@ def distinct(preserve_order: bool = True) -> 'Query'
 ```
 
 Yields distinct elements, preserving order if specified.
-Distinct supports infinite iterables, when preserver_order is True.
-Note that the items must be hashable.
+Distinct supports infinite iterables, when preserve_order is True.
+Note that elements must be hashable.
 
 Example:
 
@@ -132,13 +136,14 @@ Example:
 
 Args:
     <br />
-    preserve_order: Optional. Whether to preserve the order of the items. Defaults to True.
+    preserve_order: Optional. Whether to preserve the order of the elements.
+     Defaults to True.
     If True, distinct supports infinite iterables.
     If order is not important and iterable is finite, set to False for better performance.
 
 Raises:
     <br />
-    TypeError: In case one or more items in the iterable are not hashable.
+    TypeError: In case one or more items in the query are not hashable.
 
 <a id="query.Query.order"></a>
 
@@ -172,7 +177,7 @@ def reverse() -> 'Query'
 
 Yields elements in reverse order.
 Notes:
- - in case of an irreversible iterable, TypeError is raised (e.g., set).
+ - in case of an irreversible query, TypeError is raised (e.g., set).
  - in case of an iterator, it is first converted to a list, then reversed,
  this has a performance and memory impact, and assumes a finite iterator.
 
@@ -195,7 +200,8 @@ def slice(start: int = 0,
           step: int = 1) -> 'Query'
 ```
 
-Yields a slice of the iterable.
+Yields a slice of the query
+.
 Example:
 
     q(range(10)).slice(start=1, stop=6, step=2)
@@ -217,14 +223,14 @@ Args:
 def take(n: int = 1, predicate: Optional[Predicate] = None) -> 'Query'
 ```
 
-Yields up to n items that satisfies the predicate (if provided).
-In case the iterable is ordered, the first n items are returned.
+Yields up to n items that satisfy the predicate (if provided).
+In case the query is ordered, the first n elements are returned.
 
 Args:
     <br />
-    n: Optional. The number of items to take. Defaults to 1.
+    n: Optional. The number of elements to take. Defaults to 1.
     <br />
-    predicate: Optional. The predicate to filter the iterable by.
+    predicate: Optional. The predicate to filter the query by.
 
 <a id="query.Query.skip"></a>
 
@@ -234,7 +240,7 @@ Args:
 def skip(n: int = 1) -> 'Query'
 ```
 
-Yields the items after skipping the first n items (as returned from the iterator).
+Yields the elements after skipping the first n (as returned from the iterator).
 
 Example:
 
@@ -253,8 +259,8 @@ Args:
 def zip(*iterables: Iterable) -> 'Query'
 ```
 
-Yields tuples of the items of the iterable with the input iterables.
-The iteration stops as soon as one of the input iterables is exhausted.
+Yields tuples of the elements of the query with the input iterables.
+The zipping stops as soon as the smallest of the iterables and the query is exhausted.
 
 Example:
 
@@ -263,7 +269,7 @@ Example:
 
 Args:
     <br />
-    *iterables: One or more iterables to zip with the iterable.
+    *iterables: One or more iterables to zip with the query.
 
 <a id="query.Query.append"></a>
 
@@ -273,8 +279,8 @@ Args:
 def append(*single_items) -> 'Query'
 ```
 
-Yields the items of the iterable, followed by the item(s) given.
-API also supports multiple arguments, where each is considered as a single item.
+Yields the elements of the query, followed by the input element(s).
+API also supports multiple arguments, where each is considered as a single element.
 
 Infinite iterables are supported, behaving as expected.
 
@@ -288,7 +294,7 @@ Examples:
 
 Args:
     <br />
-    *single_items: One or more items to add to the end of the iterable.
+    *single_items: One or more elements to add to the end of the query.
 
 <a id="query.Query.append_many"></a>
 
@@ -298,7 +304,7 @@ Args:
 def append_many(items: Iterable) -> 'Query'
 ```
 
-Yields the items of the iterable, followed by the items given.
+Yields the elements of the iterable, followed by the elements given.
 
 Infinite iterables are supported, behaving as expected.
 
@@ -309,12 +315,12 @@ Examples:
 
 Args:
     <br />
-    items: The items to add to the end of the iterable.
+    items: An iterable to concatenate to the end of the query.
 
 Raises:
     <br />
-    TypeError: In case the items are not iterable.
-    Error will be raised when item is consumed.
+    TypeError: In case the elements are not iterable.
+    Error will be raised when query is collected.
 
 <a id="query.Query.prepend"></a>
 
@@ -324,8 +330,8 @@ Raises:
 def prepend(*single_items) -> 'Query'
 ```
 
-Yields the item(s) given, followed by the items of the iterable.
-API also supports multiple arguments, where each is considered as a single item.
+Yields the element(s) given, followed by the elements of the query.
+API also supports multiple arguments, where each is considered as a single element.
 
 Infinite iterables are supported, behaving as expected.
 
@@ -339,7 +345,7 @@ Examples:
 
 Args:
     <br />
-    *single_items: One or more items to add to the start of the iterable.
+    *single_items: One or more elements to add to the start of the query.
 
 <a id="query.Query.prepend_many"></a>
 
@@ -349,7 +355,7 @@ Args:
 def prepend_many(items) -> 'Query'
 ```
 
-Yields the items given, followed by the items of the iterable.
+Yields the elements given, followed by the elements of the query.
 
 Infinite iterables are supported, behaving as expected.
 
@@ -360,16 +366,19 @@ Examples:
 
 Args:
     <br />
-    items: The items to add to the start of the iterable.
+    items: The elements to add to the start of the query.
 
 Raises:
     <br />
     TypeError: In case the items are not iterable.
-    Error will be raised when item is consumed.
+    Error will be raised when the query is collected.
 
 <a id="query.Collectors"></a>
 
 ### Collectors
+
+Query is an iterable processing fluent-based API.
+It is lazy, and supports infinite iterables where applicable.
 
 <a id="query.Query.first"></a>
 
@@ -378,6 +387,24 @@ Raises:
 ```python
 def first(predicate: Optional[Predicate] = None) -> Any
 ```
+
+Returns the first element in the query.
+
+Example:
+
+    q([1, 2, 3]).first()
+    >> 1
+
+    q([]).first()
+    >> NoItemsFoundException
+
+Args:
+    <br />
+    predicate: Optional. The predicate to filter the query by.
+
+Raises:
+    <br />
+    NoItemsFoundException: In case the query is empty.
 
 <a id="query.Query.first_or_default"></a>
 
@@ -388,6 +415,23 @@ def first_or_default(predicate: Optional[Predicate] = None,
                      default: Any = None) -> Any
 ```
 
+Returns the first element in the query, or a default value if the query is empty.
+
+Example:
+
+    q([1, 2, 3]).first_or_default()
+    >> 1
+
+    q([]).first_or_default()
+    >> None
+
+Args:
+    <br />
+    predicate: Optional. The predicate to filter the query by.
+    <br />
+    default: Optional. The default value to return in case the query is empty.
+    Defaults to None.
+
 <a id="query.Query.single"></a>
 
 ### single
@@ -395,6 +439,26 @@ def first_or_default(predicate: Optional[Predicate] = None,
 ```python
 def single(predicate: Optional[Predicate] = None) -> Any
 ```
+
+Returns the single element in the query.
+
+Example:
+
+    q([1]).single()
+    >> 1
+
+    q([]).single()
+    >> NoItemsFoundException
+
+Args:
+    <br />
+    predicate: Optional. The predicate to filter the query by.
+
+Raises:
+    <br />
+    NoItemsFoundException: In case the query is empty.
+    <br />
+    MultipleItemsFoundException: In case the query has more than one element.
 
 <a id="query.Query.single_or_default"></a>
 
@@ -405,6 +469,30 @@ def single_or_default(predicate: Optional[Predicate] = None,
                       default: Any = None) -> Any
 ```
 
+Returns the single element in the query, or a default value if the query is empty.
+
+Args:
+    <br />
+    predicate: Optional. The predicate to filter the query by.
+    <br />
+    default: Optional. The default value to return in case the query is empty.
+    Defaults to None.
+
+Example:
+
+    q([1]).single_or_default()
+    >> 1
+
+    q([]).single_or_default()
+    >> None
+
+    q([1, 2, 3]).single_or_default()
+    >> MultipleItemsFoundException
+
+Raises:
+    <br />
+    MultipleItemsFoundException: In case the query has more than one element.
+
 <a id="query.Query.count"></a>
 
 ### count
@@ -413,9 +501,12 @@ def single_or_default(predicate: Optional[Predicate] = None,
 def count() -> int
 ```
 
-Returns the number of elements in the iterable
-:return: The number of the elements in the iterable
-:rtype: int
+Returns the number of elements in the query.
+
+Example:
+
+    q([1, 2, 3]).count()
+    >> 3
 
 <a id="query.Query.any"></a>
 
@@ -425,12 +516,20 @@ Returns the number of elements in the iterable
 def any(predicate: Optional[Predicate] = None) -> bool
 ```
 
-Returns whether any element in the iterable evaluates to true.
+Returns whether any element in the query evaluates to true.
 If a predicate is provided, only elements that satisfy the predicate are considered.
 
-In most cases, for custom types, user would want to use a predicate or
- consider implementing `__bool__` or `__len__` to support this method.
+For custom types, consider providing a predicate or
+  implementing `__bool__` or `__len__` to support this method.
  see https://docs.python.org/3/reference/datamodel.html#object.__bool__ .
+
+Example:
+
+    q([True, False, False]).any()
+    >> True
+
+    q([False, False, False]).any()
+    >> False
 
 Args:
     <br />
@@ -444,15 +543,23 @@ Args:
 def all(predicate: Optional[Predicate] = None) -> bool
 ```
 
-Returns whether all elements in the iterable evaluate to true.
+Returns whether all elements in the query evaluate to true.
 If a predicate is provided, only elements that satisfy the predicate are considered.
 
-In most cases, for custom types, user would want to use a predicate or
- consider implementing `__bool__` or `__len__` to support this method.
+For custom types, consider providing a predicate or
+  implementing `__bool__` or `__len__` to support this method.
  see https://docs.python.org/3/reference/datamodel.html#object.__bool__ .
 
+Example:
+
+    q([True, True, True]).all()
+    >> True
+
+    q([True, False, True]).all()
+    >> False
+
 Args:
-    predicate: Optional. The predicate to filter the iterable by.
+    predicate: Optional. The predicate to filter the query by.
 
 <a id="query.Query.aggregate"></a>
 
@@ -462,16 +569,21 @@ Args:
 def aggregate(by: Callable[[Any, Any], Any], initial: Any = None)
 ```
 
-Applies an accumulator function over the iterable.
+Applies an accumulator function over the query.
 
 For an optimized summation of numeric values, use `sum`.
+
+Example:
+
+    q([Point(0, 0), Point(1, 1), Point(2, 2)]).aggregate(by=lambda p1, p2: p1 + p2)
+    >> Point(3, 3)
 
 Args:
     <br />
     by: The accumulator function to apply to each two elements.
     initial: Optional. The initial value of the accumulator. Defaults to None.
-    If provided, it will also serve as the default value for an empty iterable.
-    If not provided, the first element of the iterable will be used as the initial value.
+    If provided, it will also serve as the default value for an empty query.
+    If not provided, the first element of the query will be used as the initial value.
 
 <a id="query.Query.max"></a>
 
@@ -486,6 +598,14 @@ If a selector is provided, the maximal selected attribute is returned.
 
 Custom types must provide a selector function or implement value comparisons
 (see https://docs.python.org/3/reference/expressions.html#value-comparisons).
+
+Example:
+
+    q(range(5)).max()
+    >> 4
+
+    q(range(5)).max(by=lambda x: x*-1)
+    >> 0
 
 Args:
     <br />
@@ -509,6 +629,14 @@ If a selector is provided, the minimal selected attribute is returned.
 Custom types must provide a selector function or implement value comparisons
 (see https://docs.python.org/3/reference/expressions.html#value-comparisons).
 
+Example:
+
+    q(range(5)).min()
+    >> 0
+
+    q(range(5)).min(by=lambda x: x*-1)
+    >> 4
+
 Args:
     <br />
     by: Optional. The selector function to test for the minimal element.
@@ -516,6 +644,32 @@ Args:
 Raises:
     <br />
     ValueError: In case the query is empty.
+
+<a id="query.Query.contains"></a>
+
+### contains
+
+```python
+def contains(item: Any) -> bool
+```
+
+Returns whether the query contains the given item (by equality, not identity).
+Query also support the `in` and `not in` operators.
+
+Example:
+
+    q([1, 2, 3]).contains(2)
+    >> True
+
+    q([1, 2, 3]).contains(4)
+    >> False
+
+    2 in q([1, 2, 3])
+    >> False
+
+Args:
+    <br />
+    item: The item to test for.
 
 <a id="query.Query.sum"></a>
 
@@ -525,15 +679,24 @@ Raises:
 def sum(by: Optional[NumericSelector] = None, accumulator: Any = 0) -> Any
 ```
 
-Returns the sum of the elements in the iterable.
+Returns the sum of the elements in the query.
 If a selector is provided, the sum of the selected elements is returned.
 If an accumulator is provided, it is used as the initial value for the summation.
 
-For use with custom classes, the class must implement `__add__` and optionally `__radd__`
-or provide a selector function.
+Custom types must provide a selector function or implement `__add__`
+and optionally `__radd__`
+(see https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types).
 
 Use this method for optimized summation of numeric values, for other types of aggregation,
  use aggregate.
+
+Example:
+
+    q(range(5)).sum()
+    >> 10
+
+    q(range(5)).sum(by=lambda x: x*2)
+    >> 20
 
 Args:
     <br />
@@ -550,4 +713,6 @@ Returns:
 ```python
 def to_list() -> List
 ```
+
+Returns the elements of the query as a list.
 

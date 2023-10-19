@@ -11,11 +11,10 @@ if TYPE_CHECKING:
 
 
 class Query(collections.abc.Iterable):
-    # TODO - in docs, use "yield query" instead of "iterable"
-    # TODO - use elements instead of items
-    # TODO - use attributes when referring to selector
-    # TODO - use custom types instead of custom classes
-
+    """
+    Query is an iterable processing fluent-based API.
+    It is lazy, and supports infinite iterables where applicable.
+    """
     def __init__(self, iterable: Iterable):
         """
         Create a Query object to allow fluent iterable processing
@@ -39,6 +38,9 @@ class Query(collections.abc.Iterable):
         if self._iterator is None:
             self._iterator = iter(self._items)
         return next(self._iterator)
+
+    def __contains__(self, item):
+        return item in self._items
 
     def _self(self, updated_items: Optional[Iterable] = None, in_snap: bool = False) -> 'Query':
         """
@@ -657,6 +659,28 @@ class Query(collections.abc.Iterable):
             return min(self)
         else:
             return min(self, key=by)
+
+    def contains(self, item: Any) -> bool:
+        """
+        Returns whether the query contains the given item (by equality, not identity).
+        Query also support the `in` and `not in` operators.
+
+        Example:
+
+            q([1, 2, 3]).contains(2)
+            >> True
+
+            q([1, 2, 3]).contains(4)
+            >> False
+
+            2 in q([1, 2, 3])
+            >> False
+
+        Args:
+            <br />
+            item: The item to test for.
+        """
+        return item in self._items
 
     # region Numeric Collectors
 
