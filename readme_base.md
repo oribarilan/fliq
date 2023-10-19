@@ -72,6 +72,12 @@ Note that API docs may contain custom types to improve readability:
 ### Special Functionality
 - [x] snap (aka cache, materialize)
 - [ ] membership (aka contains, in)
+- [ ] equality (aka equals, ==)
+- [ ] inequality (aka not_equals, !=)
+- [ ] arithmetic (aka add, +, subtract, -, multiply, *, divide, /, modulo, %)
+- [ ] conversion (aka to_list, to_set, to_dict, to_tuple, to_string, to_int, to_float, to_bool)
+- [ ] iteration (aka for_each, for_each_indexed, for_each_pair, for_each_pair_indexed)
+- [ ] len
 
 ### Streamers
 - [x] where (aka filter)

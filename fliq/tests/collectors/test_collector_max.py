@@ -37,4 +37,3 @@ class TestCollectorMax:
     @pytest.mark.parametrize(Params.sig_iterable_obj, Params.iterable_obj_multi())
     def test_max_hasMultipleItems_customObjectsCustomAccumulator(self, iter_type, iterable):
         assert q(iterable).max(by=lambda o: o.a) == MyTestClass(4, 4 * 2)
-
