@@ -4,7 +4,7 @@ from itertools import islice, chain
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
-from fliq.types import Predicate, Selector
+from fliq.types import Predicate, Selector, NumericSelector
 
 if TYPE_CHECKING:
     from fliq import q  # noqa: F401 (used in docs)  # pragma: no cover
@@ -466,6 +466,8 @@ class Query(collections.abc.Iterable):
         """
         Applies an accumulator function over the iterable.
 
+        For an optimized summation of numeric values, use `sum`.
+
         Args:
             <br />
             by: The accumulator function to apply to each two elements.
@@ -478,25 +480,30 @@ class Query(collections.abc.Iterable):
         else:
             return reduce(by, self._items)
 
-    # def sum(self, by: Optional[Selector] = None, accumulator: Any = 0) -> Any:
-    #     """
-    #     Returns the sum of the elements in the iterable.
-    #     If a selector is provided, the sum of the selected elements is returned.
-    #     If an accumulator is provided, it is used as the initial value for the summation.
-    #     For use with custom classes, the class must implement `__add__`.
-    #
-    #     Args:
-    #         <br />
-    #         by: Optional. The selector function to apply to each element.
-    #         accumulator: Optional. The initial value of the sum. Defaults to 0.
-    #
-    #     Returns:
-    #         The sum of the elements in the iterable.
-    #     """
-    #     query = self
-    #     if by is None:
-    #         query = self.select(lambda x: x)
-    #     return sum(query, start=accumulator)
+    def sum(self, by: Optional[NumericSelector] = None, accumulator: Any = 0) -> Any:
+        """
+        Returns the sum of the elements in the iterable.
+        If a selector is provided, the sum of the selected elements is returned.
+        If an accumulator is provided, it is used as the initial value for the summation.
+
+        For use with custom classes, the class must implement `__add__` and optionally `__radd__`
+        or provide a selector function.
+
+        Use this method for optimized summation of numeric values, for other types of aggregation,
+         use aggregate.
+
+        Args:
+            <br />
+            by: Optional. The selector function to apply to each element.
+            accumulator: Optional. The initial value of the sum. Defaults to 0.
+
+        Returns:
+            The sum of the elements in the iterable.
+        """
+        query = self
+        if by is not None:
+            query = self.select(by)
+        return sum(query, start=accumulator)
 
     def to_list(self) -> List:
         return list(self)

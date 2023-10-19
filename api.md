@@ -23,6 +23,7 @@
   * [any](#query.Query.any)
   * [all](#query.Query.all)
   * [aggregate](#query.Query.aggregate)
+  * [sum](#query.Query.sum)
   * [to\_list](#query.Query.to_list)
 
 <a id="query.Streamers"></a>
@@ -456,12 +457,40 @@ def aggregate(by: Callable[[Any, Any], Any], initial: Any = None)
 
 Applies an accumulator function over the iterable.
 
+For an optimized summation of numeric values, use `sum`.
+
 Args:
     <br />
     by: The accumulator function to apply to each two elements.
     initial: Optional. The initial value of the accumulator. Defaults to None.
     If provided, it will also serve as the default value for an empty iterable.
     If not provided, the first element of the iterable will be used as the initial value.
+
+<a id="query.Query.sum"></a>
+
+### sum
+
+```python
+def sum(by: Optional[NumericSelector] = None, accumulator: Any = 0) -> Any
+```
+
+Returns the sum of the elements in the iterable.
+If a selector is provided, the sum of the selected elements is returned.
+If an accumulator is provided, it is used as the initial value for the summation.
+
+For use with custom classes, the class must implement `__add__` and optionally `__radd__`
+or provide a selector function.
+
+Use this method for optimized summation of numeric values, for other types of aggregation,
+ use aggregate.
+
+Args:
+    <br />
+    by: Optional. The selector function to apply to each element.
+    accumulator: Optional. The initial value of the sum. Defaults to 0.
+
+Returns:
+    The sum of the elements in the iterable.
 
 <a id="query.Query.to_list"></a>
 

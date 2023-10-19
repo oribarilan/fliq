@@ -99,7 +99,7 @@ Note that API docs may contain custom types to improve readability:
 - [x] any
 - [x] all
 - [x] aggregate
-- [ ] sum
+- [ס] sum
 - [ ] min
 - [ ] max
 - [ ] average
