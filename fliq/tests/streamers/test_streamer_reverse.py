@@ -4,7 +4,7 @@ from fliq import q
 from fliq.tests.fliq_test_utils import Params
 
 
-class TestStreamerOrderBy:
+class TestStreamerReverse:
     def _is_reversible(self, iter_type):
         return iter_type != "set"
 

@@ -86,8 +86,8 @@ Note that API docs may contain custom types to improve readability:
 - [x] zip
 - [x] append
 - [x] prepend
-- [ ] append_many
-- [ ] prepend_many
+- [x] append_many
+- [x] prepend_many
 
 ### Collectors
 - [x] first

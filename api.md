@@ -11,7 +11,9 @@
   * [skip](#query.Query.skip)
   * [zip](#query.Query.zip)
   * [append](#query.Query.append)
+  * [append\_many](#query.Query.append_many)
   * [prepend](#query.Query.prepend)
+  * [prepend\_many](#query.Query.prepend_many)
 * [Collectors](#query.Collectors)
   * [first](#query.Query.first)
   * [first\_or\_default](#query.Query.first_or_default)
@@ -116,14 +118,23 @@ def distinct(preserve_order: bool = True) -> 'Query'
 ```
 
 Yields distinct elements, preserving order if specified.
+Distinct supports infinite iterables, when preserver_order is True.
+Note that the items must be hashable.
 
 Example:
+
     q([0, 1, 0, 2, 2]).distinct()
     >> [0, 1, 2]
 
 Args:
     <br />
     preserve_order: Optional. Whether to preserve the order of the items. Defaults to True.
+    If True, distinct supports infinite iterables.
+    If order is not important and iterable is finite, set to False for better performance.
+
+Raises:
+    <br />
+    TypeError: In case one or more items in the iterable are not hashable.
 
 <a id="query.Query.order"></a>
 
@@ -273,7 +284,34 @@ Examples:
     >> [0, 1, 2, 3, 4, 5, 6, 7]
 
 Args:
+    <br />
     *single_items: One or more items to add to the end of the iterable.
+
+<a id="query.Query.append_many"></a>
+
+### append\_many
+
+```python
+def append_many(items: Iterable) -> 'Query'
+```
+
+Yields the items of the iterable, followed by the items given.
+
+Infinite iterables are supported, behaving as expected.
+
+Examples:
+
+    q(range(5)).append_many([5, 6, 7])
+    >> [0, 1, 2, 3, 4, 5, 6, 7]
+
+Args:
+    <br />
+    items: The items to add to the end of the iterable.
+
+Raises:
+    <br />
+    TypeError: In case the items are not iterable.
+    Error will be raised when item is consumed.
 
 <a id="query.Query.prepend"></a>
 
@@ -297,7 +335,34 @@ Examples:
     >> [5, 6, 7, 0, 1, 2, 3, 4]
 
 Args:
+    <br />
     *single_items: One or more items to add to the start of the iterable.
+
+<a id="query.Query.prepend_many"></a>
+
+### prepend\_many
+
+```python
+def prepend_many(items) -> 'Query'
+```
+
+Yields the items given, followed by the items of the iterable.
+
+Infinite iterables are supported, behaving as expected.
+
+Examples:
+
+    q(range(5)).prepend_many([5, 6, 7])
+    >> [5, 6, 7, 0, 1, 2, 3, 4]
+
+Args:
+    <br />
+    items: The items to add to the start of the iterable.
+
+Raises:
+    <br />
+    TypeError: In case the items are not iterable.
+    Error will be raised when item is consumed.
 
 <a id="query.Collectors"></a>
 
