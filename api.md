@@ -26,6 +26,7 @@
   * [max](#query.Query.max)
   * [min](#query.Query.min)
   * [contains](#query.Query.contains)
+  * [equals](#query.Query.equals)
   * [sum](#query.Query.sum)
   * [to\_list](#query.Query.to_list)
 
@@ -670,6 +671,35 @@ Example:
 Args:
     <br />
     item: The item to test for.
+
+<a id="query.Query.equals"></a>
+
+### equals
+
+```python
+def equals(other: Iterable, bag_compare: bool = False) -> bool
+```
+
+Returns whether the query is equal to the given iterable.
+Query also supports the `==` and `!=` operators.
+
+Example:
+
+    q([1, 2, 3]).equals([1, 2, 3])
+    >> True
+
+    q([1, 2, 3]).equals(q([1, 2])““)
+    >> False
+
+    q([1, 2, 3]).equals([3, 2, 1], ordered=False)
+    >> True
+
+Args:
+    <br />
+    other: The iterable to test for equality.
+    <br />
+    bag_compare: Optional. If True, compares the query and the other iterable as bags,
+    ignoring order and duplicate items. Defaults to False.
 
 <a id="query.Query.sum"></a>
 

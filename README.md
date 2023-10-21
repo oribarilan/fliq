@@ -93,6 +93,7 @@ Note that API docs may contain custom types to improve readability:
   * [max](#query.Query.max)
   * [min](#query.Query.min)
   * [contains](#query.Query.contains)
+  * [equals](#query.Query.equals)
   * [sum](#query.Query.sum)
   * [to\_list](#query.Query.to_list)
 
@@ -738,6 +739,35 @@ Args:
     <br />
     item: The item to test for.
 
+<a id="query.Query.equals"></a>
+
+### equals
+
+```python
+def equals(other: Iterable, bag_compare: bool = False) -> bool
+```
+
+Returns whether the query is equal to the given iterable.
+Query also supports the `==` and `!=` operators.
+
+Example:
+
+    q([1, 2, 3]).equals([1, 2, 3])
+    >> True
+
+    q([1, 2, 3]).equals(q([1, 2])““)
+    >> False
+
+    q([1, 2, 3]).equals([3, 2, 1], ordered=False)
+    >> True
+
+Args:
+    <br />
+    other: The iterable to test for equality.
+    <br />
+    bag_compare: Optional. If True, compares the query and the other iterable as bags,
+    ignoring order and duplicate items. Defaults to False.
+
 <a id="query.Query.sum"></a>
 
 ### sum
@@ -788,16 +818,19 @@ Returns the elements of the query as a list.
 ## Roadmap
 
 ### Special Functionality
-- [x] snap (aka cache, materialize)
-- [x] in (aka membership)
-- [ ] equality (aka equals, ==)
-- [ ] inequality (aka not_equals, !=)
 - [ ] arithmetic (aka add, +, subtract, -, multiply, *, divide, /, modulo, %)
 - [ ] conversion (aka to_list, to_set, to_dict, to_tuple, to_string, to_int, to_float, to_bool)
 - [ ] iteration (aka for_each, for_each_indexed, for_each_pair, for_each_pair_indexed)
 - [ ] len
 
 ### Streamers
+
+#### Special Streamers
+
+- [x] snap (aka cache, materialize)
+
+#### Common Streamers
+
 - [x] where (aka filter)
 - [x] select (aka map)
 - [x] exclude (aka where_not, remove_all) 
@@ -816,6 +849,14 @@ Returns the elements of the query as a list.
 - [x] prepend_many
 
 ### Collectors
+
+#### Special Collectors
+
+- [x] in / not in (aka membership)
+- [x] == / != (aka equality)
+
+#### Common Collectors
+
 - [x] first
 - [x] first_or_default
 - [x] get
@@ -825,6 +866,7 @@ Returns the elements of the query as a list.
 - [x] all
 - [x] aggregate
 - [x] contains
+- [x] equals
 
 #### Numeric Collectors
 - [x] sum

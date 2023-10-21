@@ -1,6 +1,6 @@
 import collections.abc
 from functools import reduce
-from itertools import islice, chain
+from itertools import islice, chain, zip_longest
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
@@ -41,6 +41,28 @@ class Query(collections.abc.Iterable):
 
     def __contains__(self, item):
         return item in self._items
+
+    def __eq__(self, other):
+        """
+        Compares the query to another iterable.
+
+        Args:
+            other: The iterable to compare to. Does not have to be a Query object.
+
+        Returns:
+            True if the query is equal to another iterable, item by item, ordered, False otherwise.
+        """
+        if not isinstance(other, Iterable):
+            return False
+
+        sentinel = object()  # To identify iterables of different sizes
+        for a, b in zip_longest(self._items, other, fillvalue=sentinel):
+            if a != b:
+                # If two reals objects returned unequal, return False
+                # If one of the objects is the sentinel, iterables are of unequal size, return False
+                return False
+
+        return True
 
     def _self(self, updated_items: Optional[Iterable] = None, in_snap: bool = False) -> 'Query':
         """
@@ -681,6 +703,34 @@ class Query(collections.abc.Iterable):
             item: The item to test for.
         """
         return item in self._items
+
+    def equals(self, other: Iterable, bag_compare: bool = False) -> bool:
+        """
+        Returns whether the query is equal to the given iterable.
+        Query also supports the `==` and `!=` operators.
+
+        Example:
+
+            q([1, 2, 3]).equals([1, 2, 3])
+            >> True
+
+            q([1, 2, 3]).equals(q([1, 2])““)
+            >> False
+
+            q([1, 2, 3]).equals([3, 2, 1], ordered=False)
+            >> True
+
+        Args:
+            <br />
+            other: The iterable to test for equality.
+            <br />
+            bag_compare: Optional. If True, compares the query and the other iterable as bags,
+            ignoring order and duplicate items. Defaults to False.
+        """
+        if bag_compare:
+            return set(self) == set(other)
+        else:
+            return self == other
 
     # region Numeric Collectors
 
