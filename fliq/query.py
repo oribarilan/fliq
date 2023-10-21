@@ -64,6 +64,12 @@ class Query(collections.abc.Iterable):
 
         return True
 
+    def __len__(self):
+        """
+        Returns the number of elements in the query.
+        """
+        return self.count()
+
     def _self(self, updated_items: Optional[Iterable] = None, in_snap: bool = False) -> 'Query':
         """
         Adjusts the iterable of the query, and returns the query itself.

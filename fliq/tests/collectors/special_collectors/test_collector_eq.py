@@ -4,7 +4,7 @@ from fliq import q
 from fliq.tests.fliq_test_utils import Params
 
 
-class TestEq:
+class TestCollectorEq:
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_empty())
     def test_eq_hasNoItems(self, iter_type, iterable, iterable_list):
         assert q(iterable) == iterable_list
