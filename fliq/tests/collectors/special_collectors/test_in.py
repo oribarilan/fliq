@@ -4,7 +4,7 @@ from fliq import q
 from fliq.tests.fliq_test_utils import Params
 
 
-class TestCollectorIn:
+class TestIn:
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_empty())
     def test_in_hasNoItems(self, iter_type, iterable, iterable_list):
         if iter_type == 'str':
