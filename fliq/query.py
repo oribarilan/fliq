@@ -108,7 +108,7 @@ class Query(collections.abc.Iterable):
             evens = q(range(10)).where(lambda x: x % 2 == 0).snap()
             count = evens.count()                       # <-- 5
             first_even = evens.first()                  # <-- 0
-            even_pows = evens.select(lambda x: x ** 2)  # <-- [0, 4, 16, 36, 64]
+            even_pow = evens.select(lambda x: x ** 2)  # <-- [0, 4, 16, 36, 64]
         """
         self._cow_pending = True
         return self._self(in_snap=True)
@@ -716,7 +716,7 @@ class Query(collections.abc.Iterable):
             q([1, 2, 3]).equals([1, 2, 3])
             >> True
 
-            q([1, 2, 3]).equals(q([1, 2])““)
+            q([1, 2, 3]).equals(q([1, 2]))
             >> False
 
             q([1, 2, 3]).equals([3, 2, 1], ordered=False)
