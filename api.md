@@ -1,4 +1,5 @@
 * [Streamers](#query.Streamers)
+* [Collectors](#query.Collectors)
   * [snap](#query.Query.snap)
   * [where](#query.Query.where)
   * [select](#query.Query.select)
@@ -14,7 +15,6 @@
   * [append\_many](#query.Query.append_many)
   * [prepend](#query.Query.prepend)
   * [prepend\_many](#query.Query.prepend_many)
-* [Collectors](#query.Collectors)
   * [first](#query.Query.first)
   * [first\_or\_default](#query.Query.first_or_default)
   * [single](#query.Query.single)
@@ -37,12 +37,19 @@
 Query is an iterable processing fluent-based API.
 It is lazy, and supports infinite iterables where applicable.
 
+<a id="query.Collectors"></a>
+
+### Collectors
+
+Query is an iterable processing fluent-based API.
+It is lazy, and supports infinite iterables where applicable.
+
 <a id="query.Query.snap"></a>
 
 ### snap
 
 ```python
-def snap() -> 'Query'
+def snap() -> Query
 ```
 
 Snap is a unique streamer.
@@ -65,7 +72,7 @@ Example:
 ### where
 
 ```python
-def where(predicate: Optional[Predicate] = None) -> 'Query'
+def where(predicate: Optional[Predicate] = None) -> Query
 ```
 
 Yields elements that satisfy the predicate (aka filter).
@@ -85,7 +92,7 @@ Args:
 ### select
 
 ```python
-def select(selector: Selector) -> 'Query'
+def select(selector: Selector) -> Query
 ```
 
 Yields the result of applying the selector function to each element (aka map).
@@ -104,7 +111,7 @@ Args:
 ### exclude
 
 ```python
-def exclude(predicate: Predicate) -> 'Query'
+def exclude(predicate: Predicate) -> Query
 ```
 
 Yields elements that do not satisfy the predicate.
@@ -123,7 +130,7 @@ Args:
 ### distinct
 
 ```python
-def distinct(preserve_order: bool = True) -> 'Query'
+def distinct(preserve_order: bool = True) -> Query
 ```
 
 Yields distinct elements, preserving order if specified.
@@ -151,7 +158,7 @@ Raises:
 ### order
 
 ```python
-def order(by: Optional[Selector] = None, ascending: bool = True) -> 'Query'
+def order(by: Optional[Selector] = None, ascending: bool = True) -> Query
 ```
 
 Yields elements in sorted order.
@@ -173,7 +180,7 @@ Args:
 ### reverse
 
 ```python
-def reverse() -> 'Query'
+def reverse() -> Query
 ```
 
 Yields elements in reverse order.
@@ -196,9 +203,7 @@ Raises:
 ### slice
 
 ```python
-def slice(start: int = 0,
-          stop: Optional[int] = None,
-          step: int = 1) -> 'Query'
+def slice(start: int = 0, stop: Optional[int] = None, step: int = 1) -> Query
 ```
 
 Yields a slice of the query
@@ -221,7 +226,7 @@ Args:
 ### take
 
 ```python
-def take(n: int = 1, predicate: Optional[Predicate] = None) -> 'Query'
+def take(n: int = 1, predicate: Optional[Predicate] = None) -> Query
 ```
 
 Yields up to n items that satisfy the predicate (if provided).
@@ -238,7 +243,7 @@ Args:
 ### skip
 
 ```python
-def skip(n: int = 1) -> 'Query'
+def skip(n: int = 1) -> Query
 ```
 
 Yields the elements after skipping the first n (as returned from the iterator).
@@ -257,7 +262,7 @@ Args:
 ### zip
 
 ```python
-def zip(*iterables: Iterable) -> 'Query'
+def zip(*iterables: Iterable) -> Query
 ```
 
 Yields tuples of the elements of the query with the input iterables.
@@ -277,7 +282,7 @@ Args:
 ### append
 
 ```python
-def append(*single_items) -> 'Query'
+def append(*single_items) -> Query
 ```
 
 Yields the elements of the query, followed by the input element(s).
@@ -302,7 +307,7 @@ Args:
 ### append\_many
 
 ```python
-def append_many(items: Iterable) -> 'Query'
+def append_many(items: Iterable) -> Query
 ```
 
 Yields the elements of the iterable, followed by the elements given.
@@ -328,7 +333,7 @@ Raises:
 ### prepend
 
 ```python
-def prepend(*single_items) -> 'Query'
+def prepend(*single_items) -> Query
 ```
 
 Yields the element(s) given, followed by the elements of the query.
@@ -353,7 +358,7 @@ Args:
 ### prepend\_many
 
 ```python
-def prepend_many(items) -> 'Query'
+def prepend_many(items) -> Query
 ```
 
 Yields the elements given, followed by the elements of the query.
@@ -373,13 +378,6 @@ Raises:
     <br />
     TypeError: In case the items are not iterable.
     Error will be raised when the query is collected.
-
-<a id="query.Collectors"></a>
-
-### Collectors
-
-Query is an iterable processing fluent-based API.
-It is lazy, and supports infinite iterables where applicable.
 
 <a id="query.Query.first"></a>
 

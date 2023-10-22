@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections.abc
 from functools import reduce
 from itertools import islice, chain, zip_longest
@@ -64,7 +66,7 @@ class Query(collections.abc.Iterable):
 
         return True
 
-    def _self(self, updated_items: Optional[Iterable] = None, in_snap: bool = False) -> 'Query':
+    def _self(self, updated_items: Optional[Iterable] = None, in_snap: bool = False) -> Query:
         """
         Adjusts the iterable of the query, and returns the query itself.
         This method abstract the need to create a new Query in some situations, to support
@@ -91,7 +93,7 @@ class Query(collections.abc.Iterable):
     def __repr__(self) -> str:  # pragma: no cover
         return f"Query({repr(self._items)}, cow_pending={self._cow_pending})"
 
-    def snap(self) -> 'Query':
+    def snap(self) -> Query:
         """
         Snap is a unique streamer.
         Yields the same elements, and creates a snapshot for the query.
@@ -113,7 +115,7 @@ class Query(collections.abc.Iterable):
 
     # region Streamers
 
-    def where(self, predicate: Optional[Predicate] = None) -> 'Query':
+    def where(self, predicate: Optional[Predicate] = None) -> Query:
         """
         Yields elements that satisfy the predicate (aka filter).
 
@@ -134,7 +136,7 @@ class Query(collections.abc.Iterable):
         items = filter(predicate, self._items)
         return self._self(items)
 
-    def select(self, selector: Selector) -> 'Query':
+    def select(self, selector: Selector) -> Query:
         """
         Yields the result of applying the selector function to each element (aka map).
 
@@ -150,7 +152,7 @@ class Query(collections.abc.Iterable):
         items = map(selector, self._items)
         return self._self(items)
 
-    def exclude(self, predicate: Predicate) -> 'Query':
+    def exclude(self, predicate: Predicate) -> Query:
         """
         Yields elements that do not satisfy the predicate.
 
@@ -166,7 +168,7 @@ class Query(collections.abc.Iterable):
         items = filter(lambda x: not predicate(x), self._items)
         return self._self(items)
 
-    def distinct(self, preserve_order: bool = True) -> 'Query':
+    def distinct(self, preserve_order: bool = True) -> Query:
         """
         Yields distinct elements, preserving order if specified.
         Distinct supports infinite iterables, when preserve_order is True.
@@ -205,7 +207,7 @@ class Query(collections.abc.Iterable):
 
     def order(self,
               by: Optional[Selector] = None,
-              ascending: bool = True) -> 'Query':
+              ascending: bool = True) -> Query:
         """Yields elements in sorted order.
 
         Example:
@@ -227,7 +229,7 @@ class Query(collections.abc.Iterable):
             items = sorted(self._items, key=by, reverse=not ascending)
         return self._self(items)
 
-    def reverse(self) -> 'Query':
+    def reverse(self) -> Query:
         """
         Yields elements in reverse order.
         Notes:
@@ -250,7 +252,7 @@ class Query(collections.abc.Iterable):
             items = reversed(self._items)  # type: ignore
         return self._self(items)
 
-    def slice(self, start: int = 0, stop: Optional[int] = None, step: int = 1) -> 'Query':
+    def slice(self, start: int = 0, stop: Optional[int] = None, step: int = 1) -> Query:
         """
         Yields a slice of the query
         .
@@ -270,7 +272,7 @@ class Query(collections.abc.Iterable):
         items = islice(self._items, start, stop, step)
         return self._self(items)
 
-    def take(self, n: int = 1, predicate: Optional[Predicate] = None) -> 'Query':
+    def take(self, n: int = 1, predicate: Optional[Predicate] = None) -> Query:
         """
         Yields up to n items that satisfy the predicate (if provided).
         In case the query is ordered, the first n elements are returned.
@@ -285,7 +287,7 @@ class Query(collections.abc.Iterable):
         query = query.slice(stop=n)
         return self._self(query._items)
 
-    def skip(self, n: int = 1) -> 'Query':
+    def skip(self, n: int = 1) -> Query:
         """
         Yields the elements after skipping the first n (as returned from the iterator).
 
@@ -301,7 +303,7 @@ class Query(collections.abc.Iterable):
         query = self.slice(start=n)
         return self._self(query._items)
 
-    def zip(self, *iterables: Iterable) -> 'Query':
+    def zip(self, *iterables: Iterable) -> Query:
         """
         Yields tuples of the elements of the query with the input iterables.
         The zipping stops as soon as the smallest of the iterables and the query is exhausted.
@@ -318,7 +320,7 @@ class Query(collections.abc.Iterable):
         items = zip(self._items, *iterables)
         return self._self(items)
 
-    def append(self, *single_items) -> 'Query':
+    def append(self, *single_items) -> Query:
         """
         Yields the elements of the query, followed by the input element(s).
         API also supports multiple arguments, where each is considered as a single element.
@@ -340,7 +342,7 @@ class Query(collections.abc.Iterable):
         items = chain(self._items, single_items)
         return self._self(items)
 
-    def append_many(self, items: Iterable) -> 'Query':
+    def append_many(self, items: Iterable) -> Query:
         """
         Yields the elements of the iterable, followed by the elements given.
 
@@ -363,7 +365,7 @@ class Query(collections.abc.Iterable):
         items = chain(self._items, items)
         return self._self(items)
 
-    def prepend(self, *single_items) -> 'Query':
+    def prepend(self, *single_items) -> Query:
         """
         Yields the element(s) given, followed by the elements of the query.
         API also supports multiple arguments, where each is considered as a single element.
@@ -385,7 +387,7 @@ class Query(collections.abc.Iterable):
         items = chain(single_items, self._items)
         return self._self(items)
 
-    def prepend_many(self, items) -> 'Query':
+    def prepend_many(self, items) -> Query:
         """
         Yields the elements given, followed by the elements of the query.
 
