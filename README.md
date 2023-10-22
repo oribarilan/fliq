@@ -66,7 +66,6 @@ Note that API docs may contain custom types to improve readability:
 - Selector. ```Selector = Callable[[Any], Any]```
 
 * [Streamers](#query.Streamers)
-* [Collectors](#query.Collectors)
   * [snap](#query.Query.snap)
   * [where](#query.Query.where)
   * [select](#query.Query.select)
@@ -82,6 +81,7 @@ Note that API docs may contain custom types to improve readability:
   * [append\_many](#query.Query.append_many)
   * [prepend](#query.Query.prepend)
   * [prepend\_many](#query.Query.prepend_many)
+* [Collectors](#query.Collectors)
   * [first](#query.Query.first)
   * [first\_or\_default](#query.Query.first_or_default)
   * [single](#query.Query.single)
@@ -104,13 +104,6 @@ Note that API docs may contain custom types to improve readability:
 Query is an iterable processing fluent-based API.
 It is lazy, and supports infinite iterables where applicable.
 
-<a id="query.Collectors"></a>
-
-### Collectors
-
-Query is an iterable processing fluent-based API.
-It is lazy, and supports infinite iterables where applicable.
-
 <a id="query.Query.snap"></a>
 
 ### snap
@@ -129,7 +122,7 @@ Assumes a finite iterable.
 
 Example:
 
-    evens = q(range(10)).where(lambda x: x % 2 == 0).cache()
+    evens = q(range(10)).where(lambda x: x % 2 == 0).snap()
     count = evens.count()                       # <-- 5
     first_even = evens.first()                  # <-- 0
     even_pows = evens.select(lambda x: x ** 2)  # <-- [0, 4, 16, 36, 64]
@@ -445,6 +438,13 @@ Raises:
     <br />
     TypeError: In case the items are not iterable.
     Error will be raised when the query is collected.
+
+<a id="query.Collectors"></a>
+
+### Collectors
+
+Query is an iterable processing fluent-based API.
+It is lazy, and supports infinite iterables where applicable.
 
 <a id="query.Query.first"></a>
 

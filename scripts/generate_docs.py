@@ -33,12 +33,12 @@ query_class = [c for c in query_module.members if c.name == 'Query'][0]
 query_carrier = copy(query_class)
 query_carrier.name = 'Streamers'
 query_carrier.members = [m for m in query_class.members
-                         if not m.name.startswith('_') and m.return_type == "'Query'"]
+                         if not m.name.startswith('_') and m.return_type == "Query"]
 
 query_collector = copy(query_class)
 query_collector.name = 'Collectors'
 query_collector.members = [m for m in query_class.members
-                           if not m.name.startswith('_') and m.return_type != "'Query'"]
+                           if not m.name.startswith('_') and m.return_type != "Query"]
 
 current_dir = Path(__file__).parent
 root_dir = current_dir.parent

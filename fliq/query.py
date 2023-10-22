@@ -105,7 +105,7 @@ class Query(collections.abc.Iterable):
 
         Example:
 
-            evens = q(range(10)).where(lambda x: x % 2 == 0).cache()
+            evens = q(range(10)).where(lambda x: x % 2 == 0).snap()
             count = evens.count()                       # <-- 5
             first_even = evens.first()                  # <-- 0
             even_pows = evens.select(lambda x: x ** 2)  # <-- [0, 4, 16, 36, 64]
