@@ -175,7 +175,8 @@ class Query(collections.abc.Iterable):
             preserve_order: Optional. Whether to preserve the order of the elements.
                 Defaults to True.
                 If True, distinct supports infinite iterables.
-                If order is not important and iterable is finite, set to False for better performance.
+                If order is not important and iterable is finite,
+                set to False for better performance.
 
         Raises:
             TypeError: In case one or more items in the query are not hashable.
