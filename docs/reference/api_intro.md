@@ -3,6 +3,13 @@
 Fliq provides rich functionality to perform processing on datasets (aka iterables).
 This *reference* section provides concepts and a detailed description of the API.
 
+!!! note
+
+    API docs contain custom types to improve readability:
+
+    - Predicate. ```Predicate = Callable[[Any], bool]```
+    - Selector. ```Selector = Callable[[Any], Any]```
+
 ## Query
 Query is the main object in Fliq. It is an abstracted lazy iterable, 
 which can be used to perform processing on datasets.

@@ -93,14 +93,13 @@ copyright: |
   &copy; 2023 <a href="https://github.com/oribarilan"  target="_blank" rel="noopener">Ori Bar-ilan</a>
 
 nav:
-    - index.md
-    - Tutorial:
-        - Getting Started: tutorial/getting_started.md
+    - Welcome to Fliq: index.md
     - Reference (Code API):
         - API Intro: reference/api_intro.md
         - Mapper Methods: reference/mapper_methods.md
         - Materializer Methods: reference/materializer_methods.md
         - Snapshots: reference/snapshots.md
+        - API Roadmap: reference/api_roadmap.md
 #    - Contribution:
 #        - Contribution: contribution/contribution.md
 #        - Development: contribution/development.md
