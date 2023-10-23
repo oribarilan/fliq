@@ -36,6 +36,7 @@ check:
 
 # test and build docs TODO add doc tests
 doc:
+    python -m doctest fliq/query.py
     python scripts/gen_docs.py
     mkdocs build
 

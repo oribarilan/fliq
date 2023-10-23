@@ -24,11 +24,7 @@ class Query(collections.abc.Iterable):
         self._items = iterable
         self._iterator: Optional[Iterator] = None
 
-        # described the operation distance from the last snapshot.
-        # -1 means there was no snapshot
-        # 0 means the last operation was a snapshot
-        # 1 means the previous operation was a snapshot
-        # ...
+        # COW mode: copy-on-write mode, used to support snapshots
         self._cow_pending: bool = False
 
     def __iter__(self):
@@ -104,10 +100,14 @@ class Query(collections.abc.Iterable):
         Assumes a finite iterable.
 
         Examples:
+            >>> from fliq import q
             >>> evens = q(range(10)).where(lambda x: x % 2 == 0).snap()
-            >>> count = evens.count()                       # <-- 5
-            >>> first_even = evens.first()                  # <-- 0
-            >>> even_pow = evens.select(lambda x: x ** 2)   # <-- [0, 4, 16, 36, 64]
+            >>> evens.count()
+            5
+            >>> evens.first()
+            0
+            >>> evens.select(lambda x: x ** 2).to_list()
+            [0, 4, 16, 36, 64]
         """
         self._cow_pending = True
         return self._self(in_snap=True)
@@ -119,7 +119,8 @@ class Query(collections.abc.Iterable):
         Yields elements that satisfy the predicate (aka filter).
 
         Examples:
-            >>> q(range(10)).where(lambda x: x % 2 == 0)
+            >>> from fliq import q
+            >>> q(range(10)).where(lambda x: x % 2 == 0).to_list()
             [0, 2, 4, 6, 8]
 
         Args:
@@ -138,8 +139,9 @@ class Query(collections.abc.Iterable):
         Yields the result of applying the selector function to each element (aka map).
 
         Examples:
-            >>> q(range(5)).select(lambda x: x * 2 == 0)
-            [0, 2, 4, 6, 8, 10]
+            >>> from fliq import q
+            >>> q(range(5)).select(lambda x: x * 2).to_list()
+            [0, 2, 4, 6, 8]
 
         Args:
             selector: The selector function to apply to each element.
@@ -152,7 +154,8 @@ class Query(collections.abc.Iterable):
         Yields elements that do not satisfy the predicate.
 
         Examples:
-            >>> q(range(5)).exclude(lambda x: x > 3)
+            >>> from fliq import q
+            >>> q(range(5)).exclude(lambda x: x > 3).to_list()
             [0, 1, 2, 3]
 
         Args:
@@ -168,7 +171,8 @@ class Query(collections.abc.Iterable):
         Note that elements must be hashable.
 
         Examples:
-            >>> q([0, 1, 0, 2, 2]).distinct()
+            >>> from fliq import q
+            >>> q([0, 1, 0, 2, 2]).distinct().to_list()
             [0, 1, 2]
 
         Args:
@@ -201,7 +205,8 @@ class Query(collections.abc.Iterable):
         """Yields elements in sorted order.
 
         Examples:
-            >>> q([4, 3, 2, 1, 0]).order()
+            >>> from fliq import q
+            >>> q([4, 3, 2, 1, 0]).order().to_list()
             [0, 1, 2, 3, 4]
 
         Args:
@@ -225,7 +230,8 @@ class Query(collections.abc.Iterable):
          this has a performance and memory impact, and assumes a finite iterator.
 
          Examples:
-            >>> q([0, 1, 2, 3, 4]).order()
+             >>> from fliq import q
+            >>> q([0, 1, 2, 3, 4]).reverse().to_list()
             [4, 3, 2, 1, 0]
 
         Raises:
@@ -242,7 +248,8 @@ class Query(collections.abc.Iterable):
         Yields a slice of the query
 
         Examples:
-            >>> q(range(10)).slice(start=1, stop=6, step=2)
+            >>> from fliq import q
+            >>> q(range(10)).slice(start=1, stop=6, step=2).to_list()
             [1, 3, 5]
 
         Args:
@@ -271,7 +278,8 @@ class Query(collections.abc.Iterable):
         Yields the elements after skipping the first n (as returned from the iterator).
 
         Examples:
-            >>> q(range(10)).skip(n=5)
+            >>> from fliq import q
+            >>> q(range(10)).skip(n=5).to_list()
             [5, 6, 7, 8, 9]
 
         Args:
@@ -286,7 +294,8 @@ class Query(collections.abc.Iterable):
         The zipping stops as soon as the smallest of the iterables and the query is exhausted.
 
         Examples:
-            >>> q(range(5)).zip(range(5, 10), range(10, 15)
+            >>> from fliq import q
+            >>> q(range(5)).zip(range(5, 10), range(10, 15)).to_list()
             [(0, 5, 10), (1, 6, 11), (2, 7, 12), (3, 8, 13), (4, 9, 14)]
 
         Args:
@@ -303,9 +312,10 @@ class Query(collections.abc.Iterable):
         Infinite iterables are supported, behaving as expected.
 
         Examples:
-            >>> q(range(5)).append(5)
+            >>> from fliq import q
+            >>> q(range(5)).append(5).to_list()
             [0, 1, 2, 3, 4, 5]
-            >>> q(range(5)).append(5, 6, 7)
+            >>> q(range(5)).append(5, 6, 7).to_list()
             [0, 1, 2, 3, 4, 5, 6, 7]
 
         Args:
@@ -321,7 +331,8 @@ class Query(collections.abc.Iterable):
         Infinite iterables are supported, behaving as expected.
 
         Examples:
-            >>> q(range(5)).append_many([5, 6, 7])
+            >>> from fliq import q
+            >>> q(range(5)).append_many([5, 6, 7]).to_list()
             [0, 1, 2, 3, 4, 5, 6, 7]
 
         Args:
@@ -342,9 +353,10 @@ class Query(collections.abc.Iterable):
         Infinite iterables are supported, behaving as expected.
 
         Examples:
-            >>> q(range(5)).prepend(5)
+            >>> from fliq import q
+            >>> q(range(5)).prepend(5).to_list()
             [5, 0, 1, 2, 3, 4]
-            >>> q(range(5)).prepend(5, 6, 7)
+            >>> q(range(5)).prepend(5, 6, 7).to_list()
             [5, 6, 7, 0, 1, 2, 3, 4]
 
         Args:
@@ -360,7 +372,8 @@ class Query(collections.abc.Iterable):
         Infinite iterables are supported, behaving as expected.
 
         Examples:
-            >>> q(range(5)).prepend_many([5, 6, 7])
+            >>> from fliq import q
+            >>> q(range(5)).prepend_many([5, 6, 7]).to_list()
             [5, 6, 7, 0, 1, 2, 3, 4]
 
         Args:
@@ -382,10 +395,13 @@ class Query(collections.abc.Iterable):
         Returns the first element in the query.
 
         Examples:
+            >>> from fliq import q
             >>> q([1, 2, 3]).first()
             1
             >>> q([]).first()
-            NoItemsFoundException
+            Traceback (most recent call last):
+            ...
+            fliq.exceptions.NoItemsFoundException
 
         Args:
             predicate: Optional. The predicate to filter the query by.
@@ -404,10 +420,11 @@ class Query(collections.abc.Iterable):
         Returns the first element in the query, or a default value if the query is empty.
 
         Examples:
+            >>> from fliq import q
             >>> q([1, 2, 3]).first_or_default()
             1
-            >>> q([]).first_or_default()
-            None
+            >>> q([]).first_or_default() # returns None
+
 
         Args:
             predicate: Optional. The predicate to filter the query by.
@@ -425,10 +442,13 @@ class Query(collections.abc.Iterable):
         Returns the single element in the query.
 
         Examples:
+            >>> from fliq import q
             >>> q([1]).single()
             1
             >>> q([]).single()
-            NoItemsFoundException
+            Traceback (most recent call last):
+            ...
+            fliq.exceptions.NoItemsFoundException
 
         Args:
             predicate: Optional. The predicate to filter the query by.
@@ -460,12 +480,15 @@ class Query(collections.abc.Iterable):
                 Defaults to None.
 
         Examples:
+            >>> from fliq import q
             >>> q([1]).single_or_default()
             1
-            >>> q([]).single_or_default()
-            None
+            >>> q([]).single_or_default() # returns None
+
             >>> q([1, 2, 3]).single_or_default()
-            MultipleItemsFoundException
+            Traceback (most recent call last):
+            ...
+            fliq.exceptions.MultipleItemsFoundException
 
         Raises:
             MultipleItemsFoundException: In case the query has more than one element.
@@ -488,6 +511,7 @@ class Query(collections.abc.Iterable):
         Returns the number of elements in the query.
 
         Examples:
+            >>> from fliq import q
             >>> q([1, 2, 3]).count()
             3
         """
@@ -508,6 +532,7 @@ class Query(collections.abc.Iterable):
          see https://docs.python.org/3/reference/datamodel.html#object.__bool__ .
 
         Examples:
+            >>> from fliq import q
             >>> q([True, False, False]).any()
             True
             >>> q([False, False, False]).any()
@@ -529,6 +554,7 @@ class Query(collections.abc.Iterable):
          see https://docs.python.org/3/reference/datamodel.html#object.__bool__ .
 
         Examples:
+            >>> from fliq import q
             >>> q([True, True, True]).all()
             True
             >>> q([True, False, True]).all()
@@ -547,8 +573,10 @@ class Query(collections.abc.Iterable):
         For an optimized summation of numeric values, use `sum`.
 
         Examples:
+            >>> from fliq.tests.fliq_test_utils import Point
+            >>> from fliq import q
             >>> q([Point(0, 0), Point(1, 1), Point(2, 2)]).aggregate(by=lambda p1, p2: p1 + p2)
-            Point(3, 3)
+            Point(x=3, y=3)
 
         Args:
             by: The accumulator function to apply to each two elements.
@@ -570,6 +598,7 @@ class Query(collections.abc.Iterable):
         (see https://docs.python.org/3/reference/expressions.html#value-comparisons).
 
         Examples:
+            >>> from fliq import q
             >>> q(range(5)).max()
             4
             >>> q(range(5)).max(by=lambda x: x*-1)
@@ -595,6 +624,7 @@ class Query(collections.abc.Iterable):
         (see https://docs.python.org/3/reference/expressions.html#value-comparisons).
 
         Examples:
+            >>> from fliq import q
             >>> q(range(5)).min()
             0
             >>> q(range(5)).min(by=lambda x: x*-1)
@@ -617,12 +647,13 @@ class Query(collections.abc.Iterable):
         Query also support the `in` and `not in` operators.
 
         Examples:
+            >>> from fliq import q
             >>> q([1, 2, 3]).contains(2)
             True
             >>> q([1, 2, 3]).contains(4)
             False
             >>> 2 in q([1, 2, 3])
-            False
+            True
 
         Args:
             item: The item to test for.
@@ -635,11 +666,12 @@ class Query(collections.abc.Iterable):
         Query also supports the `==` and `!=` operators.
 
         Examples:
+            >>> from fliq import q
             >>> q([1, 2, 3]).equals([1, 2, 3])
             True
             >>> q([1, 2, 3]).equals(q([1, 2]))
             False
-            >>> q([1, 2, 3]).equals([3, 2, 1], ordered=False)
+            >>> q([1, 2, 3]).equals([3, 2, 1], bag_compare=True)
             True
 
         Args:
@@ -668,6 +700,7 @@ class Query(collections.abc.Iterable):
          use aggregate.
 
         Examples:
+            >>> from fliq import q
             >>> q(range(5)).sum()
             10
             >>> q(range(5)).sum(by=lambda x: x*2)

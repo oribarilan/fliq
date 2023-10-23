@@ -3,6 +3,15 @@ from functools import wraps
 from typing import Optional
 
 
+@dataclass
+class Point:
+    x: int
+    y: int
+
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+
+
 class FliqTestUtils:
     @staticmethod
     def assertSmallerOrCloseTo(a: float,
