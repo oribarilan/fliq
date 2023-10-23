@@ -13,10 +13,6 @@ if TYPE_CHECKING:
 
 
 class Query(collections.abc.Iterable):
-    """
-    Query is an iterable processing fluent-based API.
-    It is lazy, and supports infinite iterables where applicable.
-    """
     def __init__(self, iterable: Iterable):
         """
         Create a Query object to allow fluent iterable processing
