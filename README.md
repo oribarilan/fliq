@@ -22,9 +22,9 @@ and it is tested to have on-par performance with the standard library.
 
 ```shell
 pip install fliq
-````
+```
 
-## Fliq is:
+## Fliq is
 
 - **Intuitive** to use. Built for readability and usability.
 - **Lightweight** wrapper for the standard library. No dependencies or bloat.
