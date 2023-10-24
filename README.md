@@ -18,6 +18,9 @@ and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/).
 It provides a fluent syntax for lazily-evaluated operations on iterables, 
 and it is tested to have on-par performance with the standard library.
 
+* Documentation: https://oribarilan.github.io/fliq
+* Source Code: https://github.com/oribarilan/fliq
+
 ## Installation
 
 ```shell
