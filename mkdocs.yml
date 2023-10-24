@@ -94,6 +94,7 @@ copyright: |
 
 nav:
     - Welcome to Fliq: index.md
+    - Getting Started: getting_started.md
     - Reference (Code API):
         - API Intro: reference/api_intro.md
         - Mapper Methods: reference/mapper_methods.md

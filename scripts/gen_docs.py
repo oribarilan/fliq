@@ -33,7 +33,8 @@ def create_api_docs():
         Query._self.__name__,
         Query.__iter__.__name__,
         Query.__next__.__name__,
-        Query.__repr__.__name__
+        Query.__repr__.__name__,
+        Query.snap.__name__,
     ]
 
     for name, method in inspect.getmembers(Query, predicate=inspect.isfunction):
@@ -63,8 +64,8 @@ def create_index_doc():
         with open(readme_path, 'r') as readme:
             # update relative path for asserts
             content = readme.read().replace(
-                "docs/assets/flick_emoji_2_small.png",
-                "assets/flick_emoji_2_small.png"
+                "docs/assets/",
+                "assets/"
             )
             f.write(content)
 
