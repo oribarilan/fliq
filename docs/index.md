@@ -18,6 +18,9 @@ and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/).
 It provides a fluent syntax for lazily-evaluated operations on iterables, 
 and it is tested to have on-par performance with the standard library.
 
+* Documentation: https://oribarilan.github.io/fliq
+* Source Code: https://github.com/oribarilan/fliq
+
 ## Installation
 
 ```shell
@@ -26,11 +29,11 @@ pip install fliq
 
 ## Fliq is
 
-- **Intuitive** to use. Built for readability and usability.
-- **Lightweight** wrapper for the standard library. No dependencies or bloat.
-- **Efficient** as the standard library. Abstraction overhead is kept to a minimum. 
-- **Lazy** operations, evaluated only when needed and only as needed.
-- **Compatible** with APIs consuming iterables.
+- 💡 **Intuitive** to use. Built for readability and usability.
+- 🪶 **Lightweight** wrapper for the standard library. No dependencies or bloat.
+- ⚡️ **Efficient** as the standard library. Abstraction overhead is kept to a minimum. 
+- ⏳ **Lazy** operations, evaluated only when needed and only as needed.
+- 🧩 **Compatible** with APIs consuming iterables.
 
 ## Motivation
 

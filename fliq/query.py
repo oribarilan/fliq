@@ -98,8 +98,8 @@ class Query(collections.abc.Iterable):
         Examples:
             >>> from fliq import q
             >>> evens = q(range(10)).where(lambda x: x % 2 == 0).snap()
-            >>> evens.count()
-            5
+            >>> evens.where(lambda x: x > 3).count()
+            3
             >>> evens.first()
             0
             >>> evens.select(lambda x: x ** 2).to_list()

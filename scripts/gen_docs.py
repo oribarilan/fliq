@@ -43,10 +43,11 @@ def create_api_docs():
             continue
         ret_type = inspect.signature(method).return_annotation
         is_streamer = ret_type == Query.__name__
+        exact_name_regex = f'"^{name}$"'
         if is_streamer:
-            mappers.append(name)
+            mappers.append(exact_name_regex)
         else:
-            materializers.append(name)
+            materializers.append(exact_name_regex)
 
     with open(docs_reference_path / 'mapper_methods.md', 'w') as f:
         f.write(get_md_body('Mapper Methods', mappers))
