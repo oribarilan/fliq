@@ -71,23 +71,25 @@ plugins:
               show_source: false
 
 markdown_extensions:
+  - admonition
+  - footnotes
+  - attr_list
+  - toc:
+      permalink: 🔗
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - admonition
   - pymdownx.arithmatex:
       generic: true
-  - footnotes
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.mark
-  - attr_list
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
-  - toc:
-      permalink: 🔗
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 copyright: |
   &copy; 2023 <a href="https://github.com/oribarilan"  target="_blank" rel="noopener">Ori Bar-ilan</a>
