@@ -10,7 +10,7 @@
 - [x] select (aka map)
 - [x] exclude (aka where_not, remove_all) 
 - [x] distinct
-- [ ] group_by
+- [x] group_by
 - [x] order_by
 - [x] reverse
 - [x] slice
@@ -29,7 +29,8 @@
 - [x] contains
 - [x] equals
 - [x] to_list
-- [ ] conversion (to_set, to_dict, to_tuple, to_string)
+- [x] to_dict
+- [ ] conversion (to_set, to_tuple, to_string)
 
 ### Special Materializers
 

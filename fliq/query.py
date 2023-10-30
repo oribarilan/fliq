@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import collections.abc
+from collections import defaultdict
 from functools import reduce
 from itertools import islice, chain, zip_longest
-from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING
+from operator import attrgetter
+from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
+    Union
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate, Selector, NumericSelector
@@ -52,7 +55,7 @@ class Query(collections.abc.Iterable):
         sentinel = object()  # To identify iterables of different sizes
         for a, b in zip_longest(self._items, other, fillvalue=sentinel):
             if a != b:
-                # If two reals objects returned unequal, return False
+                # If two real objects returned unequal, return False
                 # If one of the objects is the sentinel, iterables are of unequal size, return False
                 return False
 
@@ -85,6 +88,8 @@ class Query(collections.abc.Iterable):
     def __repr__(self) -> str:  # pragma: no cover
         return f"Query({repr(self._items)}, cow_pending={self._cow_pending})"
 
+    # region Special Functionality
+
     def snap(self) -> Query:
         """
         Snap is a unique streamer.
@@ -108,7 +113,9 @@ class Query(collections.abc.Iterable):
         self._cow_pending = True
         return self._self(in_snap=True)
 
-    # region Streamers
+    # endregion
+
+    # region Mappers
 
     def where(self, predicate: Optional[Predicate] = None) -> Query:
         """
@@ -383,9 +390,37 @@ class Query(collections.abc.Iterable):
         items = chain(items, self._items)
         return self._self(items)
 
+    def group_by(self, key: Union[str, Selector]) -> Query:
+        """
+        Yields an iterable of groups, where each group has identical key.
+
+        Examples:
+            >>> from fliq import q
+            >>> q([1, 2, 3]).group_by(lambda x: x % 2 == 0).to_list()
+            [(True, [2]), (False, [1, 3])]
+
+        Args:
+            key: A function that takes an element and returns its grouping key,
+                or a string representing the name of an attribute to group by.
+        """
+        groups = defaultdict(list)
+
+        key_selector: Union[attrgetter, Callable[[Any], Any]]
+        if callable(key):
+            key_selector = key
+        else:
+            # key is a string
+            key_selector = attrgetter(key)
+
+        for item in self._items:
+            key = key_selector(item)
+            groups[key].append(item)
+
+        return self._self(groups.values())
+
     # endregion
 
-    # region Collectors
+    # region Materializers
 
     def first(self, predicate: Optional[Predicate] = None) -> Any:
         """
@@ -722,5 +757,29 @@ class Query(collections.abc.Iterable):
         Returns the elements of the query as a list.
         """
         return list(self)
+
+    def to_dict(self, key: Union[str, Selector]) -> Dict[Any, List[Any]]:
+        """
+        Returns the elements of the query as a dictionary, grouped by the given key.
+
+        Examples:
+            >>> from fliq import q
+            >>> q([1, 2, 3]).to_dict(key=lambda x: x % 2 == 0)
+            {False: [1, 3], True: [2]}
+
+        Args:
+            key: The selector function to apply to each element, or a string representing
+                the name of an attribute to group by.
+        """
+        groups = self.group_by(key)
+
+        key_selector: Union[attrgetter, Callable[[Any], Any]]
+        if callable(key):
+            key_selector = key
+        else:
+            # key is a string
+            key_selector = attrgetter(key)
+
+        return {key_selector(group[0]): list(group) for group in groups}
 
     # endregion
