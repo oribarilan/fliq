@@ -92,10 +92,8 @@ class Query(collections.abc.Iterable):
 
     def snap(self) -> Query:
         """
-        Snap is a unique streamer.
         Yields the same elements, and creates a snapshot for the query.
-        This snapshot allows for multiple iterations over the same elements,
-        as they were at the point of the snapshot.
+        This snapshot allows for multiple iterations over the same "snapped" iterable.
         If multiple snapshots are created in a query lifetime, the last one is considered.
 
         Assumes a finite iterable.

@@ -1,7 +1,7 @@
 # Snapshots
 
 Queries are lazy and can only be used once (they are exhausted after being iterated).
-While this provide a significant performance boost, it can be inconvenient in some cases.
+While this provides a significant performance boost, it can be inconvenient in some cases.
 
 This is where snapshots come in.
 
