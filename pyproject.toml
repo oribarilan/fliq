@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fliq"
-version = "1.1.0"
+version = "1.2.0"
 description = "Fluent-based Lazily-evaluated Integrated Query for Python"
 readme = "README.md"
 authors = [{ name = "Ori Bar-ilan", email = "python.oplog@gmail.com" }]
