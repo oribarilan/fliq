@@ -397,7 +397,7 @@ class Query(collections.abc.Iterable):
         Examples:
             >>> from fliq import q
             >>> q([1, 2, 3]).group_by(lambda x: x % 2 == 0).to_list()
-            [(True, [2]), (False, [1, 3])]
+            [[1, 3], [2]]
 
         Args:
             key: A function that takes an element and returns its grouping key,

@@ -107,5 +107,5 @@ In both scenarios, Fliq is on-par with the standard library:
 ![Benchmarking](assets/s1.png "Scenario 1")
 ![Benchmarking](assets/s2.png "Scenario 2")
 
-You can find the full benchmarking code at [Benchmark](https://github.com/oribarilan/fliq/blob/main/examples/benchmark.py). 
+You can find the full benchmarking code at [Benchmark](https://github.com/oribarilan/fliq/blob/main/benchmark/benchmark.py). 
 
