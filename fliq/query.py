@@ -6,7 +6,7 @@ from functools import reduce
 from itertools import islice, chain, zip_longest
 from operator import attrgetter
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
-    Union
+    Union, Tuple
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate, Selector, NumericSelector
@@ -110,6 +110,47 @@ class Query(collections.abc.Iterable):
         """
         self._cow_pending = True
         return self._self(in_snap=True)
+
+    def partition(self, by: Selector, n: int) -> Tuple[Query, ...]:
+        # noinspection GrazieInspection
+        """
+        Yields n queries, each containing the elements that match the partition index selected.
+
+        Examples:
+            >>> from fliq import q
+            >>> even, odd = q([1, 2, 3]).partition(lambda x: x % 2, n=2)
+            >>> even.to_list(), odd.to_list()
+            ([2], [1, 3])
+            >>> first, second, third = q(range(10)).partition(lambda x: x % 3, n=3)
+            >>> first.to_list(), second.to_list(), third.to_list()
+            ([0, 3, 6, 9], [1, 4, 7], [2, 5, 8])
+
+        Args:
+            by: Selector that returns partition index for each element, in the range [0, n).
+                If it returns a value outside of this range, ValueError is raised.
+            n: The number of partitions to create.
+        """
+        if n <= 0:
+            raise ValueError("Number of partitions must be positive")
+
+        # Create N independent iterators using itertools.tee
+        partition_queues: Dict[int, list] = {i: [] for i in range(n)}
+
+        def partition_generator(queue_partition_idx: int):
+            for item in self:
+                item_partition_idx: int = by(item)
+                self._validate_partition_index(item_partition_idx, n)
+                partition_queues[item_partition_idx].append(item)
+                if len(partition_queues[queue_partition_idx]) != 0:
+                    # item found, stop generating and yield
+                    yield partition_queues[queue_partition_idx].pop(0)
+
+            # Iterator exhausted, drain the rest of the partition queue
+            while len(partition_queues[queue_partition_idx]) != 0:
+                yield partition_queues[queue_partition_idx].pop(0)
+
+        # Create n Queries, each with its own partition generator
+        return tuple(Query(partition_generator(i)) for i in range(n))
 
     # endregion
 
@@ -781,3 +822,12 @@ class Query(collections.abc.Iterable):
         return {key_selector(group[0]): list(group) for group in groups}
 
     # endregion
+
+    @staticmethod
+    def _validate_partition_index(item_partition_idx, n) -> None:
+        if not isinstance(item_partition_idx, int):
+            raise TypeError(
+                f"Partition index must be an integer, found {type(item_partition_idx)}"
+            )
+        if not (0 <= item_partition_idx < n):
+            raise ValueError(f"Partition index {item_partition_idx} is not in range [0, {n})")
