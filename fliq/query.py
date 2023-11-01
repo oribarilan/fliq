@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import collections.abc
+import heapq
 from collections import defaultdict
 from functools import reduce
 from itertools import islice, chain, zip_longest
@@ -323,8 +324,7 @@ class Query(collections.abc.Iterable):
             n: Optional. The number of elements to take. Defaults to 1.
             predicate: Optional. The predicate to filter the query by.
         """
-        query = self.where(predicate)
-        query = query.slice(stop=n)
+        query = self.where(predicate).slice(stop=n)
         return self._self(query._items)
 
     def skip(self, n: int = 1) -> Query:
@@ -467,6 +467,65 @@ class Query(collections.abc.Iterable):
             groups[key].append(item)
 
         return self._self(groups.values())
+
+    def top(self, n: int = 1, by: Optional[NumericSelector] = None) -> Query:
+        """
+        Yields the top n elements of the query, according to the selector (if provided).
+
+        This is done in O(N log n) time, and O(n) space. Where n is the number of elements to take,
+        and N is the number of elements in the query.
+
+        Examples:
+            >>> from fliq import q
+            >>> q(range(10)).top(n=3).to_list()
+            [9, 8, 7]
+            >>> q(range(10)).top(n=3, by=lambda x: x*-1).to_list()
+            [0, 1, 2]
+
+        Args:
+            n: Optional. The number of elements to take. Defaults to 1.
+            by: Optional. The selector function to apply to each element. Defaults to the identity.
+        """
+        items: Iterable
+        if n <= 0:
+            return self._self([])
+
+        heap: List = []
+        for item in self._items:
+            value = item if by is None else by(item)
+            if len(heap) < n:
+                heapq.heappush(heap, (value, item))
+            else:
+                heapq.heappushpop(heap, (value, item))
+
+        items = (
+            Query(heap)
+            .order(ascending=False)
+            .select(lambda heap_pair: heap_pair[1])
+        )
+
+        return self._self(items)
+
+    def bottom(self, n: int = 1, by: Optional[NumericSelector] = None) -> Query:
+        """
+        Yields the top n elements of the query, according to the selector (if provided).
+
+        This is done in O(N log n) time, and O(n) space. Where n is the number of elements to take,
+        and N is the number of elements in the query.
+
+        Examples:
+            >>> from fliq import q
+            >>> q(range(10)).bottom(n=3).to_list()
+            [0, 1, 2]
+
+        Args:
+            n: Optional. The number of elements to take. Defaults to 1.
+            by: Optional. The selector function to apply to each element. Defaults to the identity.
+        """
+        if by is None:
+            return self.top(n=n, by=lambda x: -1 * x)
+        else:
+            return self.top(n=n, by=lambda x: -1 * by(x))  # type: ignore
 
     # endregion
 

@@ -18,6 +18,8 @@
 - [x] [skip](mapper_methods.md#fliq.query.Query.skip)
 - [ ] skip_last
 - [x] [take](mapper_methods.md#fliq.query.Query.take)
+- [x] [top](mapper_methods.md#fliq.query.Query.top)
+- [x] [bottom](mapper_methods.md#fliq.query.Query.bottom)
 - [x] [zip](mapper_methods.md#fliq.query.Query.zip)
 - [x] [append](mapper_methods.md#fliq.query.Query.append)
 - [x] [prepend](mapper_methods.md#fliq.query.Query.prepend)

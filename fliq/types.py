@@ -1,7 +1,6 @@
-from numbers import Number
-from typing import Callable, Any
+from typing import Callable, Any, Union
 
 Predicate = Callable[[Any], bool]
 Selector = Callable[[Any], Any]
-NumericSelector = Callable[[Any], Number]
+NumericSelector = Callable[[Any], Union[int, float]]
 IndexSelector = Callable[[Any], int]
