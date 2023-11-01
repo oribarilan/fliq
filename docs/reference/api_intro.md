@@ -9,6 +9,9 @@ This *reference* section provides concepts and a detailed description of the API
 
     - Predicate. ```Predicate = Callable[[Any], bool]```
     - Selector. ```Selector = Callable[[Any], Any]```
+    - NumericSelector = ```Callable[[Any], Number]```
+    - IndexSelector = ```Callable[[Any], int]```
+
 
 ## Query
 Query is the main object in Fliq. It is an abstracted lazy iterable, 

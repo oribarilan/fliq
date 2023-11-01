@@ -3,6 +3,7 @@
 ## Special Functionality
 
 - [x] snap (aka cache, materialize)
+- [x] partition
 
 ## Mapper Methods
 
@@ -22,7 +23,7 @@
 - [x] prepend
 - [x] append_many
 - [x] prepend_many
-- [ ] iteration (for_each, for_each_indexed, for_each_pair, for_each_pair_indexed)
+- [ ] for_each
 
 ## Materializers
 

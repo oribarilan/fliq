@@ -32,8 +32,9 @@ pip install fliq
 - 💡 **Intuitive** to use. Built for readability and usability.
 - 🪶 **Lightweight** wrapper for the standard library. No dependencies or bloat.
 - ⚡️ **Efficient** as the standard library. Abstraction overhead is kept to a minimum. 
-- ⏳ **Lazy** operations, evaluated only when needed and only as needed.
-- 🧩 **Compatible** with APIs consuming iterables.
+- ⏳ **Lazy** evaluated, executed only _when_ needed and only _as_ needed.
+- 🔗 **Versatile** by supporting any iterable type, including infinite iterables and data streams.
+- 🧩 **Compatible** with APIs consuming iterables. No integration or setup required.
 
 ## Motivation
 

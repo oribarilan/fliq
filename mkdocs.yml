@@ -20,7 +20,9 @@ theme:
     - pymdownx.superfences
     - pymdownx.mark
     - navigation.sections
+    - navigation.expand
     - navigation.instant
+    - navigation.tracking
     - search.suggest
     - search.highlight
     - content.tabs.link
@@ -98,8 +100,8 @@ nav:
     - Welcome to Fliq: index.md
     - Getting Started: getting_started.md
     - Reference:
+        - API Intro: reference/api_intro.md
         - Code API:
-          - API Intro: reference/api_intro.md
           - Mapper Methods: reference/mapper_methods.md
           - Materializer Methods: reference/materializer_methods.md
           - Snapshots: reference/snapshots.md

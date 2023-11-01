@@ -44,6 +44,15 @@ class TestPartition:
         assert q0 == [iterable_list[0], iterable_list[2], iterable_list[4]]
         assert q1 == [iterable_list[1], iterable_list[3]]
 
+    @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
+    def test_partition_hasMultipleItems_predicate(self,
+                                                  iter_type,
+                                                  iterable,
+                                                  iterable_list):
+        q0, q1 = q(iterable).partition(lambda x: int(x) == 2)
+        assert q0 == [iterable_list[0], iterable_list[1], iterable_list[3], iterable_list[4]]
+        assert q1 == [iterable_list[2]]
+
     def test_partition_iteratingPastExhaustion_stopIterationRaised(self):
         q0, _ = q(range(3)).partition(lambda x: x % 2, n=2)
         next(q0)
@@ -52,7 +61,7 @@ class TestPartition:
             next(q0)
 
     def test_partition_wrongPartitionIndexType_typeErrorRaised(self):
-        q0, _ = q(range(3)).partition(lambda x: "not_int", n=2)
+        q0, _, _ = q(range(3)).partition(lambda x: x == 1, n=3)
         with pytest.raises(TypeError):
             for _ in q0:
                 pass

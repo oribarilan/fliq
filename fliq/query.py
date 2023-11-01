@@ -9,7 +9,7 @@ from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYP
     Union, Tuple
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
-from fliq.types import Predicate, Selector, NumericSelector
+from fliq.types import Predicate, Selector, NumericSelector, IndexSelector
 
 if TYPE_CHECKING:
     from fliq import q  # noqa: F401 (used in docs)  # pragma: no cover
@@ -111,36 +111,47 @@ class Query(collections.abc.Iterable):
         self._cow_pending = True
         return self._self(in_snap=True)
 
-    def partition(self, by: Selector, n: int) -> Tuple[Query, ...]:
+    def partition(self, by: Union[IndexSelector, Predicate], n: int = 2) -> Tuple[Query, ...]:
         # noinspection GrazieInspection
         """
         Yields n queries, each containing the elements that match the partition index selected.
+        Supports infinite iterables,
+        conditioned that there are finite sequences between elements of different partitions.
 
         Examples:
             >>> from fliq import q
-            >>> even, odd = q([1, 2, 3]).partition(lambda x: x % 2, n=2)
-            >>> even.to_list(), odd.to_list()
-            ([2], [1, 3])
             >>> first, second, third = q(range(10)).partition(lambda x: x % 3, n=3)
             >>> first.to_list(), second.to_list(), third.to_list()
             ([0, 3, 6, 9], [1, 4, 7], [2, 5, 8])
+            >>> even, odd = q([1, 2, 3]).partition(lambda x: x % 2 == 0)
+            >>> even.to_list(), odd.to_list()
+            ([1, 3], [2])
+
 
         Args:
-            by: Selector that returns partition index for each element, in the range [0, n).
-                If it returns a value outside of this range, ValueError is raised.
-            n: The number of partitions to create.
+            by: IndexSelector that returns partition index for each element, in the range [0, n).
+                Or, a Predicate to be used for a binary partition (when n=2).
+                In case of a Selector, the first query will contain the elements in partition 0,
+                the second query will contain the elements in partition 1, and so on.
+                In case of a Predicate, the first query will contain the elements that don't satisfy
+                 the predicate (for alignment between 0 and False as the first index).
+            n: Optional. The number of partitions to create. Defaults to 2. Must be positive.
+                When n=2, `by` can also be a Predicate.
+
+        Raises:
+            ValueError: In case the partition index is outside the range [0, n).
+            TypeError: In case the partition index is not an integer.
         """
         if n <= 0:
             raise ValueError("Number of partitions must be positive")
 
-        # Create N independent iterators using itertools.tee
         partition_queues: Dict[int, list] = {i: [] for i in range(n)}
 
         def partition_generator(queue_partition_idx: int):
             for item in self:
                 item_partition_idx: int = by(item)
                 self._validate_partition_index(item_partition_idx, n)
-                partition_queues[item_partition_idx].append(item)
+                partition_queues[int(item_partition_idx)].append(item)
                 if len(partition_queues[queue_partition_idx]) != 0:
                     # item found, stop generating and yield
                     yield partition_queues[queue_partition_idx].pop(0)
@@ -825,9 +836,7 @@ class Query(collections.abc.Iterable):
 
     @staticmethod
     def _validate_partition_index(item_partition_idx, n) -> None:
-        if not isinstance(item_partition_idx, int):
-            raise TypeError(
-                f"Partition index must be an integer, found {type(item_partition_idx)}"
-            )
+        if isinstance(item_partition_idx, bool) and n != 2:
+            raise TypeError(f"Partitioning by predicate is only supported for n=2, found n=`{n}`")
         if not (0 <= item_partition_idx < n):
             raise ValueError(f"Partition index {item_partition_idx} is not in range [0, {n})")

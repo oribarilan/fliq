@@ -4,3 +4,4 @@ from typing import Callable, Any
 Predicate = Callable[[Any], bool]
 Selector = Callable[[Any], Any]
 NumericSelector = Callable[[Any], Number]
+IndexSelector = Callable[[Any], int]
