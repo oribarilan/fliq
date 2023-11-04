@@ -49,3 +49,6 @@ doc-serve:
 prep:
     just check
     just doc
+
+ori:
+    python -m doctest README.md

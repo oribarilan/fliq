@@ -40,7 +40,7 @@ pip install fliq
 
 What is the output of the following code?
 ```python
-next(map(lambda x: x * 2, filter(lambda x: x % 2, [1, 2, 3, 4, 5]))) or -1
+next(map(lambda x: x * 2, filter(lambda x: x % 2 == 0, [1, 2, 3, 4, 5])), -1)
 ```
 
 And what about this?
@@ -50,7 +50,7 @@ from fliq import q
 (q([1, 2, 3, 4, 5])
     .where(lambda x: x % 2 == 0)
     .select(lambda x: x * 2)
-    .first_or_default(-1))
+    .first_or_default(default=-1))
 ```
 
 And this is just a simple example.
