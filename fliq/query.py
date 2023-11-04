@@ -220,8 +220,8 @@ class Query(collections.abc.Iterable):
 
     def distinct(self, preserve_order: bool = True) -> Query:
         """
-        Yields distinct elements, preserving order if specified.
-        Distinct supports infinite iterables, when preserve_order is True.
+        Yields distinct elements.
+        Distinct supports infinite iterables.
         Note that elements must be hashable.
 
         Examples:
@@ -229,28 +229,18 @@ class Query(collections.abc.Iterable):
             >>> q([0, 1, 0, 2, 2]).distinct().to_list()
             [0, 1, 2]
 
-        Args:
-            preserve_order: Optional. Whether to preserve the order of the elements.
-                Defaults to True.
-                If True, distinct supports infinite iterables.
-                If order is not important and iterable is finite,
-                set to False for better performance.
-
         Raises:
             TypeError: In case one or more items in the query are not hashable.
             """
-        if preserve_order:
+
+        def generator(internal_items: Iterable):
             seen = set()
+            for item in internal_items:
+                if item not in seen:
+                    seen.add(item)
+                    yield item
 
-            def generator(internal_items: Iterable):
-                for item in internal_items:
-                    if item not in seen:
-                        seen.add(item)
-                        yield item
-
-            items = generator(self._items)
-        else:
-            items = set(self._items)
+        items = generator(self._items)
 
         return self._self(items)
 

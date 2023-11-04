@@ -27,6 +27,7 @@
 - [x] [prepend_many](mapper_methods.md#fliq.query.Query.prepend_many)
 - [ ] for_each
 - [ ] shuffle
+- [ ] flatten
 
 ## Materializers
 
