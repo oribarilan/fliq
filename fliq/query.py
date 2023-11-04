@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import collections.abc
 import heapq
+import random
 from collections import defaultdict
 from functools import reduce
 from itertools import islice, chain, zip_longest
 from operator import attrgetter
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
-    Union, Tuple
+    Union, Tuple, Hashable
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate, Selector, NumericSelector, IndexSelector
@@ -264,6 +265,88 @@ class Query(collections.abc.Iterable):
             items = sorted(self._items, reverse=not ascending)
         else:
             items = sorted(self._items, key=by, reverse=not ascending)
+        return self._self(items)
+
+    def shuffle(self,
+                buffer_size: int = 10,
+                seed: Optional[Hashable] = None,
+                fair: bool = False) -> Query:
+        """
+        Yields elements in a random order.
+        Supports infinite iterables.
+
+        Args:
+            buffer_size (int): The size of the shuffle buffer for an unfair shuffle. Defaults to 10.
+                The bigger the buffer, the more memory is required,
+                but the shuffle is closer to fair.
+            seed: Optional. The seed to use for the random shuffle. Defaults to None.
+            fair (bool): Whether to use a fair shuffle. Defaults to False.
+                If True, each permutation of the elements will be equally likely.
+                    This option does not support infinite iterables
+                    (specifically, requires a sizeable iterable). This requires materialization
+                    of the iterable, which is more memory intensive.
+                    Use this for scenarios where fairness is important,
+                    like rolling a die or shuffling a deck of cards.
+                If False, each permutation of elements will NOT be equally likely.
+                    However, this is more memory efficient, and supports infinite iterables.
+                    The bigger the buffer size, the closer the shuffle will be to fair
+                    (and thus, less memory efficient).
+                    Use this for scenarios where perfect fairness is not important,
+                    like shuffling a list of songs in a playlist.
+
+        Examples:
+            >>> from fliq import q
+            >>> q(range(10)).shuffle(seed=42, buffer_size=5).to_list()
+            [1, 5, 6, 3, 0, 8, 7, 2, 4, 9]
+            >>> q(range(10)).shuffle(seed=42, fair=True).to_list()
+            [7, 3, 2, 8, 5, 6, 9, 4, 0, 1]
+
+        Raises:
+            TypeError: In case a fair shuffle is requested for a non-sizeable iterable.
+        """
+        ran = random.Random(seed) if seed is not None else random.Random()
+
+        if fair:
+            if isinstance(self._items, List):
+                shuffled_items = self._items
+            elif isinstance(self._items, Sized):
+                shuffled_items = list(self._items)
+            else:
+                raise TypeError("Fair shuffle is not supported for non-sizeable iterables")
+            ran.shuffle(shuffled_items)
+            return self._self(shuffled_items)
+
+        def shuffled_generator(internal_items: Iterable):
+            buffer = []
+            sentinel = object()
+            items_iter = iter(internal_items)
+
+            # fill the buffer
+            for _ in range(buffer_size):
+                item = next(items_iter, sentinel)
+                if item is sentinel:
+                    # iterable exhausted (smaller than buffer size)
+                    break
+                buffer.append(item)
+
+            ran.shuffle(buffer)
+
+            # if buffer was not filled, it means the iterable was too short
+            if len(buffer) < buffer_size:
+                yield from buffer
+                return
+
+            for item in items_iter:
+                # yield a random item from the buffer and replace it with the new item
+                idx = ran.randrange(len(buffer))
+                yield buffer[idx]
+                buffer[idx] = item
+
+            # yield the remaining items in the buffer
+            yield from buffer
+
+        items = shuffled_generator(self._items)
+
         return self._self(items)
 
     def reverse(self) -> Query:
