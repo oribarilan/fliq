@@ -12,10 +12,9 @@ Fluent-syntaxed Lazily-evaluated Integrated Query.
 [![Downloads](https://img.shields.io/pypi/dm/fliq?color=1E7FBF)](https://pypi.org/project/fliq/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-Fliq is a lightweight Python library for high-performance processing of iterables,
-inspired by [Django's ORM](https://docs.djangoproject.com/en/4.2/topics/db/queries/)
-and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/).
-It provides a fluent syntax for lazily-evaluated operations on iterables, 
+Fliq is a lightweight Python library for high-performance processing of iterables.
+Inspired by [Django's ORM](https://docs.djangoproject.com/en/4.2/topics/db/queries/)
+and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/), it provides a fluent syntax for lazily-evaluated operations on iterables, 
 and it is tested to have on-par performance with the standard library.
 
 * Documentation: https://oribarilan.github.io/fliq

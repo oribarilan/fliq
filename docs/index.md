@@ -12,10 +12,9 @@ Fluent-syntaxed Lazily-evaluated Integrated Query.
 [![Downloads](https://img.shields.io/pypi/dm/fliq?color=1E7FBF)](https://pypi.org/project/fliq/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-Fliq is a lightweight Python library for high-performance processing of iterables,
-inspired by [Django's ORM](https://docs.djangoproject.com/en/4.2/topics/db/queries/)
-and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/).
-It provides a fluent syntax for lazily-evaluated operations on iterables, 
+Fliq is a lightweight Python library for high-performance processing of iterables.
+Inspired by [Django's ORM](https://docs.djangoproject.com/en/4.2/topics/db/queries/)
+and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/), it provides a fluent syntax for lazily-evaluated operations on iterables, 
 and it is tested to have on-par performance with the standard library.
 
 * Documentation: https://oribarilan.github.io/fliq
@@ -26,6 +25,8 @@ and it is tested to have on-par performance with the standard library.
 ```shell
 pip install fliq
 ```
+* Fliq does not have any dependencies.
+* Fliq supports Python 3.9 and above.
 
 ## Fliq is
 
@@ -40,7 +41,7 @@ pip install fliq
 
 What is the output of the following code?
 ```python
-next(map(lambda x: x * 2, filter(lambda x: x % 2, [1, 2, 3, 4, 5]))) or -1
+next(map(lambda x: x * 2, filter(lambda x: x % 2 == 0, [1, 2, 3, 4, 5])), -1)
 ```
 
 And what about this?
@@ -50,7 +51,7 @@ from fliq import q
 (q([1, 2, 3, 4, 5])
     .where(lambda x: x % 2 == 0)
     .select(lambda x: x * 2)
-    .first_or_default(-1))
+    .first_or_default(default=-1))
 ```
 
 And this is just a simple example.
