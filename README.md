@@ -26,6 +26,8 @@ and it is tested to have on-par performance with the standard library.
 ```shell
 pip install fliq
 ```
+* Fliq does not have any dependencies.
+* Fliq supports Python 3.9 and above.
 
 ## Fliq is
 
