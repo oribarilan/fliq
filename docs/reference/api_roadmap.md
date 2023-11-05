@@ -4,6 +4,7 @@
 
 - [x] [snap](snapshots.md) (aka cache, materialize)
 - [x] [partition](partitioning.md)
+- [ ] peak
 
 ## Mapper Methods
 
@@ -26,8 +27,8 @@
 - [x] [append_many](mapper_methods.md#fliq.query.Query.append_many)
 - [x] [prepend_many](mapper_methods.md#fliq.query.Query.prepend_many)
 - [ ] for_each
-- [x] shuffle
-- [ ] flatten
+- [x] [shuffle](mapper_methods.md#fliq.query.Query.shuffle)
+- [x] [flatten](mapper_methods.md#fliq.query.Query.flatten)
 
 ## Materializers
 

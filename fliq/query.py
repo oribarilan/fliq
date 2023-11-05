@@ -8,7 +8,7 @@ from functools import reduce
 from itertools import islice, chain, zip_longest
 from operator import attrgetter
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
-    Union, Tuple, Hashable
+    Union, Tuple, Hashable, Type
 
 from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
 from fliq.types import Predicate, Selector, NumericSelector, IndexSelector
@@ -599,6 +599,49 @@ class Query(collections.abc.Iterable):
             return self.top(n=n, by=lambda x: -1 * x)
         else:
             return self.top(n=n, by=lambda x: -1 * by(x))  # type: ignore
+
+    def flatten(
+            self,
+            max_depth: Optional[int] = None,
+            ignore_types: Optional[Tuple[Type, ...]] = (str, bytes)) -> Query:
+        """
+        Yields a flattened iterable to a specified depth.
+
+        Examples:
+            >>> from fliq import q
+            >>> q([[[1], 2], [3, 4]]).flatten().to_list()
+            [1, 2, 3, 4]
+            >>> q([[[1], 2], [3, 4]]).flatten(max_depth=1).to_list()
+            [[1], 2, 3, 4]
+            >>> q([['hello', 'world'], ['I', 'am', 'Fliq']]).flatten().to_list()
+            ['hello', 'world', 'I', 'am', 'Fliq']
+            >>> q([['hello', 'world'], ['I', 'am', 'Fliq']]).flatten(ignore_types=None).to_list()
+            ['h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd', 'I', 'a', 'm', 'F', 'l', 'i', 'q']
+
+        Args:
+            max_depth: Optional. Non-negative. The maximum depth to flatten to. Defaults to none.
+                (no limit, completely flat). If max_depth is 0, the query is unchanged.
+            ignore_types: Optional. A tuple of types to ignore flattening for.
+                Defaults to (str, bytes).
+        Raises:
+            ValueError: In case max_depth is non-positive.
+        """
+        if max_depth is not None and max_depth < 0:
+            raise ValueError(f"max_depth must be non-negative (or -1 by default), got {max_depth}")
+
+        def _flatten(iterable: Iterable, current_depth: int) -> Iterable:
+            for item in iterable:
+                type_ignored = ignore_types is not None and isinstance(item, ignore_types)
+                single_char_byte = isinstance(item, (str, bytes)) and len(item) == 1
+                if not single_char_byte and isinstance(item, Iterable) and not type_ignored:
+                    if max_depth is None or current_depth < max_depth:
+                        yield from _flatten(item, current_depth + 1)
+                    else:
+                        yield item
+                else:
+                    yield item
+
+        return self._self(_flatten(self._items, 0))
 
     # endregion
 

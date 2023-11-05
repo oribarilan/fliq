@@ -4,5 +4,5 @@
 ::: fliq.query.Query
     options:
         filters: [
-            "^append$", "^append_many$", "^bottom$", "^distinct$", "^exclude$", "^group_by$", "^order$", "^prepend$", "^prepend_many$", "^reverse$", "^select$", "^shuffle$", "^skip$", "^slice$", "^take$", "^top$", "^where$", "^zip$" 
+            "^append$", "^append_many$", "^bottom$", "^distinct$", "^exclude$", "^flatten$", "^group_by$", "^order$", "^prepend$", "^prepend_many$", "^reverse$", "^select$", "^shuffle$", "^skip$", "^slice$", "^take$", "^top$", "^where$", "^zip$" 
         ]   
