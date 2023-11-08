@@ -85,3 +85,36 @@ class TestPeek:
         assert e1 == iterable_list[1]
         assert e2 == iterable_list[2]
         assert items == iterable_list[1:]
+
+    @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
+    def test_peek_peekDuringIteration_doesNotConsume(self,
+                                                     iter_type,
+                                                     iterable,
+                                                     iterable_list):
+        items = q(iterable)
+        iterated = []
+        peeked = None
+        for i, element in enumerate(items):
+            if i == 1:
+                # peaked is item at index 2
+                peeked = items.peek()
+            iterated.append(element)
+        assert iterated == iterable_list
+        assert peeked == iterable_list[2]
+
+    @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
+    def test_peek_peekAfterIteration_doesNotConsume(self,
+                                                     iter_type,
+                                                     iterable,
+                                                     iterable_list):
+        items = q(iterable)
+        iterated = []
+        for i, element in enumerate(items):
+            iterated.append(element)
+        peeked = items.peek()
+        assert iterated == iterable_list
+        assert peeked is None
+
+    def test_peek_peekNonPositive_valueErrorRaised(self):
+        with pytest.raises(ValueError):
+            q(range(5)).peek(n=0)

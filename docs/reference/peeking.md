@@ -34,5 +34,20 @@ even = numbers.where(lambda x: x % 2 == 0)  # flow continues as usual
 ## Peeking
 Peeking is done using the `peek` method.
 
+What makes peeking very powerful, is that you can peek a query at any point in its lifetime.
+Yes, even during iteration!
+```python hl_lines="7"
+from fliq import q
+items = q(range(5))
+iterated = []
+peeked = None
+for i, element in enumerate(items):
+    if i == 1:
+        peeked = items.peek()  # 🫣 peeking during iteration!
+    iterated.append(element)
+assert iterated == [i for i in range(5)]
+assert peeked == 2
+```
+
 ## `peek()`
 ::: fliq.query.Query.peek
