@@ -5,7 +5,7 @@ import heapq
 import random
 from collections import defaultdict
 from functools import reduce
-from itertools import islice, chain, zip_longest
+from itertools import islice, chain, zip_longest, tee
 from operator import attrgetter
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
     Union, Tuple, Hashable, Type
@@ -164,6 +164,49 @@ class Query(collections.abc.Iterable):
 
         # Create n Queries, each with its own partition generator
         return tuple(Query(partition_generator(i)) for i in range(n))
+
+    def peek(self, n: int = 1) -> Tuple[Any, ...]:
+        """
+        Return the first n elements of the query, without exhausting the query.
+        Use this to inspect the first n elements of the query, before consuming the query itself.
+        Common use cases are logging and debugging.
+
+        Examples:
+            >>> from fliq import q
+            >>> items = q(range(10))
+            >>> i0, i1 = items.peek(2)
+            >>> i0, i1
+            (0, 1)
+            >>> items.to_list()
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        Notes:
+            Uses O(n) memory, as it materializes the first n elements.
+            Supports infinite iterables.
+
+        Args:
+            n: Optional. The number of elements to peek. Defaults to 1.
+
+        Returns:
+            A tuple of the first n elements of the query. If the query has less than n elements, the
+                other missing elements will be returned as None.
+        """
+        if n < 1:
+            return None
+
+        # Create a secondary iterator for peeking
+        self._iterator, peek_iterator = tee(self._iterator or self._items)
+
+        # Get the first n items from the peek_iterator to return
+        peeked_items = tuple(islice(peek_iterator, n))
+
+        # If we got less than n items, pad with None
+        if len(peeked_items) < n:
+            peeked_items += (None,) * (n - len(peeked_items))
+
+        # Do not set self._items to the peek_iterator,
+        # as it has advanced n items ahead of the original iterator
+        return peeked_items if n > 1 else peeked_items[0]
 
     # endregion
 
