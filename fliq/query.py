@@ -5,7 +5,7 @@ import heapq
 import random
 from collections import defaultdict
 from functools import reduce
-from itertools import islice, chain, zip_longest, tee
+from itertools import islice, chain, zip_longest
 from operator import attrgetter
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
     Union, Tuple, Hashable, Type
@@ -165,9 +165,13 @@ class Query(collections.abc.Iterable):
         # Create n Queries, each with its own partition generator
         return tuple(Query(partition_generator(i)) for i in range(n))
 
-    def peek(self, n: int = 1) -> Tuple[Any, ...]:
+    def peek(self, n: int = 1) -> Union[Any, Tuple[Any, ...]]:
         """
         Return the first n elements of the query, without exhausting the query.
+        If n is 1, returns the first element as a single item, otherwise returns a tuple
+        (that can be unpacked).
+        If n is greater than the number of elements in the query,
+        the remaining items will be returned as None.
         Use this to inspect the first n elements of the query, before consuming the query itself.
         Common use cases are logging and debugging.
 
@@ -179,6 +183,9 @@ class Query(collections.abc.Iterable):
             (0, 1)
             >>> items.to_list()
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+            >>> a, b = q([]).peek(n=2)
+            >>> a, b
+            (None, None)
 
         Notes:
             Uses O(n) memory, as it materializes the first n elements.
@@ -187,26 +194,36 @@ class Query(collections.abc.Iterable):
         Args:
             n: Optional. The number of elements to peek. Defaults to 1.
 
+        Raises:
+            ValueError: In case n is not positive.
+
         Returns:
             A tuple of the first n elements of the query. If the query has less than n elements, the
                 other missing elements will be returned as None.
         """
         if n < 1:
-            return None
+            raise ValueError(f"n must be positive, got {n}")
 
-        # Create a secondary iterator for peeking
-        self._iterator, peek_iterator = tee(self._iterator or self._items)
+        # If we already have an iterator, use it; otherwise, get one from _items
+        if self._iterator is None:
+            self._iterator = iter(self._items)
 
-        # Get the first n items from the peek_iterator to return
-        peeked_items = tuple(islice(peek_iterator, n))
+        # Consume the first n items
+        first_n_items = tuple(islice(self._iterator, n))
 
-        # If we got less than n items, pad with None
-        if len(peeked_items) < n:
-            peeked_items += (None,) * (n - len(peeked_items))
+        # If we consumed less than n items, pad with None
+        available_n = len(first_n_items)
+        if len(first_n_items) < n:
+            first_n_items += (None,) * (n - len(first_n_items))
 
-        # Do not set self._items to the peek_iterator,
-        # as it has advanced n items ahead of the original iterator
-        return peeked_items if n > 1 else peeked_items[0]
+        # Adjust self._items to a new iterator that starts with the consumed items
+        # followed by the remaining items
+        self._items = chain(first_n_items[:available_n], self._iterator)
+
+        # Create a new iterator from the adjusted self._items
+        self._iterator = iter(self._items)
+
+        return first_n_items if n > 1 else first_n_items[0]
 
     # endregion
 
