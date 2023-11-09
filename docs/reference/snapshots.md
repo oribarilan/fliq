@@ -1,4 +1,4 @@
-# Query Snapshots
+# 📸 Query Snapshots
 
 Queries are lazy and can only be used once (they are exhausted after being iterated).
 While this provides a significant performance boost, it can be inconvenient in some cases.

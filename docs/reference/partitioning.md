@@ -1,4 +1,4 @@
-# Query Partitioning
+# ✂️ Query Partitioning
 
 Query partitioning is a time and space efficient way to split a query into n sub-queries, 
 that a mutually exclusive and collectively exhaustive (MECE).

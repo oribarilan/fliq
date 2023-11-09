@@ -4,7 +4,7 @@
 
 - [x] [snap](snapshots.md) (aka cache, materialize)
 - [x] [partition](partitioning.md)
-- [ ] peak
+- [x] peak
 
 ## Mapper Methods
 

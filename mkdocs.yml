@@ -106,6 +106,7 @@ nav:
           - Materializer Methods: reference/materializer_methods.md
           - Snapshots: reference/snapshots.md
           - Partitioning: reference/partitioning.md
+          - Peeking: reference/peeking.md
         - API Roadmap: reference/api_roadmap.md
 #    - Contribution:
 #        - Contribution: contribution/contribution.md
