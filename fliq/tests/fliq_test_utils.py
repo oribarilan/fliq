@@ -4,6 +4,34 @@ from typing import Optional
 
 
 @dataclass
+class Person:
+    name: str
+    age: int
+    gender: str
+
+
+def gen_person_name(num: int):
+    # list of names for every alphabet letter
+    names = ['anna', 'bob', 'charlie', 'david', 'emma', 'frank', 'gina', 'harry', 'ian', 'jane',
+             'kate', 'larry',
+             'mike', 'nancy', 'olivia', 'peter', 'quinn', 'robert', 'sarah', 'tom', 'ursula',
+             'victor', 'william',
+             'xavier', 'yvonne', 'zach']
+    return names[num % 26] + str(num)
+
+
+def gen_people(num: int):
+    return [
+        Person(
+            name=gen_person_name(x),
+            age=x,
+            gender='M' if x % 2 == 0 else 'F'
+        )
+        for x in range(num)
+    ]
+
+
+@dataclass
 class Point:
     x: int
     y: int
