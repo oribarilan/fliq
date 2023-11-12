@@ -38,6 +38,7 @@ check:
 doc:
     python -m doctest fliq/query.py
     python scripts/gen_docs.py
+    python scripts/execute_doc_files.py
     mkdocs build
 
 # test, build and run docs server

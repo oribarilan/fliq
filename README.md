@@ -97,10 +97,19 @@ Currently, there are 2 scenarios tested with varying dataset sizes (100, 10K, 1M
 * Scenario 1: zipping two iterables of Person objects, 
 and taking the first 5 (by age asc) that are of different gender.
 ```python
+from fliq import q
+from fliq.tests.fliq_test_utils import gen_people
+dataset = gen_people(100)
+shuffled = q(dataset).shuffle()
 q(dataset).zip(shuffled).where(lambda ps: ps[0].gender != ps[1].gender).order(by=lambda ps: ps[0].age+ps[1].age).take(5).to_list()
 ```
 * Scenario 2: filtering prepending and appending a list of Person objects 
 ```python
+from fliq import q
+from fliq.tests.fliq_test_utils import gen_people
+dataset = gen_people(100)
+first = gen_people(200)
+last = gen_people(200)
 q(dataset).where(lambda p: 0 <= p.age < 100).prepend_many(first).append_many(last).select(lambda p: p.name).to_list()
 ```
 

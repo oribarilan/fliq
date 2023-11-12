@@ -1,12 +1,14 @@
 # API Roadmap
 
-## Special Functionality
+## V1 Functionality
+
+### Special Functionality
 
 - [x] [snap](snapshots.md) (aka cache, materialize)
 - [x] [partition](partitioning.md)
-- [x] peak
+- [x] [peek](peeking.md)
 
-## Mapper Methods
+### Mapper Methods
 
 - [x] [where](mapper_methods.md#fliq.query.Query.where) (aka filter)
 - [x] [select](mapper_methods.md#fliq.query.Query.select) (aka map)
@@ -30,7 +32,7 @@
 - [x] [shuffle](mapper_methods.md#fliq.query.Query.shuffle)
 - [x] [flatten](mapper_methods.md#fliq.query.Query.flatten)
 
-## Materializers
+### Materializers
 
 - [x] [contains](materializer_methods.md#fliq.query.Query.contains)
 - [x] [equals](materializer_methods.md#fliq.query.Query.equals)
@@ -38,13 +40,13 @@
 - [x] [to_dict](materializer_methods.md#fliq.query.Query.to_dict)
 - [ ] conversion (to_set, to_tuple, to_string)
 
-### Special Materializers
+#### Special Materializers
 
 - [x] [in / not in](materializer_methods.md#fliq.query.Query.contains) (aka membership)
 - [x] [== / !=](materializer_methods.md#fliq.query.Query.__eq__) (aka equality)
 - [ ] arithmetic (+, -, *, , %)
 
-### Reducers
+#### Reducers
 
 - [x] [first](materializer_methods.md#fliq.query.Query.first)
 - [x] [first_or_default](materializer_methods.md#fliq.query.Query.first_or_default)
@@ -54,8 +56,17 @@
 - [x] [all](materializer_methods.md#fliq.query.Query.all)
 - [x] [aggregate](materializer_methods.md#fliq.query.Query.aggregate)
 
-#### Numeric Reducers
+##### Numeric Reducers
 - [x] [sum](materializer_methods.md#fliq.query.Query.sum)
 - [x] [min](materializer_methods.md#fliq.query.Query.min)
 - [x] [max](materializer_methods.md#fliq.query.Query.max)
 - [ ] average
+
+## V2 Functionality
+
+V1 is still going strong, add lots of functionality.
+
+However, we can already say that future versions will include async functionality:
+
+* V2 will include async manipulation over iterables.
+* V3 will include async manipulation over async iterables.
