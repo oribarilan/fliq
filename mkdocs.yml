@@ -99,6 +99,7 @@ copyright: |
 nav:
     - Welcome to Fliq: index.md
     - Getting Started: getting_started.md
+    - Examples: examples.md
     - Reference:
         - API Intro: reference/api_intro.md
         - Code API:
