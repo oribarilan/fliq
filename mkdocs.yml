@@ -103,11 +103,12 @@ nav:
     - Reference:
         - API Intro: reference/api_intro.md
         - Code API:
-          - Mapper Methods: reference/mapper_methods.md
-          - Materializer Methods: reference/materializer_methods.md
-          - Snapshots: reference/snapshots.md
-          - Partitioning: reference/partitioning.md
-          - Peeking: reference/peeking.md
+          - API Index: reference/code_api/api_index.md
+          - Mapper Methods: reference/code_api/mapper_methods.md
+          - Materializer Methods: reference/code_api/materializer_methods.md
+          - Snapshots: reference/code_api/snapshots.md
+          - Partitioning: reference/code_api/partitioning.md
+          - Peeking: reference/code_api/peeking.md
         - API Roadmap: reference/api_roadmap.md
 #    - Contribution:
 #        - Contribution: contribution/contribution.md

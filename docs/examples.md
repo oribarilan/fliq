@@ -1,6 +1,6 @@
 # Examples
 
-## 🧦 Tonny's Socks
+## Tonny's Socks 🧦
 
 Tonny is terrible at doing laundry. He has a drawer full of socks, but none of them match. 
 He needs to find a pair of matching socks before he can go to work.
@@ -29,7 +29,7 @@ pair = pairs.first_or_default(lambda p: p[0].color == 'red', default=(Sock('bori
 print(f"Tonny's socks for today are {pair[0].color}! 🎄🎅🏼🎁🧦🧦🎁🎅🏼🎄")
 ```
 
-## 👨‍💻Language Popularity Contest
+## Language Contest 👨‍💻🏆
 Let's find out which programming language is the most popular.
 
 ### The Easy Way
