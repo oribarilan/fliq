@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import collections.abc
 import heapq
+import itertools
 import random
 from collections import defaultdict
 from functools import reduce
@@ -10,7 +11,9 @@ from operator import attrgetter
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
     Union, Tuple, Hashable, Type
 
-from fliq.exceptions import NoItemsFoundException, MultipleItemsFoundException
+from fliq.exceptions import (
+    NoItemsFoundException, MultipleItemsFoundException, NotEnoughElementsException
+)
 from fliq.types import Predicate, Selector, NumericSelector, IndexSelector
 
 if TYPE_CHECKING:
@@ -822,6 +825,77 @@ class Query(collections.abc.Iterable):
             return first
 
         raise MultipleItemsFoundException()
+
+    def sample(self,
+               n: int = 1,
+               seed: Optional[Hashable] = None,
+               budget_factor: Optional[int] = 10,
+               stop_factor: Optional[int] = 10) -> Union[Any, List[Any]]:
+        """
+        Returns a random sample of n elements from the query.
+        If n is 1, returns a single item, otherwise returns a tuple (that can be unpacked).
+
+        Examples:
+            >>> from fliq import q
+            >>> q(range(10)).sample(n=2, seed=42)
+            [0, 4]
+            >>> q(range(10)).sample(n=1, seed=42)
+            1
+
+        Args:
+            n: Optional. The number of elements to sample. Defaults to 1.
+            seed: Optional. The seed to use for the random sample. Defaults to None.
+            budget_factor: Optional. Limits the number of attempts to sample n items,
+                as a factor of n. Defaults to 10x n.
+                None will disable budgeting, and may exhaust the iterable
+                (depending on stop_factor).
+            stop_factor: Optional. The probability to stop re-sampling once the sample is full,
+                as a factor of n: 1 / ( stop_factor * n). Defaults to 1 / (10 * n).
+                None will disable early stopping, and may exhaust the iterable
+                (depending on budget_factor).
+
+        Note:
+            * To safely support infinite iterables, make sure you use
+                budget_factor and/or stop_factor (they are set by default).
+
+        Raises:
+            NotEnoughItemsFoundException: In case the query is exhausted before n items are sampled.
+            ValueError: In case n is not positive.
+        """
+        if n < 1:
+            raise ValueError(f"n must be positive, got {n}")
+
+        if budget_factor is not None and budget_factor < 1:
+            raise ValueError(f"budget factor must be bigger than 1, got {budget_factor}")
+
+        if stop_factor is not None and stop_factor < 1:
+            raise ValueError(f"budget factor must be bigger than 1, got {stop_factor}")
+
+        rand = random.Random(seed)
+
+        reservoir: List = []
+        total_processed = 0
+        budget = None if budget_factor is None else n * budget_factor
+        stop_probability = None if stop_factor is None else 1 / (stop_factor * n)
+
+        for element in itertools.islice(self._items, budget):
+            total_processed += 1
+            if len(reservoir) < n:
+                reservoir.append(element)
+            else:
+                # Replace elements with decreasing probability
+                replace_index = rand.randint(1, total_processed)
+                if replace_index <= n:
+                    reservoir[replace_index - 1] = element
+
+                # Check for early stopping condition
+                if stop_probability is not None and rand.random() < stop_probability:
+                    break
+
+        if len(reservoir) < n:
+            raise NotEnoughElementsException("too many items requested")
+
+        return reservoir[0] if n == 1 else reservoir
 
     def count(self) -> int:
         """

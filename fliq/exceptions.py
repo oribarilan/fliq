@@ -9,3 +9,6 @@ class MultipleItemsFoundException(BaseQueryException):
 class NoItemsFoundException(BaseQueryException):
     pass
 
+
+class NotEnoughElementsException(BaseQueryException):
+    pass
