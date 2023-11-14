@@ -45,7 +45,7 @@ q([0, 1, 2]).where(lambda x: x % 2 == 0).select(lambda x: x + 1)
 # Query object similar to [1, 3]
 ```
 
-For the full list of mappers, please refer to the [Mapper Methods](mapper_methods.md) section.
+For the full list of mappers, please refer to the [Mapper Methods](code_api/mapper_methods.md) section.
 
 ## Materializer Methods
 
@@ -71,7 +71,7 @@ q([0, 1, 2]).where(lambda x: x % 2 == 0).to_list()
 # [0, 2]
 ```
 
-For the full list of mappers, please refer to the [Materializer Methods](materializer_methods.md) section.
+For the full list of mappers, please refer to the [Materializer Methods](code_api/materializer_methods.md) section.
 
 ## Special Functionality
 
