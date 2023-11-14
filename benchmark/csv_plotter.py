@@ -34,7 +34,8 @@ class CsvPlotter:
         edge_color = '#646464'  # Gray for bar contour
 
         # Create the plot
-        ax = df.plot(kind='bar', figsize=(8, 4), rot=0, width=0.5, color=bar_colors, edgecolor=edge_color)
+        ax = df.plot(kind='bar', figsize=(8, 4), rot=0, width=0.5, color=bar_colors,
+                     edgecolor=edge_color)
 
         # Set the background color
         ax.set_facecolor('#2B2B2B')
