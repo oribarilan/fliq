@@ -1,8 +1,9 @@
 name: Build and Deploy Docs 
 
 on:
- release:
-   types: [published]
+  release:
+    types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: write
