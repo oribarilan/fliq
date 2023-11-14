@@ -1,10 +1,11 @@
 import random
+from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from benchmark.benchmark_runner import BenchmarkRunner, NamedMethod
+from csv_plotter import CsvPlotter
 from fliq import q
 from fliq.tests.fliq_test_utils import Person, gen_people
     
@@ -93,33 +94,33 @@ def plot_benchmark(csv_path):
     plt.savefig(csv_path.replace(".csv", ".png"))
 
 
-BenchmarkRunner(
-    scenario_name="Scenario 1",
-    m1=NamedMethod("Fliq", s1_fliq),
-    m2=NamedMethod("Standard Library", s1_std_lib),
-    dataset_generator=gen_people,
-).run(
-    sizes=[
-        1_00,
-        10_000,
-        1_000_000,
-    ],
-    output_csv="s1.csv",
-)
+# BenchmarkRunner(
+#     scenario_name="Scenario 1",
+#     m1=NamedMethod("Fliq", s1_fliq),
+#     m2=NamedMethod("Standard Library", s1_std_lib),
+#     dataset_generator=gen_people,
+# ).run(
+#     sizes=[
+#         1_00,
+#         10_000,
+#         1_000_000,
+#     ],
+#     output_csv="s1.csv",
+# )
 
-BenchmarkRunner(
-    scenario_name="Scenario 2",
-    m1=NamedMethod("Fliq", s2_fliq),
-    m2=NamedMethod("Standard Library", s2_std_lib),
-    dataset_generator=gen_people,
-).run(
-    sizes=[
-        1_00,
-        10_000,
-        1_000_000,
-    ],
-    output_csv="s2.csv",
-)
+# BenchmarkRunner(
+#     scenario_name="Scenario 2",
+#     m1=NamedMethod("Fliq", s2_fliq),
+#     m2=NamedMethod("Standard Library", s2_std_lib),
+#     dataset_generator=gen_people,
+# ).run(
+#     sizes=[
+#         1_00,
+#         10_000,
+#         1_000_000,
+#     ],
+#     output_csv="s2.csv",
+# )
 
-plot_benchmark("s1.csv")
-plot_benchmark("s2.csv")
+CsvPlotter(Path('s1.csv')).plot_benchmark()
+CsvPlotter(Path("s2.csv")).plot_benchmark()

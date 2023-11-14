@@ -1,17 +1,18 @@
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import style
 
+
+style.use('dark_background')  # Use a dark theme
 
 class CsvPlotter:
     def __init__(self, csv_path: Path):
         self.csv_path = csv_path
 
     def plot_benchmark(self):
-        # Read CSV file
         df = pd.read_csv(self.csv_path)
 
-        # Rename x axis ticks to be the dataset size in thousands in the format of 1k, 10k, 1M
         def format_ticks(x):
             if x < 1000:
                 return x
@@ -21,30 +22,46 @@ class CsvPlotter:
                 return f"{x // 1_000_000}M"
 
         df['Dataset'] = df['Dataset'].apply(format_ticks)
-
-        # Set dataset as index
         df.set_index('Dataset', inplace=True)
-
-        # Rename x axis to "Dataset Size"
         df.rename(columns={'Dataset': 'Dataset Size'}, inplace=True)
 
-        # Plot the results in a compact way
-        df.plot(kind='bar', figsize=(8, 4), rot=0, width=0.7)
+        plt.rcParams["font.sans-serif"] = "Arial"  # Use a modern font
+        plt.rcParams["font.size"] = 12  # Increase font size
 
-        plt.title('Benchmark Results')
-        plt.ylabel('Execution Time (seconds)')
-        plt.xlabel('Dataset')
+        # Define Darcula-like colors for bars and labels
+        bar_colors = ['#5294E2', '#E2777A']  # Soft blue and red
+        label_color = '#FFC66D'  # Softer yellow for labels
+        edge_color = '#646464'  # Gray for bar contour
+
+        # Create the plot
+        ax = df.plot(kind='bar', figsize=(8, 4), rot=0, width=0.5, color=bar_colors, edgecolor=edge_color)
+
+        # Set the background color
+        ax.set_facecolor('#2B2B2B')
+
+        # Set font
+        plt.rcParams["font.family"] = "Helvetica"  # You can change this to your preferred font
+
+        # Titles and labels with a lighter color for visibility
+        plt.title('Benchmark Results', color='white')
+        plt.ylabel('Execution Time (seconds)', color='white')
+        plt.xlabel('Dataset', color='white')
+
+        # Remove small ticks on the y-axis
+        ax.tick_params(axis='y', which='minor', left=False)
 
         plt.yscale('log')
-        plt.grid(axis='y')
+        plt.grid(axis='y', color='gray')  # Adjust grid color for visibility
         plt.tight_layout()
 
-        # add label to the top of each bar with a white background behind the black label
-        for p in plt.gca().patches:
-            plt.gca().annotate(f"{p.get_height():.3f}",
-                               (p.get_x() + p.get_width() / 2, p.get_height()),
-                               ha='center', va='center', color='b', xytext=(0, 10),
-                               textcoords='offset points', bbox=dict(facecolor='white'))
+        # Add labels to bars
+        for p in ax.patches:
+            ax.annotate(f"{p.get_height():.3f}", (p.get_x() + p.get_width() / 2., p.get_height()),
+                        ha='center', va='center', fontsize=9, color=label_color, xytext=(0, 10),
+                        textcoords='offset points', bbox=dict(facecolor='black', edgecolor='0.1'))
 
-        # save to the same filename as the csv file
-        plt.savefig(str(self.csv_path).replace(".csv", ".png"))
+
+        plt.savefig(str(self.csv_path.with_suffix('.png')), dpi=300)  # High-resolution output
+
+# Usage remains the same
+

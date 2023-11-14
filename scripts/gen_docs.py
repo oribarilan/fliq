@@ -25,7 +25,7 @@ def get_md_body(title, methods):
 
 
 def create_api_docs():
-    docs_reference_path = docs_path / 'reference'
+    docs_reference_path = docs_path / 'reference' / 'code_api'
     mappers = []
     materializers = []
     skipped_methods = [
