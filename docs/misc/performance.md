@@ -1,6 +1,7 @@
 # Performance
 
 Fliq is geared for performance:
+
 * 🛌 It is lazily evaluated without requiring any intentional effort from the user.
 * ⚡️ It is also tested to have on-par performance with the standard library.
 

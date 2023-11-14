@@ -17,8 +17,8 @@ Inspired by [Django's ORM](https://docs.djangoproject.com/en/4.2/topics/db/queri
 and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/), it provides a fluent syntax for lazily-evaluated operations on iterables, 
 and it is tested to have on-par performance with the standard library.
 
-* Documentation: https://oribarilan.github.io/fliq
-* Source Code: https://github.com/oribarilan/fliq
+* Documentation: [https://oribarilan.github.io/fliq](https://oribarilan.github.io/fliq)
+* Source Code: [https://github.com/oribarilan/fliq](https://github.com/oribarilan/fliq)
 
 ## Installation
 
@@ -67,10 +67,12 @@ performance on-par with the standard library.
 ## Performance
 
 Fliq is geared for performance:
+
 * 🛌 It is lazily evaluated without requiring any intentional effort from the user.
 * ⚡️ It is also tested to have on-par performance with the standard library.
 
 There are two mechanisms for checking Fliq's performance: 
+
 * 🧪 **Performance tests** are ran on every commit, and they compare Fliq's performance to the standard library.
 * 📊 **Benchmarking** is done against the standard library.
 
