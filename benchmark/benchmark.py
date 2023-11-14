@@ -1,13 +1,15 @@
 import random
+from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from benchmark.benchmark_runner import BenchmarkRunner, NamedMethod
+from csv_plotter import CsvPlotter
 from fliq import q
 from fliq.tests.fliq_test_utils import Person, gen_people
-    
+
 
 # s1: get the oldest male
 
@@ -121,5 +123,5 @@ BenchmarkRunner(
     output_csv="s2.csv",
 )
 
-plot_benchmark("s1.csv")
-plot_benchmark("s2.csv")
+CsvPlotter(Path('s1.csv')).plot_benchmark()
+CsvPlotter(Path("s2.csv")).plot_benchmark()

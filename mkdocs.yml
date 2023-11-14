@@ -110,6 +110,8 @@ nav:
           - Partitioning: reference/code_api/partitioning.md
           - Peeking: reference/code_api/peeking.md
         - API Roadmap: reference/api_roadmap.md
+    - Misc:
+        - Performance: misc/performance.md
 #    - Contribution:
 #        - Contribution: contribution/contribution.md
 #        - Development: contribution/development.md
