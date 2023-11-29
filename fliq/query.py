@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 T = TypeVar('T')
 U = TypeVar('U')
 
+# editing of type aliases should also update api_intro.md
 Predicate = Callable[[T], bool]
 Selector = Callable[[T], U]
 

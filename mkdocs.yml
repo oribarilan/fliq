@@ -102,6 +102,7 @@ nav:
     - Examples: examples.md
     - Reference:
         - API Intro: reference/api_intro.md
+        - What's New: reference/release_notes.md
         - Code API:
           - API Index: reference/code_api/api_index.md
           - Mapper Methods: reference/code_api/mapper_methods.md

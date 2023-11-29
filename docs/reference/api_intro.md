@@ -5,13 +5,12 @@ This *reference* section provides concepts and a detailed description of the API
 
 !!! note
 
-    API docs contain custom types to improve readability:
+    API docs contain type aliases to improve readability:
 
-    - Predicate. ```Predicate = Callable[[Any], bool]```
-    - Selector. ```Selector = Callable[[Any], Any]```
-    - NumericSelector = ```Callable[[Any], Number]```
-    - IndexSelector = ```Callable[[Any], int]```
-
+    - Predicate. ```Predicate = Callable[[T], bool]```
+    - Selector. ```Selector = Callable[[T], U]```
+    - NumericSelector = ```Selector[T, Union[int, float]]```
+    - IndexSelector = ```Selector[T, int]```
 
 ## Query
 Query is the main object in Fliq. It is an abstracted lazy iterable, 

@@ -1,6 +1,6 @@
-# Release Notes (What's New)
+# Release Notes (What's New) 🤩
 
-## v0.1.8
+## v0.1.9
 
 * 📝 **Release Notes** - starting to log release notes
 * 🔍 **Type Support** - added full type support (including generics)

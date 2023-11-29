@@ -16,6 +16,7 @@ Fliq is a lightweight Python library for high-performance processing of iterable
 Inspired by [Django's ORM](https://docs.djangoproject.com/en/4.2/topics/db/queries/)
 and [LINQ](https://learn.microsoft.com/en-us/dotnet/standard/linq/), it provides a fluent syntax for lazily-evaluated operations on iterables, 
 and it is tested to have on-par performance with the standard library.
+Also, for all you type-a-holics, Fliq is fully equipped with generic type hints, so it supports mypy in strict mode.
 
 * Documentation: [https://oribarilan.github.io/fliq](https://oribarilan.github.io/fliq)
 * Source Code: [https://github.com/oribarilan/fliq](https://github.com/oribarilan/fliq)
@@ -30,7 +31,7 @@ pip install fliq
 
 ## Fliq is
 
-- 💡 **Intuitive** to use. Built for readability and usability.
+- 💡 **Intuitive** to use. Built for readability and usability. Fully typed.
 - 🪶 **Lightweight** wrapper for the standard library. No dependencies or bloat.
 - ⚡️ **Efficient** as the standard library. Abstraction overhead is kept to a minimum. 
 - ⏳ **Lazy** evaluated, executed only _when_ needed and only _as_ needed.

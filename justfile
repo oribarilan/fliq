@@ -20,6 +20,10 @@ test-coverage:
 test:
     pytest --ignore=examples
 
+# test docs
+test-docs:
+    python -m doctest fliq/query.py
+
 # execute linting utils
 lint:
     ruff .
@@ -30,11 +34,12 @@ quality:
 
 # execute all code checks (linting and quality)
 check:
+    just test-docs
     just lint
     just quality
     just test-coverage
 
-# test and build docs TODO add doc tests
+# test and build docs
 doc:
     python -m doctest fliq/query.py
     python scripts/gen_docs.py

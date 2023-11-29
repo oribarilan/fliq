@@ -42,7 +42,7 @@ def create_api_docs():
             # skip constructor
             continue
         ret_type = inspect.signature(method).return_annotation
-        is_streamer = ret_type == Query.__name__
+        is_streamer = ret_type.startswith('Query')
         exact_name_regex = f'"^{name}$"'
         if is_streamer:
             mappers.append(exact_name_regex)
