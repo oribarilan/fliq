@@ -9,39 +9,48 @@ from functools import reduce
 from itertools import islice, chain, zip_longest
 from operator import attrgetter
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
-    Union, Tuple, Hashable, Type
+    Union, Tuple, Hashable, Type, Generic, TypeVar, Sequence
 
 from fliq.exceptions import (
     NoItemsFoundException, MultipleItemsFoundException, NotEnoughElementsException
 )
-from fliq.types import Predicate, Selector, NumericSelector, IndexSelector
 
 if TYPE_CHECKING:
     from fliq import q  # noqa: F401 (used in docs)  # pragma: no cover
 
 
-class Query(collections.abc.Iterable):
-    def __init__(self, iterable: Iterable):
+T = TypeVar('T')
+U = TypeVar('U')
+
+Predicate = Callable[[T], bool]
+Selector = Callable[[T], U]
+
+NumericSelector = Selector[T, Union[int, float]]
+IndexSelector = Selector[T, int]
+
+
+class Query(Generic[T], Iterable[T]):
+    def __init__(self, iterable: Iterable[T]):
         """
         Create a Query object to allow fluent iterable processing
         """
-        self._items = iterable
-        self._iterator: Optional[Iterator] = None
+        self._items: Iterable[T] = iterable
+        self._iterator: Optional[Iterator[T]] = None
 
         # COW mode: copy-on-write mode, used to support snapshots
         self._cow_pending: bool = False
 
-    def __iter__(self):
+    def __iter__(self) -> Query[T]:
         if self._iterator is None:
             self._iterator = iter(self._items)
         return self
 
-    def __next__(self):
+    def __next__(self) -> Union[T]:
         if self._iterator is None:
             self._iterator = iter(self._items)
         return next(self._iterator)
 
-    def __contains__(self, item):
+    def __contains__(self, item: Any) -> bool:
         return item in self._items
 
     def __eq__(self, other: Any) -> bool:
@@ -66,36 +75,36 @@ class Query(collections.abc.Iterable):
 
         return True
 
-    def _self(self, updated_items: Optional[Iterable] = None, in_snap: bool = False) -> Query:
+    def _self(self, updated_items: Optional[Iterable[U]] = None, in_snap: bool = False) -> Query[U]:
         """
         Adjusts the iterable of the query, and returns the query itself.
         This method abstract the need to create a new Query in some situations, to support
         the snapshot functionality.
         """
-        updated_items = self._items if updated_items is None else updated_items
+        updated_items = self._items if updated_items is None else updated_items  # type: ignore
 
         if in_snap:
             # COW prep: coming from snap, transform to list, don't copy object
             # This will allow multiple passes on this snapshot
-            self._items = list(updated_items)
-            return self
+            self._items = list(updated_items)  # type: ignore
+            return self  # type: ignore
         elif self._cow_pending:
             # COW mode: coming from operation in COW mode, copy object
             # This will create a new query object in the first streamer following a snapshot
             # Following streamers will work on that same query object, minimizing object creations
-            snapped_query = Query(iterable=updated_items)
+            snapped_query = Query(iterable=updated_items)  # type: ignore
             return snapped_query
         else:
             # non-COW mode: coming from operation in non-COW mode, update iterable
-            self._items = updated_items
-            return self
+            self._items = updated_items  # type: ignore
+            return self  # type: ignore
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"Query({repr(self._items)}, cow_pending={self._cow_pending})"
 
     # region Special Functionality
 
-    def snap(self) -> Query:
+    def snap(self) -> Query[T]:
         """
         Yields the same elements, and creates a snapshot for the query.
         This snapshot allows for multiple iterations over the same "snapped" iterable.
@@ -116,7 +125,8 @@ class Query(collections.abc.Iterable):
         self._cow_pending = True
         return self._self(in_snap=True)
 
-    def partition(self, by: Union[IndexSelector, Predicate], n: int = 2) -> Tuple[Query, ...]:
+    def partition(self, by: Union[IndexSelector[T], Predicate[T]], n: int = 2) \
+            -> Tuple[Query[T], ...]:
         # noinspection GrazieInspection
         """
         Yields n queries, each containing the elements that match the partition index selected.
@@ -150,9 +160,9 @@ class Query(collections.abc.Iterable):
         if n <= 0:
             raise ValueError("Number of partitions must be positive")
 
-        partition_queues: Dict[int, list] = {i: [] for i in range(n)}
+        partition_queues: Dict[int, List[T]] = {i: [] for i in range(n)}
 
-        def partition_generator(queue_partition_idx: int):
+        def partition_generator(queue_partition_idx: int) -> Iterable[T]:
             for item in self:
                 item_partition_idx: int = by(item)
                 self._validate_partition_index(item_partition_idx, n)
@@ -168,7 +178,7 @@ class Query(collections.abc.Iterable):
         # Create n Queries, each with its own partition generator
         return tuple(Query(partition_generator(i)) for i in range(n))
 
-    def peek(self, n: int = 1) -> Union[Any, Tuple[Any, ...]]:
+    def peek(self, n: int = 1) -> Union[Optional[T], Sequence[Optional[T]]]:
         """
         Return the first n elements of the query, without exhausting the query.
         If n is 1, returns the first element as a single item, otherwise returns a tuple
@@ -212,27 +222,27 @@ class Query(collections.abc.Iterable):
             self._iterator = iter(self._items)
 
         # Consume the first n items
-        first_n_items = tuple(islice(self._iterator, n))
+        first_n_items: List[T] = list(islice(self._iterator, n))
 
         # If we consumed less than n items, pad with None
-        available_n = len(first_n_items)
-        if len(first_n_items) < n:
-            first_n_items += (None,) * (n - len(first_n_items))
+        padding: List[Optional[T]] = [None] * (n - len(first_n_items))
 
         # Adjust self._items to a new iterator that starts with the consumed items
         # followed by the remaining items
-        self._items = chain(first_n_items[:available_n], self._iterator)
+        self._items = chain(first_n_items, self._iterator)
 
         # Create a new iterator from the adjusted self._items
         self._iterator = iter(self._items)
 
-        return first_n_items if n > 1 else first_n_items[0]
+        padded_result: Sequence[Optional[T]] = first_n_items + padding
+
+        return padded_result if n > 1 else padded_result[0]
 
     # endregion
 
     # region Mappers
 
-    def where(self, predicate: Optional[Predicate] = None) -> Query:
+    def where(self, predicate: Optional[Predicate[T]] = None) -> Query[T]:
         """
         Yields elements that satisfy the predicate (aka filter).
 
@@ -252,7 +262,7 @@ class Query(collections.abc.Iterable):
         items = filter(predicate, self._items)
         return self._self(items)
 
-    def select(self, selector: Selector) -> Query:
+    def select(self, selector: Selector[T, U]) -> Query[U]:
         """
         Yields the result of applying the selector function to each element (aka map).
 
@@ -267,7 +277,7 @@ class Query(collections.abc.Iterable):
         items = map(selector, self._items)
         return self._self(items)
 
-    def exclude(self, predicate: Predicate) -> Query:
+    def exclude(self, predicate: Predicate[T]) -> Query[T]:
         """
         Yields elements that do not satisfy the predicate.
 
@@ -282,7 +292,7 @@ class Query(collections.abc.Iterable):
         items = filter(lambda x: not predicate(x), self._items)
         return self._self(items)
 
-    def distinct(self, preserve_order: bool = True) -> Query:
+    def distinct(self, preserve_order: bool = True) -> Query[T]:
         """
         Yields distinct elements.
         Distinct supports infinite iterables.
@@ -297,7 +307,7 @@ class Query(collections.abc.Iterable):
             TypeError: In case one or more items in the query are not hashable.
             """
 
-        def generator(internal_items: Iterable):
+        def generator(internal_items: Iterable[T]) -> Iterable[T]:
             seen = set()
             for item in internal_items:
                 if item not in seen:
@@ -309,8 +319,8 @@ class Query(collections.abc.Iterable):
         return self._self(items)
 
     def order(self,
-              by: Optional[Selector] = None,
-              ascending: bool = True) -> Query:
+              by: Optional[Selector[T, U]] = None,
+              ascending: bool = True) -> Query[T]:
         """Yields elements in sorted order.
 
         Examples:
@@ -321,19 +331,20 @@ class Query(collections.abc.Iterable):
         Args:
             by: a selector function to extract the key from an item, defaults to None.
                 If None, the default ordering is used.
+                If exists, assumes the key is comparable.
             ascending: whether to sort in ascending or descending order, defaults to True.
         """
+        # assumed to be comparable
         if by is None:
-            # natural order
-            items = sorted(self._items, reverse=not ascending)
+            items = sorted(self._items, reverse=not ascending)  # type: ignore
         else:
-            items = sorted(self._items, key=by, reverse=not ascending)
+            items = sorted(self._items, key=by, reverse=not ascending)  # type: ignore
         return self._self(items)
 
     def shuffle(self,
                 buffer_size: int = 10,
                 seed: Optional[Hashable] = None,
-                fair: bool = False) -> Query:
+                fair: bool = False) -> Query[T]:
         """
         Yields elements in a random order.
         Supports infinite iterables.
@@ -379,8 +390,8 @@ class Query(collections.abc.Iterable):
             ran.shuffle(shuffled_items)
             return self._self(shuffled_items)
 
-        def shuffled_generator(internal_items: Iterable):
-            buffer = []
+        def shuffled_generator(internal_items: Iterable[T]) -> Iterable[T]:
+            buffer: List[T] = []
             sentinel = object()
             items_iter = iter(internal_items)
 
@@ -390,7 +401,7 @@ class Query(collections.abc.Iterable):
                 if item is sentinel:
                     # iterable exhausted (smaller than buffer size)
                     break
-                buffer.append(item)
+                buffer.append(item)  # type: ignore # (item is of type T)
 
             ran.shuffle(buffer)
 
@@ -412,7 +423,7 @@ class Query(collections.abc.Iterable):
 
         return self._self(items)
 
-    def reverse(self) -> Query:
+    def reverse(self) -> Query[T]:
         """
         Yields elements in reverse order.
         Notes:
@@ -434,7 +445,7 @@ class Query(collections.abc.Iterable):
             items = reversed(self._items)  # type: ignore
         return self._self(items)
 
-    def slice(self, start: int = 0, stop: Optional[int] = None, step: int = 1) -> Query:
+    def slice(self, start: int = 0, stop: Optional[int] = None, step: int = 1) -> Query[T]:
         """
         Yields a slice of the query
 
@@ -451,7 +462,7 @@ class Query(collections.abc.Iterable):
         items = islice(self._items, start, stop, step)
         return self._self(items)
 
-    def take(self, n: int = 1, predicate: Optional[Predicate] = None) -> Query:
+    def take(self, n: int = 1, predicate: Optional[Predicate[T]] = None) -> Query[T]:
         """
         Yields up to n items that satisfy the predicate (if provided).
         In case the query is ordered, the first n elements are returned.
@@ -463,7 +474,7 @@ class Query(collections.abc.Iterable):
         query = self.where(predicate).slice(stop=n)
         return self._self(query._items)
 
-    def skip(self, n: int = 1) -> Query:
+    def skip(self, n: int = 1) -> Query[T]:
         """
         Yields the elements after skipping the first n (as returned from the iterator).
 
@@ -478,7 +489,7 @@ class Query(collections.abc.Iterable):
         query = self.slice(start=n)
         return self._self(query._items)
 
-    def zip(self, *iterables: Iterable) -> Query:
+    def zip(self, *iterables: Iterable[U]) -> Query[Tuple[T, U]]:
         """
         Yields tuples of the elements of the query with the input iterables.
         The zipping stops as soon as the smallest of the iterables and the query is exhausted.
@@ -491,10 +502,10 @@ class Query(collections.abc.Iterable):
         Args:
             *iterables: One or more iterables to zip with the query.
         """
-        items = zip(self._items, *iterables)
+        items: Iterable[Tuple[T, U]] = zip(self._items, *iterables)  # type: ignore
         return self._self(items)
 
-    def append(self, *single_items: Any) -> Query:
+    def append(self, *single_items: T) -> Query[T]:
         """
         Yields the elements of the query, followed by the input element(s).
         API also supports multiple arguments, where each is considered as a single element.
@@ -514,7 +525,7 @@ class Query(collections.abc.Iterable):
         items = chain(self._items, single_items)
         return self._self(items)
 
-    def append_many(self, items: Iterable) -> Query:
+    def append_many(self, items: Iterable[T]) -> Query[T]:
         """
         Yields the elements of the iterable, followed by the elements given.
 
@@ -535,7 +546,7 @@ class Query(collections.abc.Iterable):
         items = chain(self._items, items)
         return self._self(items)
 
-    def prepend(self, *single_items: Any) -> Query:
+    def prepend(self, *single_items: T) -> Query[T]:
         """
         Yields the element(s) given, followed by the elements of the query.
         API also supports multiple arguments, where each is considered as a single element.
@@ -555,7 +566,7 @@ class Query(collections.abc.Iterable):
         items = chain(single_items, self._items)
         return self._self(items)
 
-    def prepend_many(self, items: Iterable) -> Query:
+    def prepend_many(self, items: Iterable[T]) -> Query[T]:
         """
         Yields the elements given, followed by the elements of the query.
 
@@ -576,9 +587,9 @@ class Query(collections.abc.Iterable):
         items = chain(items, self._items)
         return self._self(items)
 
-    def group_by(self, key: Union[str, Selector]) -> Query:
+    def group_by(self, key: Union[str, Selector[T, U]]) -> Query[List[T]]:
         """
-        Yields an iterable of groups, where each group has identical key.
+        Yields an iterable of groups (as lists), where each group has identical key.
 
         Examples:
             >>> from fliq import q
@@ -591,7 +602,7 @@ class Query(collections.abc.Iterable):
         """
         groups = defaultdict(list)
 
-        key_selector: Union[attrgetter, Callable[[Any], Any]]
+        key_selector: Selector[T, U]
         if callable(key):
             key_selector = key
         else:
@@ -599,12 +610,12 @@ class Query(collections.abc.Iterable):
             key_selector = attrgetter(key)
 
         for item in self._items:
-            key = key_selector(item)
-            groups[key].append(item)
+            group_key = key_selector(item)
+            groups[group_key].append(item)
 
         return self._self(groups.values())
 
-    def top(self, n: int = 1, by: Optional[NumericSelector] = None) -> Query:
+    def top(self, n: int = 1, by: Optional[NumericSelector[T]] = None) -> Query[T]:
         """
         Yields the top n elements of the query, according to the selector (if provided).
 
@@ -622,11 +633,13 @@ class Query(collections.abc.Iterable):
             n: Optional. The number of elements to take. Defaults to 1.
             by: Optional. The selector function to apply to each element. Defaults to the identity.
         """
-        items: Iterable
+        items: Iterable[T]
         if n <= 0:
             return self._self([])
 
-        heap: List = []
+        # heap holds tuples of (value, item), where value is either a numeric value
+        # from the selector or the item itself if no selector is provided
+        heap: List[Tuple[Union[T, int, float], T]] = []
         for item in self._items:
             value = item if by is None else by(item)
             if len(heap) < n:
@@ -642,7 +655,7 @@ class Query(collections.abc.Iterable):
 
         return self._self(items)
 
-    def bottom(self, n: int = 1, by: Optional[NumericSelector] = None) -> Query:
+    def bottom(self, n: int = 1, by: Optional[NumericSelector[T]] = None) -> Query[T]:
         """
         Yields the top n elements of the query, according to the selector (if provided).
 
@@ -657,16 +670,18 @@ class Query(collections.abc.Iterable):
         Args:
             n: Optional. The number of elements to take. Defaults to 1.
             by: Optional. The selector function to apply to each element. Defaults to the identity.
+            If by is None, the default ordering is used, which requires elements to be able to be
+            multiplied by integers.
         """
         if by is None:
-            return self.top(n=n, by=lambda x: -1 * x)
+            return self.top(n=n, by=lambda x: -1 * x)  # type: ignore
         else:
-            return self.top(n=n, by=lambda x: -1 * by(x))  # type: ignore
+            return self.top(n=n, by=lambda x: -1 * by(x))  # type: ignore # (by is not None)
 
     def flatten(
             self,
             max_depth: Optional[int] = None,
-            ignore_types: Optional[Tuple[Type, ...]] = (str, bytes)) -> Query:
+            ignore_types: Optional[Tuple[Type[Any], ...]] = (str, bytes)) -> Query[T]:
         """
         Yields a flattened iterable to a specified depth.
 
@@ -692,7 +707,7 @@ class Query(collections.abc.Iterable):
         if max_depth is not None and max_depth < 0:
             raise ValueError(f"max_depth must be non-negative (or -1 by default), got {max_depth}")
 
-        def _flatten(iterable: Iterable, current_depth: int) -> Iterable:
+        def _flatten(iterable: Iterable[Any], current_depth: int) -> Iterable[Any]:
             for item in iterable:
                 type_ignored = ignore_types is not None and isinstance(item, ignore_types)
                 single_char_byte = isinstance(item, (str, bytes)) and len(item) == 1
@@ -710,7 +725,7 @@ class Query(collections.abc.Iterable):
 
     # region Materializers
 
-    def first(self, predicate: Optional[Predicate] = None) -> Any:
+    def first(self, predicate: Optional[Predicate[T]] = None) -> T:
         """
         Returns the first element in the query.
 
@@ -735,7 +750,9 @@ class Query(collections.abc.Iterable):
         except StopIteration:
             raise NoItemsFoundException()
 
-    def first_or_default(self, predicate: Optional[Predicate] = None, default: Any = None) -> Any:
+    def first_or_default(self,
+                         predicate: Optional[Predicate[T]] = None,
+                         default: Optional[T] = None) -> Optional[T]:
         """
         Returns the first element in the query, or a default value if the query is empty.
 
@@ -744,7 +761,6 @@ class Query(collections.abc.Iterable):
             >>> q([1, 2, 3]).first_or_default()
             1
             >>> q([]).first_or_default() # returns None
-
 
         Args:
             predicate: Optional. The predicate to filter the query by.
@@ -757,7 +773,7 @@ class Query(collections.abc.Iterable):
         except StopIteration:
             return default
 
-    def single(self, predicate: Optional[Predicate] = None) -> Any:
+    def single(self, predicate: Optional[Predicate[T]] = None) -> T:
         """
         Returns the single element in the query.
 
@@ -790,7 +806,9 @@ class Query(collections.abc.Iterable):
 
         raise MultipleItemsFoundException(f"Found at least two items: {first}, {second}")
 
-    def single_or_default(self, predicate: Optional[Predicate] = None, default: Any = None) -> Any:
+    def single_or_default(self,
+                          predicate: Optional[Predicate[T]] = None,
+                          default: Optional[T] = None) -> Optional[T]:
         """
         Returns the single element in the query, or a default value if the query is empty.
 
@@ -830,7 +848,7 @@ class Query(collections.abc.Iterable):
                n: int = 1,
                seed: Optional[Hashable] = None,
                budget_factor: Optional[int] = 10,
-               stop_factor: Optional[int] = 10) -> Union[Any, List[Any]]:
+               stop_factor: Optional[int] = 10) -> Union[T, List[T]]:
         """
         Returns a random sample of n elements from the query.
         If n is 1, returns a single item, otherwise returns a tuple (that can be unpacked).
@@ -873,7 +891,7 @@ class Query(collections.abc.Iterable):
 
         rand = random.Random(seed)
 
-        reservoir: List = []
+        reservoir: List[T] = []
         total_processed = 0
         budget = None if budget_factor is None else n * budget_factor
         stop_probability = None if stop_factor is None else 1 / (stop_factor * n)
@@ -913,7 +931,7 @@ class Query(collections.abc.Iterable):
         # Otherwise, iterate over the iterable
         return sum(1 for _ in self)
 
-    def any(self, predicate: Optional[Predicate] = None) -> bool:
+    def any(self, predicate: Optional[Predicate[T]] = None) -> bool:
         """
         Returns whether any element in the query evaluates to true.
         If a predicate is provided, only elements that satisfy the predicate are considered.
@@ -935,7 +953,7 @@ class Query(collections.abc.Iterable):
         query = self.where(predicate)
         return any(query)
 
-    def all(self, predicate: Optional[Predicate] = None) -> bool:
+    def all(self, predicate: Optional[Predicate[T]] = None) -> bool:
         """
         Returns whether all elements in the query evaluate to true.
         If a predicate is provided, only elements that satisfy the predicate are considered.
@@ -957,7 +975,7 @@ class Query(collections.abc.Iterable):
         query = self.where(predicate)
         return all(query)
 
-    def aggregate(self, by: Callable[[Any, Any], Any], initial: Any = None):
+    def aggregate(self, by: Callable[[T, T], U], initial: Optional[U] = None) -> T:
         """
         Applies an accumulator function over the query.
 
@@ -966,7 +984,9 @@ class Query(collections.abc.Iterable):
         Examples:
             >>> from fliq.tests.fliq_test_utils import Point
             >>> from fliq import q
-            >>> q([Point(0, 0), Point(1, 1), Point(2, 2)]).aggregate(by=lambda p1, p2: p1 + p2)
+            >>> q([Point(0, 0), Point(1, 1), Point(2, 2)]).aggregate(by=lambda a, b: a + b)
+            Point(x=3, y=3)
+            >>> q([Point(1, 1), Point(2, 2)]).aggregate(by=lambda a, b: a + b, initial=Point(0, 0))
             Point(x=3, y=3)
 
         Args:
@@ -976,14 +996,15 @@ class Query(collections.abc.Iterable):
                 If not provided, the first element of the query will be used as the initial value.
         """
         if initial is not None:
-            return reduce(by, self._items, initial)
+            return reduce(by, self._items, initial)  # type: ignore # (by items of the same type)
         else:
-            return reduce(by, self._items)
+            return reduce(by, self._items)  # type: ignore # (by items of the same type)
 
-    def max(self, by: Optional[Selector] = None) -> Any:
+    def max(self,
+            by: Optional[Selector[T, U]] = None) -> T:
         """
         Returns the maximal element in the query.
-        If a selector is provided, the maximal selected attribute is returned.
+        If a selector is provided, maximality is determined by the selected value.
 
         Custom types must provide a selector function or implement value comparisons
         (see https://docs.python.org/3/reference/expressions.html#value-comparisons).
@@ -997,19 +1018,23 @@ class Query(collections.abc.Iterable):
 
         Args:
             by: Optional. The selector function to test for the maximal element.
+                If None, the default ordering is used.
+                If exists, assumes the key is comparable.
 
         Raises:
             ValueError: In case the query is empty.
         """
+        # assumed to be comparable
         if by is None:
-            return max(self)
+            return max(self)  # type: ignore
         else:
-            return max(self, key=by)
+            return max(self, key=by)  # type: ignore
 
-    def min(self, by: Optional[Selector] = None) -> Any:
+    def min(self,
+            by: Optional[Selector[T, U]] = None) -> T:
         """
         Returns the minimal element in the query.
-        If a selector is provided, the minimal selected attribute is returned.
+        If a selector is provided, minimality is determined by the selected value.
 
         Custom types must provide a selector function or implement value comparisons
         (see https://docs.python.org/3/reference/expressions.html#value-comparisons).
@@ -1023,14 +1048,17 @@ class Query(collections.abc.Iterable):
 
         Args:
             by: Optional. The selector function to test for the minimal element.
+                If None, the default ordering is used.
+                If exists, assumes the key is comparable.
 
         Raises:
             ValueError: In case the query is empty.
         """
+        # assumed to be comparable
         if by is None:
-            return min(self)
+            return min(self)  # type: ignore
         else:
-            return min(self, key=by)
+            return min(self, key=by)  # type: ignore
 
     def contains(self, item: Any) -> bool:
         """
@@ -1051,7 +1079,7 @@ class Query(collections.abc.Iterable):
         """
         return item in self._items
 
-    def equals(self, other: Iterable, bag_compare: bool = False) -> bool:
+    def equals(self, other: Iterable[T], bag_compare: bool = False) -> bool:
         """
         Returns whether the query is equal to the given iterable.
         Query also supports the `==` and `!=` operators.
@@ -1077,7 +1105,9 @@ class Query(collections.abc.Iterable):
 
     # region Numeric Collectors
 
-    def sum(self, by: Optional[NumericSelector] = None, accumulator: Any = 0) -> Any:
+    def sum(self,
+            by: Optional[NumericSelector[T]] = None,
+            accumulator: Union[int, float] = 0) -> Union[int, float]:
         """
         Returns the sum of the elements in the query.
         If a selector is provided, the sum of the selected elements is returned.
@@ -1106,18 +1136,18 @@ class Query(collections.abc.Iterable):
         """
         query = self
         if by is not None:
-            query = self.select(by)
-        return sum(query, start=accumulator)
+            query = self.select(by)  # type: ignore # (here `by` is subtype of select's `by`)
+        return sum(query, start=accumulator)  # type: ignore # (query type is okay)
 
     # endregion
 
-    def to_list(self) -> List:
+    def to_list(self) -> List[T]:
         """
         Returns the elements of the query as a list.
         """
         return list(self)
 
-    def to_dict(self, key: Union[str, Selector]) -> Dict[Any, List[Any]]:
+    def to_dict(self, key: Union[str, Selector[T, U]]) -> Dict[U, List[T]]:
         """
         Returns the elements of the query as a dictionary, grouped by the given key.
 
@@ -1132,7 +1162,7 @@ class Query(collections.abc.Iterable):
         """
         groups = self.group_by(key)
 
-        key_selector: Union[attrgetter, Callable[[Any], Any]]
+        key_selector: Selector[T, U]
         if callable(key):
             key_selector = key
         else:
@@ -1144,7 +1174,7 @@ class Query(collections.abc.Iterable):
     # endregion
 
     @staticmethod
-    def _validate_partition_index(item_partition_idx, n) -> None:
+    def _validate_partition_index(item_partition_idx: Union[int, bool], n: int) -> None:
         if isinstance(item_partition_idx, bool) and n != 2:
             raise TypeError(f"Partitioning by predicate is only supported for n=2, found n=`{n}`")
         if not (0 <= item_partition_idx < n):

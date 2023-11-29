@@ -26,7 +26,7 @@ lint:
 
 # execute quality utils
 quality:
-    mypy fliq --check-untyped-defs --ignore-missing-imports
+    mypy fliq
 
 # execute all code checks (linting and quality)
 check:
