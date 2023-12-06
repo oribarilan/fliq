@@ -9,6 +9,10 @@ class Person:
     age: int
     gender: str
 
+    @staticmethod
+    def default():
+        return Person("No one", 0, "U")
+
 
 def gen_person_name(num: int):
     # list of names for every alphabet letter

@@ -35,7 +35,11 @@ and provides a rich set of methods for transforming and querying the data.
 
 So the question is... Why not?
 
-## Examples
+## I am excited! What's next? 🤩
 
-Next, we'll show you some examples of how to use `Query`.
-Go to the [API Reference](examples.md) to see a full list of
+1. We know it is hard to believe, but it is true! Breath in, breath out, and continue to (2).
+2. Take a look at our easy-to-follow examples: [Examples](examples.md)
+3. Wonder around our API Reference
+   * Understand what are mappers and materializers at [API Intro](reference/api_intro.md)
+   * Check out our rich functionality at [API Index](reference/code_api/api_index.md)
+   * Make sure you don't miss our special functionality, linked from the top of the API Index.

@@ -5,7 +5,7 @@ from typing import Iterable
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from benchmark.benchmark_runner import BenchmarkRunner, NamedMethod
+from benchmark_runner import NamedMethod, BenchmarkRunner
 from csv_plotter import CsvPlotter
 from fliq import q
 from fliq.tests.fliq_test_utils import Person, gen_people
@@ -51,6 +51,14 @@ def s2_std_lib(dataset: Iterable):
         map(lambda p: p.name, first + list(
             filter(lambda p: 0 <= p.age < 100, dataset)) + last)
     )
+
+
+def s3_fliq(dataset: Iterable):
+    return q(dataset).select(lambda p: p.age * 2 if p.age % 2 == 0 else Person.default()).to_list()
+
+
+def s3_std_lib(dataset: Iterable):
+    return list((p.age * 2 if p.age % 2 == 0 else Person.default() for p in dataset))
 
 
 def plot_benchmark(csv_path):
@@ -123,5 +131,22 @@ BenchmarkRunner(
     output_csv="s2.csv",
 )
 
+BenchmarkRunner(
+    scenario_name="Scenario 3",
+    m1=NamedMethod("Fliq", s3_fliq),
+    m2=NamedMethod("Standard Library", s3_std_lib),
+    dataset_generator=gen_people,
+).run(
+    sizes=[
+        1_00,
+        10_000,
+        1_000_000,
+    ],
+    output_csv="s3.csv",
+)
+
 CsvPlotter(Path('s1.csv')).plot_benchmark()
-CsvPlotter(Path("s2.csv")).plot_benchmark()
+CsvPlotter(Path('s2.csv')).plot_benchmark()
+CsvPlotter(Path('s3.csv')).plot_benchmark()
+
+
