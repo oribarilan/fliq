@@ -498,6 +498,17 @@ class Query(Generic[T], Iterable[T]):
         unless longest is set to True, in which case the zipping stops when the longest iterable is
             exhausted. If strict mode is enabled, all iterables must have the same length.
 
+        Examples:
+            >>> from fliq import q
+            >>> q(range(5)).zip([5, 6, 7]).to_list()
+            [(0, 5), (1, 6), (2, 7)]
+            >>> q(range(5)).zip([5, 6, 7], longest=True).to_list()
+            [(0, 5), (1, 6), (2, 7), (3, None), (4, None)]
+            >>> q(range(5)).zip([5, 6, 7], [8, 9, 10]).to_list()
+            [(0, 5, 8), (1, 6, 9), (2, 7, 10)]
+            >>> q(range(5)).zip([5, 6, 7], [8, 9, 10], longest=True, fillvalue=-1).to_list()
+            [(0, 5, 8), (1, 6, 9), (2, 7, 10), (3, -1, -1), (4, -1, -1)]
+
         Args:
             *iterables: One or more iterables to zip with the query.
             longest: If True, stop zipping when the longest iterable is exhausted.
@@ -679,8 +690,8 @@ class Query(Generic[T], Iterable[T]):
         Args:
             n: Optional. The number of elements to take. Defaults to 1.
             by: Optional. The selector function to apply to each element. Defaults to the identity.
-            If by is None, the default ordering is used, which requires elements to be able to be
-            multiplied by integers.
+                If by is None, the default ordering is used, which requires elements to be able to be
+                multiplied by integers.
         """
         if by is None:
             return self.top(n=n, by=lambda x: -1 * x)  # type: ignore
@@ -729,6 +740,29 @@ class Query(Generic[T], Iterable[T]):
                     yield item
 
         return self._self(_flatten(self._items, 0))
+
+    def interleave(self, *iterables: Iterable[U]) -> Query[Union[T, U]]:
+        """
+        Combines the elements of the query with the elements of the provided iterables
+        into a single sequence. The elements are interleaved in the order they appear in their
+        respective sources (similar to zip). The process continues until all sources are exhausted.
+        No padding is done in case the iterables are of different lengths.
+
+        Examples:
+            >>> from fliq import q
+            >>> q([1, 2, 3]).interleave([4], [5, 6]).to_list()
+            [1, 4, 5, 2, 6, 3]
+
+        Args:
+            *iterables: One or more iterables to unify with the query.
+        """
+        sentinel = object()
+        items: zip_longest[Tuple[T, U]] = zip_longest(self._items, *iterables,
+                                                      fillvalue=sentinel)  # type: ignore
+        flattened_items: Iterable[Union[T, U]] = chain.from_iterable(items)
+        non_sentinel_items: Iterable[Union[T, U]] = filter(lambda x: x is not sentinel,
+                                                           flattened_items)
+        return self._self(non_sentinel_items)
 
     # endregion
 

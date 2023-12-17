@@ -3,6 +3,8 @@
 ## v1.10.0
 
 * ⬆️ **Zip Upgrade** - added longest and fillvalue to the [zip method](code_api/mapper_methods.md#fliq.query.Query.zip)
+* 🧶 **Interleave** - new [interleave method](code_api/mapper_methods.md#fliq.query.Query.interleave), for 
+interleaving two or more iterables together, in a round-robin fashion, regardless of their length
 
 ## v1.9.0
 
