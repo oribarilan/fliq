@@ -690,8 +690,8 @@ class Query(Generic[T], Iterable[T]):
         Args:
             n: Optional. The number of elements to take. Defaults to 1.
             by: Optional. The selector function to apply to each element. Defaults to the identity.
-                If by is None, the default ordering is used, which requires elements to be able to be
-                multiplied by integers.
+                If by is None, the default ordering is used, which requires elements to be able to
+                be multiplied by integers.
         """
         if by is None:
             return self.top(n=n, by=lambda x: -1 * x)  # type: ignore
