@@ -1,11 +1,15 @@
 # Release Notes (What's New) 🤩
 
-## v0.1.9
+## v1.10.0
+
+* ⬆️ **Zip Upgrade** - added longest and fillvalue to the [zip method](code_api/mapper_methods.md#fliq.query.Query.zip)
+
+## v1.9.0
 
 * 📝 **Release Notes** - starting to log release notes
 * 🔍 **Type Support** - added full type support (including generics)
 
-## v0.1.7 (and before)
+## v1.7.0 (and before)
 
 * 📝 **Readme** - added readme
 * 🧪 **Testing** - added unit tests with 100% coverage

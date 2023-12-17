@@ -38,3 +38,25 @@ class TestZip:
             (3, 8, 13),
             (4, 9, 14),
         ]
+
+    def test_zip_longest(self):
+        iterable = [1, 2, 3]
+        assert list(q(iterable).zip([4, 5], [6], longest=True)) == [
+            (1, 4, 6),
+            (2, 5, None),
+            (3, None, None),
+        ]
+
+    def test_zip_longestWithFillValue(self):
+        iterable = [1, 2, 3]
+        fill_value = -1
+        assert list(q(iterable).zip([4, 5], [6], longest=True, fillvalue=fill_value)) == [
+            (1, 4, 6),
+            (2, 5, -1),
+            (3, -1, -1),
+        ]
+
+    def test_zip_shortestWithDifferentLengths(self):
+        query = q(range(5))
+        zipped = query.zip(range(3))
+        assert list(zipped) == [(0, 0), (1, 1), (2, 2)]

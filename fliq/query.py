@@ -490,20 +490,28 @@ class Query(Generic[T], Iterable[T]):
         query = self.slice(start=n)
         return self._self(query._items)
 
-    def zip(self, *iterables: Iterable[U]) -> Query[Tuple[T, U]]:
+    def zip(self, *iterables: Iterable[U], longest: bool = False, fillvalue: Optional[U] = None) \
+            -> Query[Tuple[T, U]]:
         """
         Yields tuples of the elements of the query with the input iterables.
-        The zipping stops as soon as the smallest of the iterables and the query is exhausted.
-
-        Examples:
-            >>> from fliq import q
-            >>> q(range(5)).zip(range(5, 10), range(10, 15)).to_list()
-            [(0, 5, 10), (1, 6, 11), (2, 7, 12), (3, 8, 13), (4, 9, 14)]
+        The zipping stops as soon as the smallest of the iterables and the query is exhausted,
+        unless longest is set to True, in which case the zipping stops when the longest iterable is
+            exhausted. If strict mode is enabled, all iterables must have the same length.
 
         Args:
             *iterables: One or more iterables to zip with the query.
+            longest: If True, stop zipping when the longest iterable is exhausted.
+                If False (default), stop when the shortest iterable is exhausted.
+            fillvalue: The value to use for padding when the longest iterable is exhausted.
+                relevant only when `longest` is True.
         """
-        items: Iterable[Tuple[T, U]] = zip(self._items, *iterables)  # type: ignore
+        zip_func: Callable[..., Iterable[Tuple[T, U]]]
+        if longest:
+            zip_func = lambda *args: zip_longest(*args, fillvalue=fillvalue)  # noqa: E731
+        else:
+            zip_func = zip
+
+        items: Iterable[Tuple[T, U]] = zip_func(self._items, *iterables)
         return self._self(items)
 
     def append(self, *single_items: T) -> Query[T]:
