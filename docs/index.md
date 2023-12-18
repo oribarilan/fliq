@@ -7,7 +7,7 @@ Fluent-syntaxed Lazily-evaluated Integrated Query.
 [![lint](https://img.shields.io/github/actions/workflow/status/oribarilan/fliq/lint.yml?label=lint)](https://github.com/oribarilan/fliq/actions/workflows/lint.yml)
 [![coverage](https://img.shields.io/github/actions/workflow/status/oribarilan/fliq/coverage.yml?label=coverage%3E95%25)](https://github.com/oribarilan/fliq/actions/workflows/coverage.yml)
 
-[![Python Versions](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11-blue)](https://www.python.org/downloads/)
+[![Python Versions](https://img.shields.io/badge/python-3.9+-blue)](https://www.python.org/downloads/)
 [![PyPI - Version](https://img.shields.io/pypi/v/fliq?color=1E7FBF)](https://pypi.org/project/fliq/)
 [![Downloads](https://img.shields.io/pypi/dm/fliq?color=1E7FBF)](https://pypi.org/project/fliq/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -26,6 +26,7 @@ Also, for all you type-a-holics, Fliq is fully equipped with generic type hints,
 ```shell
 pip install fliq
 ```
+
 * Fliq does not have any dependencies.
 * Fliq supports Python 3.9 and above.
 

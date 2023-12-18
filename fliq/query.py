@@ -1106,7 +1106,7 @@ class Query(Generic[T], Iterable[T]):
     def contains(self, item: Any) -> bool:
         """
         Returns whether the query contains the given item (by equality, not identity).
-        Query also support the `in` and `not in` operators.
+        Query also supports the `in` and `not in` syntax, which are identical in functionality.
 
         Examples:
             >>> from fliq import q
