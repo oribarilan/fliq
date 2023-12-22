@@ -6,7 +6,7 @@
 ⚙️ **Core** - core improvements
 ⚡️ **Performance** - performance improvements
 
-## v1.12.0
+## v1.11.0
 * ⬆️ **Update to peek** - added fillvalue to the [peek method](code_api/peeking.md)
 * 🌟 **Query representation** - to ease debugging, queries now have a `repr` method, 
 which returns a string representation of the query, including peeking into the query
