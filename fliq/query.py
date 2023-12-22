@@ -642,6 +642,7 @@ class Query(Generic[T], Iterable[T]):
     def group_by(self, key: Union[str, Selector[T, U]]) -> Query[List[T]]:
         """
         Yields an iterable of groups (as lists), where each group has identical key.
+        If you require the group key, consider using `to_dict()` instead.
 
         Examples:
             >>> from fliq import q
@@ -652,20 +653,22 @@ class Query(Generic[T], Iterable[T]):
             key: A function that takes an element and returns its grouping key,
                 or a string representing the name of an attribute to group by.
         """
-        groups = defaultdict(list)
+        groups = self._group_by(key)
 
+        return self._self(groups.values())
+
+    def _group_by(self, key: Union[str, Selector[T, U]]) -> Dict[U, List[T]]:
+        groups = defaultdict(list)
         key_selector: Selector[T, U]
         if callable(key):
             key_selector = key
         else:
             # key is a string
             key_selector = attrgetter(key)
-
         for item in self._items:
             group_key = key_selector(item)
             groups[group_key].append(item)
-
-        return self._self(groups.values())
+        return groups
 
     def top(self, n: int = 1, by: Optional[NumericSelector[T]] = None) -> Query[T]:
         """
@@ -1225,6 +1228,7 @@ class Query(Generic[T], Iterable[T]):
     def to_dict(self, key: Union[str, Selector[T, U]]) -> Dict[U, List[T]]:
         """
         Returns the elements of the query as a dictionary, grouped by the given key.
+        If you don't require the group key, consider using `group_by()` instead.
 
         Examples:
             >>> from fliq import q
@@ -1235,16 +1239,7 @@ class Query(Generic[T], Iterable[T]):
             key: The selector function to apply to each element, or a string representing
                 the name of an attribute to group by.
         """
-        groups = self.group_by(key)
-
-        key_selector: Selector[T, U]
-        if callable(key):
-            key_selector = key
-        else:
-            # key is a string
-            key_selector = attrgetter(key)
-
-        return {key_selector(group[0]): list(group) for group in groups}
+        return self._group_by(key)
 
     # endregion
 
