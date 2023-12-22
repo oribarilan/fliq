@@ -101,7 +101,38 @@ class Query(Generic[T], Iterable[T]):
             return self  # type: ignore
 
     def __repr__(self) -> str:  # pragma: no cover
-        return f"Query({repr(self._items)}, cow_pending={self._cow_pending})"
+        """
+        Returns a string representation of the query, while peeking at actual elements within
+        the query. Query stays intact (i.e., no items are consumed).
+        If representation is long, only the first 10 elements are shown, followed by an ellipsis.
+        Elements are represented using their `repr` function.
+        Inner iterable is represented as a list.
+
+        Examples:
+            >>> from fliq import q
+            >>> q(range(10))
+            Query([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+            >>> q(range(100))
+            Query([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...])
+            >>> q([])
+            Query([])
+            >>> repr(q(range(3)))
+            'Query([0, 1, 2])'
+
+        Returns:
+            A string representation of the query.
+        """
+        repr_length = 10
+        sentinel = object()
+        elements = [
+            repr(e) for e in
+            self.peek(n=repr_length+1, fillvalue=sentinel) if e is not sentinel  # type: ignore
+        ]
+        peeked = ", ".join(elements[:repr_length])
+        has_additional_items = len(elements) == repr_length+1
+        if has_additional_items:
+            peeked = peeked + ", ..."
+        return f"Query([{peeked}])"
 
     # region Special Functionality
 
@@ -179,13 +210,13 @@ class Query(Generic[T], Iterable[T]):
         # Create n Queries, each with its own partition generator
         return tuple(Query(partition_generator(i)) for i in range(n))
 
-    def peek(self, n: int = 1) -> Union[Optional[T], Sequence[Optional[T]]]:
+    def peek(self, n: int = 1, fillvalue: Any = None) -> Union[Optional[T], Sequence[Optional[T]]]:
         """
         Return the first n elements of the query, without exhausting the query.
         If n is 1, returns the first element as a single item, otherwise returns a tuple
         (that can be unpacked).
         If n is greater than the number of elements in the query,
-        the remaining items will be returned as None.
+        `fillvalue` will be returned for the remaining items (defaults to None).
         Use this to inspect the first n elements of the query, before consuming the query itself.
         Common use cases are logging and debugging.
 
@@ -207,6 +238,7 @@ class Query(Generic[T], Iterable[T]):
 
         Args:
             n: Optional. The number of elements to peek. Defaults to 1.
+            fillvalue: Optional. The value to use for padding when the query is exhausted.
 
         Raises:
             ValueError: In case n is not positive.
@@ -225,8 +257,8 @@ class Query(Generic[T], Iterable[T]):
         # Consume the first n items
         first_n_items: List[T] = list(islice(self._iterator, n))
 
-        # If we consumed less than n items, pad with None
-        padding: List[Optional[T]] = [None] * (n - len(first_n_items))
+        # If we consumed less than n items, pad with fillvalue
+        padding: List[Optional[T]] = [fillvalue] * (n - len(first_n_items))
 
         # Adjust self._items to a new iterator that starts with the consumed items
         # followed by the remaining items

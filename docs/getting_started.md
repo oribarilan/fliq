@@ -23,12 +23,16 @@ A `Query` can be viewed as a wrapper for any python iterable.
 It guarantees that the iterable will be evaluated lazily,
 and provides a rich set of methods for transforming and querying the data.
 
-1. ⚡️ Data will only be materialized when you ask for it. This means that you can
+1. ⚡ **Performance.** Data will only be materialized when you ask for it. This means that you can
    create a `Query` from a very large iterable, and only materialize a small
    portion of it. This is extremely efficient.
-2. 🔗 The methods provided by `Query` are designed to be chained together, so you
+2. 🔗 **Readability.** The methods provided by `Query` are designed to be chained together, so you
    can create complex data pipelines in a very readable way.
-3. 🧩 `Query` supports a wide range of data sources, including lists, tuples,
+3. 🐞🔍 **Inspectability.** `Query` provides functionality that speeds development. 
+   For example, despite being lazy and exhaustable, queries have a meaningful [string representation](reference/code_api/representation.md).
+   Also, they can be peeked into using [peek()](reference/code_api/peeking.md).
+      contents of the query, without consuming it. This is extremely useful for debugging.
+4. 🧩 `Query` supports a wide range of data sources, including lists, tuples,
    dictionaries, generators, other `Query` objects and even infinite iterables. This means that
    you can easily combine data from multiple sources into a single pipeline.`
 4. The list goes on...

@@ -6,10 +6,11 @@ from fliq.tests.fliq_test_utils import Params
 
 class TestPeek:
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_empty())
-    def test_peek_peekEmpty_noneReturned(self, iter_type, iterable, iterable_list):
+    def test_peek_peekEmpty_fillvalueReturned(self, iter_type, iterable, iterable_list):
+        sentinel = object()
         items = q(iterable)
-        e0 = items.peek()
-        assert e0 is None
+        e0 = items.peek(fillvalue=sentinel)
+        assert e0 is sentinel
         assert items == iterable_list
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_single())
