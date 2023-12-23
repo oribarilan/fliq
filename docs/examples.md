@@ -62,15 +62,15 @@ from fliq import q
 repos = requests.get('https://api.github.com/search/repositories?q=stars:>1&sort=stars&per_page=100').json()['items']
 
 # get the language for each repo
-languages = q(repos).select(lambda r: r['language'])
+languages = q(repos).select(lambda r: r['language']).where(lambda l: l is not None)
 
 # peek to see a language, without removing it from the query
 peeked_language = languages.peek()
 
 print(f"Here's a peek at the languages: {peeked_language}")
 
-# count popularity of each language
-popular_languages = Counter(languages).most_common()
+# count popularity of each language using Counter (that accepts an iterable)
+popular_languages = Counter(languages).most_common(n=6)
 print(f"Here are the most popular programming languages: {popular_languages} 💪🧪🔍")
 
 # [('JavaScript', 16), ('TypeScript', 15), ('Python', 13), (None, 13), ('C', 5), ('Java', 5) ...]

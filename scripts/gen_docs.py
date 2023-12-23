@@ -28,13 +28,19 @@ def create_api_docs():
     docs_reference_path = docs_path / 'reference' / 'code_api'
     mappers = []
     materializers = []
+
+    # skipped methods will not be included in the mapper methods and the materializer methods
+    # assumed to have their own documentation page or not relevant to the user
     skipped_methods = [
         Query.__init__.__name__,
         Query._self.__name__,
         Query.__iter__.__name__,
         Query.__next__.__name__,
         Query.__repr__.__name__,
+        Query.__eq__.__name__,
         Query.snap.__name__,
+        Query.peek.__name__,
+        Query.partition.__name__,
     ]
 
     for name, method in inspect.getmembers(Query, predicate=inspect.isfunction):
