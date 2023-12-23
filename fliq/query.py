@@ -1239,7 +1239,7 @@ class Query(Generic[T], Iterable[T]):
             key: The selector function to apply to each element, or a string representing
                 the name of an attribute to group by.
         """
-        return self._group_by(key)
+        return dict(self._group_by(key))
 
     # endregion
 

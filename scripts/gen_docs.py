@@ -36,6 +36,8 @@ def create_api_docs():
         Query._self.__name__,
         Query.__iter__.__name__,
         Query.__next__.__name__,
+        Query.__repr__.__name__,
+        Query.__eq__.__name__,
         Query.snap.__name__,
         Query.peek.__name__,
         Query.partition.__name__,
