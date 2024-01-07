@@ -16,6 +16,7 @@
 - [x] [order_by](mapper_methods.md#fliq.query.Query.order_by)
 - [x] [reverse](mapper_methods.md#fliq.query.Query.reverse)
 - [x] [slice](mapper_methods.md#fliq.query.Query.slice)
+- [x] [slide](mapper_methods.md#fliq.query.Query.slide) (aka sliding window)
 - [x] [skip](mapper_methods.md#fliq.query.Query.skip)
 - [ ] skip_last
 - [x] [take](mapper_methods.md#fliq.query.Query.take)
