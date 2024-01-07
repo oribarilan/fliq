@@ -50,7 +50,7 @@ class TestZip:
     def test_zip_longestWithFillValue(self):
         iterable = [1, 2, 3]
         fill_value = -1
-        assert list(q(iterable).zip([4, 5], [6], longest=True, fillvalue=fill_value)) == [
+        assert list(q(iterable).zip([4, 5], [6], longest=True, fill=fill_value)) == [
             (1, 4, 6),
             (2, 5, -1),
             (3, -1, -1),

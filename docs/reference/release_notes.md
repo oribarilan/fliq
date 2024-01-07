@@ -1,5 +1,10 @@
 # Release Notes (What's New) 🤩
 
+## v1.12.0
+
+* 🌟 **Slide** - new [slide method](code_api/mapper_methods.md#fliq.query.Query.slide) for creating
+tuples that "slide" over a query, in a windowed fashion (a sliding window).
+
 ## v1.11.0
 * ⬆️ **Update to peek** - added fillvalue to the [peek method](code_api/peeking.md)
 * 🌟 **Query representation** - to ease debugging, queries now have a `repr` method, 
@@ -13,7 +18,6 @@ is now slightly faster
 * ⬆️ **Update to zip** - added longest and fillvalue to the [zip method](code_api/mapper_methods.md#fliq.query.Query.zip)
 * 🌟 **Interleave** - new [interleave method](code_api/mapper_methods.md#fliq.query.Query.interleave), for 
 interleaving two or more iterables together, in a round-robin fashion, regardless of their length
-* ⬆️ **Update to zip** - added longest and fillvalue to the [zip method](code_api/mapper_methods.md#fliq.query.Query.zip)
 
 ## v1.9.0
 

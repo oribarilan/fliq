@@ -4,12 +4,12 @@ import collections.abc
 import heapq
 import itertools
 import random
-from collections import defaultdict
+from collections import defaultdict, deque
 from functools import reduce
 from itertools import islice, chain, zip_longest
 from operator import attrgetter
 from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
-    Union, Tuple, Hashable, Type, Generic, TypeVar, Sequence
+    Union, Tuple, Hashable, Type, Generic, TypeVar, Sequence, Generator
 
 from fliq.exceptions import (
     NoItemsFoundException, MultipleItemsFoundException, NotEnoughElementsException
@@ -522,8 +522,10 @@ class Query(Generic[T], Iterable[T]):
         query = self.slice(start=n)
         return self._self(query._items)
 
-    def zip(self, *iterables: Iterable[U], longest: bool = False, fillvalue: Optional[U] = None) \
-            -> Query[Tuple[T, U]]:
+    def zip(self,
+            *iterables: Iterable[U],
+            longest: bool = False,
+            fill: Optional[Tuple[T, U]] = None) -> Query[Tuple[T, U]]:
         """
         Yields tuples of the elements of the query with the input iterables.
         The zipping stops as soon as the smallest of the iterables and the query is exhausted,
@@ -538,29 +540,76 @@ class Query(Generic[T], Iterable[T]):
             [(0, 5), (1, 6), (2, 7), (3, None), (4, None)]
             >>> q(range(5)).zip([5, 6, 7], [8, 9, 10]).to_list()
             [(0, 5, 8), (1, 6, 9), (2, 7, 10)]
-            >>> q(range(5)).zip([5, 6, 7], [8, 9, 10], longest=True, fillvalue=-1).to_list()
+            >>> q(range(5)).zip([5, 6, 7], [8, 9, 10], longest=True, fill=-1).to_list()
             [(0, 5, 8), (1, 6, 9), (2, 7, 10), (3, -1, -1), (4, -1, -1)]
 
         Args:
             *iterables: One or more iterables to zip with the query.
             longest: If True, stop zipping when the longest iterable is exhausted.
                 If False (default), stop when the shortest iterable is exhausted.
-            fillvalue: The value to use for padding when the longest iterable is exhausted.
+            fill: The value to use for padding when the longest iterable is exhausted.
                 relevant only when `longest` is True.
         """
         zip_func: Callable[..., Iterable[Tuple[T, U]]]
         if longest:
-            zip_func = lambda *args: zip_longest(*args, fillvalue=fillvalue)  # noqa: E731
+            zip_func = lambda *args: zip_longest(*args, fillvalue=fill)  # noqa: E731
         else:
             zip_func = zip
 
         items: Iterable[Tuple[T, U]] = zip_func(self._items, *iterables)
         return self._self(items)
 
+    def slide(self, window: int, overlap: int, pad: Optional[T] = None) -> 'Query[Tuple[T, ...]]':
+        """
+        Yields a sliding window over the iterable. In practice, these are tuples of size 'window'
+         containing the current element and the next 'size-1' elements
+         in the iterable. The tuples overlap by 'overlap' elements.
+
+        Args:
+            window: The size of the tuples to be returned.
+            overlap: The number of elements that should overlap between consecutive tuples.
+            pad: The value to use for padding the last window when the iterable is exhausted.
+
+        Examples:
+            >>> from fliq import q
+            >>> q([1, 2, 3, 4]).slide(window=3, overlap=2).to_list()
+            [(1, 2, 3), (2, 3, 4)]
+            >>> q([1, 2, 3, 4]).slide(window=3, overlap=1).to_list()
+            [(1, 2, 3), (3, 4, None)]
+            >>> q([1, 2, 3, 4]).slide(window=3, overlap=1, pad=-1).to_list()
+            [(1, 2, 3), (3, 4, -1)]
+        """
+        deque_window: deque[Optional[T]] = deque(maxlen=window)
+
+        def _window(items: Iterable[T]) -> Generator[Tuple[Optional[T], ...], None, None]:
+            has_any_items = False
+
+            for item in items:
+                has_any_items = True
+                if len(deque_window) == window:
+                    # make room for new items (leave 'overlap' items in the window)
+                    for _ in range(window - overlap):
+                        deque_window.popleft()
+                # insert new items to the window
+                deque_window.append(item)
+                if len(deque_window) == window:
+                    yield tuple(deque_window)
+
+            if not has_any_items or len(deque_window) == window:
+                # last window contained the last item, no need for another window
+                return
+
+            # another window needed, pad with 'fill'
+            while len(deque_window) < window:
+                deque_window.append(pad)
+            yield tuple(deque_window)
+
+        return self._self(_window(self._items))  # type: ignore
+
     def append(self, *single_items: T) -> Query[T]:
         """
-        Yields the elements of the query, followed by the input element(s).
-        API also supports multiple arguments, where each is considered as a single element.
+        Yields the elements of the original query, followed by the input element(s).
+        This supports multiple arguments, where each is considered as a single element.
 
         Infinite iterables are supported, behaving as expected.
 
@@ -579,7 +628,7 @@ class Query(Generic[T], Iterable[T]):
 
     def append_many(self, items: Iterable[T]) -> Query[T]:
         """
-        Yields the elements of the iterable, followed by the elements given.
+        Yields the elements of the original query, followed by the elements given.
 
         Infinite iterables are supported, behaving as expected.
 
@@ -600,8 +649,8 @@ class Query(Generic[T], Iterable[T]):
 
     def prepend(self, *single_items: T) -> Query[T]:
         """
-        Yields the element(s) given, followed by the elements of the query.
-        API also supports multiple arguments, where each is considered as a single element.
+        Yields the element(s) given, followed by the elements of the original query.
+        This supports multiple arguments, where each is considered as a single element.
 
         Infinite iterables are supported, behaving as expected.
 
@@ -620,7 +669,7 @@ class Query(Generic[T], Iterable[T]):
 
     def prepend_many(self, items: Iterable[T]) -> Query[T]:
         """
-        Yields the elements given, followed by the elements of the query.
+        Yields the elements given, followed by the elements of the original query.
 
         Infinite iterables are supported, behaving as expected.
 
@@ -712,7 +761,7 @@ class Query(Generic[T], Iterable[T]):
 
     def bottom(self, n: int = 1, by: Optional[NumericSelector[T]] = None) -> Query[T]:
         """
-        Yields the top n elements of the query, according to the selector (if provided).
+        Yields the bottom n elements of the query, according to the selector (if provided).
 
         This is done in O(N log n) time, and O(n) space. Where n is the number of elements to take,
         and N is the number of elements in the query.
@@ -752,10 +801,11 @@ class Query(Generic[T], Iterable[T]):
             ['h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd', 'I', 'a', 'm', 'F', 'l', 'i', 'q']
 
         Args:
-            max_depth: Optional. Non-negative. The maximum depth to flatten to. Defaults to none.
-                (no limit, completely flat). If max_depth is 0, the query is unchanged.
+            max_depth: Optional. Non-negative. The maximum depth to flatten to. Defaults to none
+                (no limit, completely flat). If max_depth is 0, the query is left unchanged.
             ignore_types: Optional. A tuple of types to ignore flattening for.
                 Defaults to (str, bytes).
+
         Raises:
             ValueError: In case max_depth is non-positive.
         """
@@ -779,7 +829,7 @@ class Query(Generic[T], Iterable[T]):
     def interleave(self, *iterables: Iterable[U]) -> Query[Union[T, U]]:
         """
         Combines the elements of the query with the elements of the provided iterables
-        into a single sequence. The elements are interleaved in the order they appear in their
+        into a single Query. The elements are interleaved in the order they appear in their
         respective sources (similar to zip). The process continues until all sources are exhausted.
         No padding is done in case the iterables are of different lengths.
 
