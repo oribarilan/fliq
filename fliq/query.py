@@ -606,6 +606,22 @@ class Query(Generic[T], Iterable[T]):
 
         return self._self(_window(self._items))  # type: ignore
 
+    def pairwise(self, pad: Optional[T] = None) -> Query[Tuple[T, T]]:
+        """
+        Yields tuples of consecutive elements in the query.
+
+        Args:
+            pad: The value to use for padding the last window in case the iterable size is odd.
+
+        Examples:
+            >>> from fliq import q
+            >>> q([1, 2, 3, 4]).pairwise().to_list()
+            [(1, 2), (3, 4)]
+            >>> q([1, 2, 3, 4, 5]).pairwise().to_list()
+            [(1, 2), (3, 4), (5, None)]
+        """
+        return self.slide(window=2, overlap=0, pad=pad)
+
     def append(self, *single_items: T) -> Query[T]:
         """
         Yields the elements of the original query, followed by the input element(s).
@@ -848,6 +864,8 @@ class Query(Generic[T], Iterable[T]):
         non_sentinel_items: Iterable[Union[T, U]] = filter(lambda x: x is not sentinel,
                                                            flattened_items)
         return self._self(non_sentinel_items)
+
+
 
     # endregion
 
