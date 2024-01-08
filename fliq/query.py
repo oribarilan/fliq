@@ -609,6 +609,7 @@ class Query(Generic[T], Iterable[T]):
     def pairwise(self, pad: Optional[T] = None) -> Query[Tuple[T, T]]:
         """
         Yields tuples of consecutive elements in the query.
+        Practically this is a sliding window of size 2, with overlap 0.
 
         Args:
             pad: The value to use for padding the last window in case the iterable size is odd.
