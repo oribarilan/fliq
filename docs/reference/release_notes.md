@@ -4,6 +4,9 @@
 
 * 🌟 **Slide** - new [slide method](code_api/mapper_methods.md#fliq.query.Query.slide) for creating
 tuples that "slide" over a query, in a windowed fashion (a sliding window).
+* 🌟 **Most Common** - new [most_common method](code_api/materializer_methods.md#fliq.query.Query.most_common)
+for finding the most common `n` items in a query.
+
 
 ## v1.11.0
 * ⬆️ **Update to peek** - added fillvalue to the [peek method](code_api/peeking.md)

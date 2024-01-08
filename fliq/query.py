@@ -4,7 +4,7 @@ import collections.abc
 import heapq
 import itertools
 import random
-from collections import defaultdict, deque
+from collections import defaultdict, deque, Counter
 from functools import reduce
 from itertools import islice, chain, zip_longest
 from operator import attrgetter
@@ -853,6 +853,31 @@ class Query(Generic[T], Iterable[T]):
 
     # region Materializers
 
+    def most_common(self, n: int = 1) -> Union[T, List[T]]:
+        """
+        Yields the most common n elements, in descending order of frequency.
+        If n is 1, returns a single item, otherwise returns a list (that can be unpacked).
+        By definition, does not support inifinte iterables.
+
+        Examples:
+            >>> from fliq import q
+            >>> q([1, 2, 3, 1, 2, 1]).most_common(n=1)
+            1
+            >>> q([1, 2, 3, 1, 2, 1]).most_common(n=2)
+            [1, 2]
+
+        Args:
+            n: Optional. The number of elements to return. Defaults to 1.
+
+        Raises:
+            NotEnoughElementsException: In case the query does not have n items.
+        """
+        top_counts = Counter(self._items).most_common(n)
+        if len(top_counts) < n:
+            raise NotEnoughElementsException(f"Found {len(top_counts)} items, expected {n}")
+        top_elements = [item for item, count in top_counts]
+        return top_elements if n > 1 else top_elements[0]
+
     def first(self, predicate: Optional[Predicate[T]] = None) -> T:
         """
         Returns the first element in the query.
@@ -979,7 +1004,7 @@ class Query(Generic[T], Iterable[T]):
                stop_factor: Optional[int] = 10) -> Union[T, List[T]]:
         """
         Returns a random sample of n elements from the query.
-        If n is 1, returns a single item, otherwise returns a tuple (that can be unpacked).
+        If n is 1, returns a single item, otherwise returns a list (that can be unpacked).
 
         Examples:
             >>> from fliq import q
