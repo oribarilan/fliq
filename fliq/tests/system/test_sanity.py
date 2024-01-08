@@ -21,7 +21,7 @@ class TestSanity(TestCase):
             q(self.items)
             .where(lambda x: x.price > 50)
             .select(lambda x: x.price)
-            .first_or_default(default=0)
+            .first(default=0)
         )
         assert price == 51
 
