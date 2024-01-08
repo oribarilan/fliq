@@ -559,7 +559,7 @@ class Query(Generic[T], Iterable[T]):
         items: Iterable[Tuple[T, U]] = zip_func(self._items, *iterables)
         return self._self(items)
 
-    def slide(self, window: int, overlap: int, pad: Optional[T] = None) -> 'Query[Tuple[T, ...]]':
+    def slide(self, window: int, overlap: int, pad: Optional[T] = None) -> Query[Tuple[T, ...]]:
         """
         Yields a sliding window over the iterable. In practice, these are tuples of size 'window'
          containing the current element and the next 'size-1' elements
