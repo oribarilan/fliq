@@ -32,6 +32,7 @@
 - [ ] for_each
 - [x] [shuffle](mapper_methods.md#fliq.query.Query.shuffle)
 - [x] [flatten](mapper_methods.md#fliq.query.Query.flatten)
+- [x] [most_common](mapper_methods.md#fliq.query.Query.most_common)
 
 ### Materializers
 

@@ -4,7 +4,7 @@ import collections.abc
 import heapq
 import itertools
 import random
-from collections import defaultdict, deque
+from collections import defaultdict, deque, Counter
 from functools import reduce
 from itertools import islice, chain, zip_longest
 from operator import attrgetter
@@ -858,6 +858,30 @@ class Query(Generic[T], Iterable[T]):
         non_sentinel_items: Iterable[Union[T, U]] = filter(lambda x: x is not sentinel,
                                                            flattened_items)
         return self._self(non_sentinel_items)
+
+    def most_common(self, n: int = 1) -> Query[T]:
+        """
+        Yields the most common n elements, in descending order of frequency.
+        By definition, does not support inifinte iterables.
+
+        Examples:
+            >>> from fliq import q
+            >>> q([1, 2, 3, 1, 2, 1]).most_common(n=1).single()
+            1
+            >>> q([1, 2, 3, 1, 2, 1]).most_common(n=2).to_list()
+            [1, 2]
+
+        Args:
+            n: Optional. The number of elements to return. Defaults to 1.
+
+        Raises:
+            NotEnoughElementsException: In case the query does not have n items.
+        """
+        top_counts = Counter(self._items).most_common(n)
+        if len(top_counts) < n:
+            raise NotEnoughElementsException(f"Found {len(top_counts)} items, expected {n}")
+        top_elements = [item for item, count in top_counts]
+        return self._self(top_elements)
 
     # endregion
 
