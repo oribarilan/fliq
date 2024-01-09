@@ -18,7 +18,6 @@ class TestSnap:
         evens = q(iterable).where(lambda x: int(x) % 2 == 0).snap()
         big = evens.single(lambda x: int(x) > 2)
         small = evens.single(lambda x: int(x) < 2)
-
         assert int(big) == 4
         assert int(small) == 0
 
