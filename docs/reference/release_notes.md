@@ -6,6 +6,9 @@
 tuples that "slide" over a query, in a windowed fashion (a sliding window).
 * 🌟 **Pairwise** - new [pairwise method](code_api/mapper_methods.md#fliq.query.Query.pairwise) for creating
 tuples that "slide" over a query, in a pairwise fashion (a sliding window of size 2, without overlap).
+* ⬆️ **Update to `first` and `single`** - added `default` parameter to the [first](code_api/materializer_methods.md#fliq.query.Query.first) and [single](code_api/materializer_methods.md#fliq.query.Query.single) methods
+which allows specifying a default value. If no default is specified, an exception is raised.
+This replaces the need for the additional `first_or_default` and `single_or_default` methods, which were removed.
 
 ## v1.11.0
 * ⬆️ **Update to peek** - added fillvalue to the [peek method](code_api/peeking.md)
@@ -26,7 +29,7 @@ interleaving two or more iterables together, in a round-robin fashion, regardles
 * 📝 **Release Notes** - starting to log release notes
 * ⚙️ **Type Support** - added full type support (including generics)
 
-## v1.7.0 (and before)
+## v1.7.0 (and earlier)
 
 * 📝 **Readme** - added readme
 * ⚙️ **Testing** - added unit tests with 100% coverage
@@ -44,7 +47,11 @@ that a mutually exclusive and collectively exhaustive (MECE)
 ## Legend
 
 🌟 **New Feature** - new feature
+
 ⬆️ **Upgrade** - upgrade to an existing feature
+
 📝 **Documentation** - documentation improvements
+
 ⚙️ **Core** - core improvements
+
 ⚡️ **Performance** - performance improvements

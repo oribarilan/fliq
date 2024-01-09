@@ -21,7 +21,7 @@ class TestSanity(TestCase):
             q(self.items)
             .where(lambda x: x.price > 50)
             .select(lambda x: x.price)
-            .first_or_default(default=0)
+            .first(default=0)
         )
         assert price == 51
 
@@ -45,3 +45,14 @@ class TestSanity(TestCase):
         gen = (i * 2 if i % 2 == 0 else -1 for i in [1, 2, 3, 4, 5])
         fliq = q(data).select(lambda x: x * 2 if x % 2 == 0 else -1)
         assert list(fliq) == list(gen)
+
+    def test_snap_and_peek(self):
+        data = [1, 2, 3, 4, 5]
+        snapped = q(data).snap()
+        assert snapped.peek() == 1
+        assert snapped.peek() == 1
+
+    def test_snap_and_peek_2(self):
+        data = [1, 2, 3, 4, 5]
+        snapped = q(data).peek(5)
+        assert list(snapped) == data

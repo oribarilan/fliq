@@ -18,7 +18,7 @@ class TestPerformance(TestCase):
             q(data)
             .where(lambda x: x.a == 50)
             .select(lambda x: x.b)
-            .first_or_default(default=-1)
+            .first(default=-1)
         )
         return item
 

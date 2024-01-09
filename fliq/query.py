@@ -8,26 +8,20 @@ from collections import defaultdict, deque
 from functools import reduce
 from itertools import islice, chain, zip_longest
 from operator import attrgetter
-from typing import Iterable, List, Optional, Any, Sized, Iterator, Callable, TYPE_CHECKING, Dict, \
-    Union, Tuple, Hashable, Type, Generic, TypeVar, Sequence, Generator
+from typing import Iterable, List, Any, Sized, Iterator, TYPE_CHECKING, Dict, \
+    Tuple, Hashable, Type, Generic, Sequence, Generator, Optional, Union, Callable
 
+from fliq._types import (
+    T, U,
+    Predicate, Selector, IndexSelector, NumericSelector,
+    MISSING, MissingOrOptional
+)
 from fliq.exceptions import (
     NoItemsFoundException, MultipleItemsFoundException, NotEnoughElementsException
 )
 
 if TYPE_CHECKING:
     from fliq import q  # noqa: F401 (used in docs)  # pragma: no cover
-
-
-T = TypeVar('T')
-U = TypeVar('U')
-
-# editing of type aliases should also update api_intro.md
-Predicate = Callable[[T], bool]
-Selector = Callable[[T], U]
-
-NumericSelector = Selector[T, Union[int, float]]
-IndexSelector = Selector[T, int]
 
 
 class Query(Generic[T], Iterable[T]):
@@ -126,7 +120,7 @@ class Query(Generic[T], Iterable[T]):
         sentinel = object()
         elements = [
             repr(e) for e in
-            self.peek(n=repr_length+1, fillvalue=sentinel) if e is not sentinel  # type: ignore
+            self.peek(n=repr_length+1, pad=sentinel) if e is not sentinel  # type: ignore
         ]
         peeked = ", ".join(elements[:repr_length])
         has_additional_items = len(elements) == repr_length+1
@@ -210,13 +204,14 @@ class Query(Generic[T], Iterable[T]):
         # Create n Queries, each with its own partition generator
         return tuple(Query(partition_generator(i)) for i in range(n))
 
-    def peek(self, n: int = 1, fillvalue: Any = None) -> Union[Optional[T], Sequence[Optional[T]]]:
+    def peek(self, n: int = 1, pad: Optional[T] = None) \
+            -> Union[Optional[T], Sequence[Optional[T]]]:
         """
         Return the first n elements of the query, without exhausting the query.
         If n is 1, returns the first element as a single item, otherwise returns a tuple
         (that can be unpacked).
         If n is greater than the number of elements in the query,
-        `fillvalue` will be returned for the remaining items (defaults to None).
+        `pad` will be returned for the remaining items (defaults to None).
         Use this to inspect the first n elements of the query, before consuming the query itself.
         Common use cases are logging and debugging.
 
@@ -238,7 +233,7 @@ class Query(Generic[T], Iterable[T]):
 
         Args:
             n: Optional. The number of elements to peek. Defaults to 1.
-            fillvalue: Optional. The value to use for padding when the query is exhausted.
+            pad: Optional. The value to use for padding when the query is exhausted.
 
         Raises:
             ValueError: In case n is not positive.
@@ -257,8 +252,8 @@ class Query(Generic[T], Iterable[T]):
         # Consume the first n items
         first_n_items: List[T] = list(islice(self._iterator, n))
 
-        # If we consumed less than n items, pad with fillvalue
-        padding: List[Optional[T]] = [fillvalue] * (n - len(first_n_items))
+        # If we consumed less than n items, pad the result
+        padding: List[Optional[T]] = [pad] * (n - len(first_n_items))
 
         # Adjust self._items to a new iterator that starts with the consumed items
         # followed by the remaining items
@@ -325,9 +320,9 @@ class Query(Generic[T], Iterable[T]):
         items = filter(lambda x: not predicate(x), self._items)
         return self._self(items)
 
-    def distinct(self, preserve_order: bool = True) -> Query[T]:
+    def distinct(self) -> Query[T]:
         """
-        Yields distinct elements.
+        Yields distinct elements while preserving order.
         Distinct supports infinite iterables.
         Note that elements must be hashable.
 
@@ -384,8 +379,8 @@ class Query(Generic[T], Iterable[T]):
 
         Args:
             buffer_size (int): The size of the shuffle buffer for an unfair shuffle. Defaults to 10.
-                The bigger the buffer, the more memory is required,
-                but the shuffle is closer to fair.
+                Increasing the size of the buffer will require more memory.
+                However, it will also result in a shuffle that is more evenly distributed (fair).
             seed: Optional. The seed to use for the random shuffle. Defaults to None.
             fair (bool): Whether to use a fair shuffle. Defaults to False.
                 If True, each permutation of the elements will be equally likely.
@@ -396,9 +391,7 @@ class Query(Generic[T], Iterable[T]):
                     like rolling a die or shuffling a deck of cards.
                 If False, each permutation of elements will NOT be equally likely.
                     However, this is more memory efficient, and supports infinite iterables.
-                    The bigger the buffer size, the closer the shuffle will be to fair
-                    (and thus, less memory efficient).
-                    Use this for scenarios where perfect fairness is not important,
+                    Use this for scenarios where fairness is not top priority,
                     like shuffling a list of songs in a playlist.
 
         Examples:
@@ -621,7 +614,7 @@ class Query(Generic[T], Iterable[T]):
             >>> q([1, 2, 3, 4, 5]).pairwise().to_list()
             [(1, 2), (3, 4), (5, None)]
         """
-        return self.slide(window=2, overlap=0, pad=pad)
+        return self.slide(window=2, overlap=0, pad=pad)  # type: ignore
 
     def append(self, *single_items: T) -> Query[T]:
         """
@@ -866,15 +859,25 @@ class Query(Generic[T], Iterable[T]):
                                                            flattened_items)
         return self._self(non_sentinel_items)
 
-
-
     # endregion
 
     # region Materializers
 
-    def first(self, predicate: Optional[Predicate[T]] = None) -> T:
+    def first(self,
+              predicate: Optional[Predicate[T]] = None,
+              default: MissingOrOptional[T] = MISSING) -> Optional[T]:
         """
-        Returns the first element in the query.
+        Returns the first element in the query that satisfies the predicate (if provided),
+            or a default value if the query is empty.
+            If default is not provided, raises NoItemsFoundException in case the query is empty.
+
+        Args:
+            predicate: Optional. The predicate to filter the query by.
+            default: Optional. The default value to return in case the query is empty.
+                Defaults to raise an exception if the query is empty.
+
+        Raises:
+            NoItemsFoundException: In case the query is empty.
 
         Examples:
             >>> from fliq import q
@@ -884,45 +887,34 @@ class Query(Generic[T], Iterable[T]):
             Traceback (most recent call last):
             ...
             fliq.exceptions.NoItemsFoundException
-
-        Args:
-            predicate: Optional. The predicate to filter the query by.
-
-        Raises:
-            NoItemsFoundException: In case the query is empty.
+            >>> q([]).first(default=-1)
+            -1
+            >>> q([]).first(default=None) # returns None
         """
         query = self.where(predicate)
-        try:
-            return next(query)
-        except StopIteration:
-            raise NoItemsFoundException()
+        first_item = next(query, MISSING)
+        if first_item is MISSING:
+            # query is empty
+            if default is MISSING:
+                # no default value provided
+                raise NoItemsFoundException()
+            else:
+                return default  # type: ignore # default is not MISSING
+        else:
+            return first_item  # type: ignore # first_item is not MISSING
 
-    def first_or_default(self,
-                         predicate: Optional[Predicate[T]] = None,
-                         default: Optional[T] = None) -> Optional[T]:
+    def single(self,
+               predicate: Optional[Predicate[T]] = None,
+               default: MissingOrOptional[T] = MISSING) -> Optional[T]:
         """
-        Returns the first element in the query, or a default value if the query is empty.
-
-        Examples:
-            >>> from fliq import q
-            >>> q([1, 2, 3]).first_or_default()
-            1
-            >>> q([]).first_or_default() # returns None
+        Returns the single element in the query, or a default value if the query is empty.
+            Single expects the query to have at most one element (if default is provided), or
+            exactly one element (if default is not provided).
 
         Args:
             predicate: Optional. The predicate to filter the query by.
             default: Optional. The default value to return in case the query is empty.
-                Defaults to None.
-        """
-        query = self.where(predicate)
-        try:
-            return next(query)
-        except StopIteration:
-            return default
-
-    def single(self, predicate: Optional[Predicate[T]] = None) -> T:
-        """
-        Returns the single element in the query.
+                Defaults to raise an exception if the query is empty.
 
         Examples:
             >>> from fliq import q
@@ -932,64 +924,34 @@ class Query(Generic[T], Iterable[T]):
             Traceback (most recent call last):
             ...
             fliq.exceptions.NoItemsFoundException
+            >>> q([1]).single(default=None)
+            1
+            >>> q([]).single(default=None) # returns None
 
-        Args:
-            predicate: Optional. The predicate to filter the query by.
+            >>> q([1, 2, 3]).single(default=None)
+            Traceback (most recent call last):
+            ...
+            fliq.exceptions.MultipleItemsFoundException
 
         Raises:
             NoItemsFoundException: In case the query is empty.
             MultipleItemsFoundException: In case the query has more than one element.
         """
         query = self.where(predicate)
-        try:
-            first = next(query)
-        except StopIteration:
-            raise NoItemsFoundException()
+        first_item = next(query, default)
 
-        try:
-            second = next(query)
-        except StopIteration:
-            return first
-
-        raise MultipleItemsFoundException(f"Found at least two items: {first}, {second}")
-
-    def single_or_default(self,
-                          predicate: Optional[Predicate[T]] = None,
-                          default: Optional[T] = None) -> Optional[T]:
-        """
-        Returns the single element in the query, or a default value if the query is empty.
-
-        Args:
-            predicate: Optional. The predicate to filter the query by.
-            default: Optional. The default value to return in case the query is empty.
-                Defaults to None.
-
-        Examples:
-            >>> from fliq import q
-            >>> q([1]).single_or_default()
-            1
-            >>> q([]).single_or_default() # returns None
-
-            >>> q([1, 2, 3]).single_or_default()
-            Traceback (most recent call last):
-            ...
-            fliq.exceptions.MultipleItemsFoundException
-
-        Raises:
-            MultipleItemsFoundException: In case the query has more than one element.
-        """
-        query = self.where(predicate)
-        try:
-            first = next(query)
-        except StopIteration:
-            return default
-
-        try:
-            next(query)
-        except StopIteration:
-            return first
-
-        raise MultipleItemsFoundException()
+        sentinel = object()
+        second_item = next(query, sentinel)
+        if second_item is sentinel:
+            # query has 0 or 1 items
+            if default is MISSING and first_item is default:
+                # query is empty, user did not allow default
+                raise NoItemsFoundException()
+            else:
+                return first_item  # type: ignore # MISSING isn't returned
+        else:
+            # query has more than 1 item
+            raise MultipleItemsFoundException()
 
     def sample(self,
                n: int = 1,
@@ -1283,7 +1245,7 @@ class Query(Generic[T], Iterable[T]):
         """
         query = self
         if by is not None:
-            query = self.select(by)  # type: ignore # (here `by` is subtype of select's `by`)
+            query = self.select(by)  # type: ignore # (here `by` is subtype of select `by`)
         return sum(query, start=accumulator)  # type: ignore # (query type is okay)
 
     # endregion

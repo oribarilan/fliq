@@ -53,7 +53,7 @@ from fliq import q
 (q([1, 2, 3, 4, 5])
     .where(lambda x: x % 2 == 0)
     .select(lambda x: x * 2)
-    .first_or_default(default=-1))
+    .first(default=-1))
 ```
 
 And this is just a simple example.
