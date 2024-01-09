@@ -47,7 +47,11 @@ that a mutually exclusive and collectively exhaustive (MECE)
 ## Legend
 
 🌟 **New Feature** - new feature
+
 ⬆️ **Upgrade** - upgrade to an existing feature
+
 📝 **Documentation** - documentation improvements
+
 ⚙️ **Core** - core improvements
+
 ⚡️ **Performance** - performance improvements
