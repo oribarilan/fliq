@@ -859,21 +859,16 @@ class Query(Generic[T], Iterable[T]):
                                                            flattened_items)
         return self._self(non_sentinel_items)
 
-    # endregion
-
-    # region Materializers
-
-    def most_common(self, n: int = 1) -> Union[T, List[T]]:
+    def most_common(self, n: int = 1) -> Query[T]:
         """
         Yields the most common n elements, in descending order of frequency.
-        If n is 1, returns a single item, otherwise returns a list (that can be unpacked).
         By definition, does not support inifinte iterables.
 
         Examples:
             >>> from fliq import q
-            >>> q([1, 2, 3, 1, 2, 1]).most_common(n=1)
+            >>> q([1, 2, 3, 1, 2, 1]).most_common(n=1).single()
             1
-            >>> q([1, 2, 3, 1, 2, 1]).most_common(n=2)
+            >>> q([1, 2, 3, 1, 2, 1]).most_common(n=2).to_list()
             [1, 2]
 
         Args:
@@ -886,7 +881,11 @@ class Query(Generic[T], Iterable[T]):
         if len(top_counts) < n:
             raise NotEnoughElementsException(f"Found {len(top_counts)} items, expected {n}")
         top_elements = [item for item, count in top_counts]
-        return top_elements if n > 1 else top_elements[0]
+        return self._self(top_elements)
+
+    # endregion
+
+    # region Materializers
 
     def first(self,
               predicate: Optional[Predicate[T]] = None,
