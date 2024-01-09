@@ -29,7 +29,7 @@ interleaving two or more iterables together, in a round-robin fashion, regardles
 * 📝 **Release Notes** - starting to log release notes
 * ⚙️ **Type Support** - added full type support (including generics)
 
-## v1.7.0 (and before)
+## v1.7.0 (and earlier)
 
 * 📝 **Readme** - added readme
 * ⚙️ **Testing** - added unit tests with 100% coverage
