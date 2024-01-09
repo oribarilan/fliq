@@ -50,11 +50,8 @@
 #### Reducers
 
 - [x] [first](materializer_methods.md#fliq.query.Query.first)
-- [x] [first_or_default](materializer_methods.md#fliq.query.Query.first_or_default)
 - [ ] last
-- [ ] last_or_default
 - [x] [single](materializer_methods.md#fliq.query.Query.single)
-- [x] [single_or_default](materializer_methods.md#fliq.query.Query.single_or_default)
 - [x] [sample](materializer_methods.md#fliq.query.Query.sample)
 - [x] [count](materializer_methods.md#fliq.query.Query.count)
 - [x] [any](materializer_methods.md#fliq.query.Query.any)
