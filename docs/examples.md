@@ -27,7 +27,7 @@ singles, pairs = q(sock_drawer).group_by('color').partition(by=lambda g: len(g) 
 sock_drawer = singles.flatten().to_list()
 
 # find a pair of red socks or default to boring black
-pair = pairs.first_or_default(lambda p: p[0].color == 'red', default=(Sock('boring black', 'left'), Sock('boring black', 'right')))
+pair = pairs.first(lambda p: p[0].color == 'red', default=(Sock('boring black', 'left'), Sock('boring black', 'right')))
 
 print(f"Tonny's socks for today are {pair[0].color}! 🎄🎅🏼🎁🧦🧦🎁🎅🏼🎄")
 ```

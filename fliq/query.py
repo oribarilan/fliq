@@ -903,9 +903,18 @@ class Query(Generic[T], Iterable[T]):
         else:
             return first_item  # type: ignore # first_item is not MISSING
 
-    def single(self, predicate: Optional[Predicate[T]] = None) -> T:
+    def single(self,
+               predicate: Optional[Predicate[T]] = None,
+               default: MissingOrOptional[T] = MISSING) -> Optional[T]:
         """
-        Returns the single element in the query.
+        Returns the single element in the query, or a default value if the query is empty.
+            Single expects the query to have at most one element (if default is provided), or
+            exactly one element (if default is not provided).
+
+        Args:
+            predicate: Optional. The predicate to filter the query by.
+            default: Optional. The default value to return in case the query is empty.
+                Defaults to raise an exception if the query is empty.
 
         Examples:
             >>> from fliq import q
@@ -915,64 +924,34 @@ class Query(Generic[T], Iterable[T]):
             Traceback (most recent call last):
             ...
             fliq.exceptions.NoItemsFoundException
+            >>> q([1]).single(default=None)
+            1
+            >>> q([]).single(default=None) # returns None
 
-        Args:
-            predicate: Optional. The predicate to filter the query by.
+            >>> q([1, 2, 3]).single(default=None)
+            Traceback (most recent call last):
+            ...
+            fliq.exceptions.MultipleItemsFoundException
 
         Raises:
             NoItemsFoundException: In case the query is empty.
             MultipleItemsFoundException: In case the query has more than one element.
         """
         query = self.where(predicate)
-        try:
-            first = next(query)
-        except StopIteration:
-            raise NoItemsFoundException()
+        first_item = next(query, default)
 
-        try:
-            second = next(query)
-        except StopIteration:
-            return first
-
-        raise MultipleItemsFoundException(f"Found at least two items: {first}, {second}")
-
-    def single_or_default(self,
-                          predicate: Optional[Predicate[T]] = None,
-                          default: Optional[T] = None) -> Optional[T]:
-        """
-        Returns the single element in the query, or a default value if the query is empty.
-
-        Args:
-            predicate: Optional. The predicate to filter the query by.
-            default: Optional. The default value to return in case the query is empty.
-                Defaults to None.
-
-        Examples:
-            >>> from fliq import q
-            >>> q([1]).single_or_default()
-            1
-            >>> q([]).single_or_default() # returns None
-
-            >>> q([1, 2, 3]).single_or_default()
-            Traceback (most recent call last):
-            ...
-            fliq.exceptions.MultipleItemsFoundException
-
-        Raises:
-            MultipleItemsFoundException: In case the query has more than one element.
-        """
-        query = self.where(predicate)
-        try:
-            first = next(query)
-        except StopIteration:
-            return default
-
-        try:
-            next(query)
-        except StopIteration:
-            return first
-
-        raise MultipleItemsFoundException()
+        sentinel = object()
+        second_item = next(query, sentinel)
+        if second_item is sentinel:
+            # query has 0 or 1 items
+            if default is MISSING and first_item is default:
+                # query is empty, user did not allow default
+                raise NoItemsFoundException()
+            else:
+                return first_item  # type: ignore # MISSING isn't returned
+        else:
+            # query has more than 1 item
+            raise MultipleItemsFoundException()
 
     def sample(self,
                n: int = 1,
