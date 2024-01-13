@@ -1,5 +1,9 @@
 # Release Notes (What's New) 🤩
 
+## v1.13.0
+* 🌟 **At** - new [at method](code_api/materializer_methods.md#fliq.query.Query.at) for getting the element at a specific index.
+
+
 ## v1.12.0
 
 * 🌟 **Slide** - new [slide method](code_api/mapper_methods.md#fliq.query.Query.slide) for creating
