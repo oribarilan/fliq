@@ -17,7 +17,8 @@ from fliq._types import (
     MISSING, MissingOrOptional
 )
 from fliq.exceptions import (
-    NoItemsFoundException, MultipleItemsFoundException, NotEnoughElementsException
+    QueryIsUnexpectedlyEmptyException, MultipleElementsFoundException, NotEnoughElementsException,
+    ElementNotFoundException
 )
 
 if TYPE_CHECKING:
@@ -503,14 +504,20 @@ class Query(Generic[T], Iterable[T]):
     def skip(self, n: int = 1) -> Query[T]:
         """
         Yields the elements after skipping the first n (as returned from the iterator).
+        In case n is greater than the number of elements in the query, an empty query is returned.
 
         Examples:
             >>> from fliq import q
-            >>> q(range(10)).skip(n=5).to_list()
-            [5, 6, 7, 8, 9]
+            >>> q([1, 2, 3, 4]).skip(n=2).to_list()
+            [3, 4]
+            >>> q([1, 2, 3, 4]).skip(n=0).to_list()
+            [1, 2, 3, 4]
+            >>> q([1]).skip(n=5).to_list()
+            []
 
         Args:
             n: Optional. The number of items to take. Defaults to 1.
+                If n=0, query is returned as is.
         """
         query = self.slice(start=n)
         return self._self(query._items)
@@ -893,7 +900,8 @@ class Query(Generic[T], Iterable[T]):
         """
         Returns the first element in the query that satisfies the predicate (if provided),
             or a default value if the query is empty.
-            If default is not provided, raises NoItemsFoundException in case the query is empty.
+            If default is not provided, raises QueryIsUnexpectedlyEmptyException in case the query
+            is empty.
 
         Args:
             predicate: Optional. The predicate to filter the query by.
@@ -901,7 +909,7 @@ class Query(Generic[T], Iterable[T]):
                 Defaults to raise an exception if the query is empty.
 
         Raises:
-            NoItemsFoundException: In case the query is empty.
+            QueryIsUnexpectedlyEmptyException: In case the query is empty.
 
         Examples:
             >>> from fliq import q
@@ -910,7 +918,7 @@ class Query(Generic[T], Iterable[T]):
             >>> q([]).first()
             Traceback (most recent call last):
             ...
-            fliq.exceptions.NoItemsFoundException
+            fliq.exceptions.QueryIsUnexpectedlyEmptyException
             >>> q([]).first(default=-1)
             -1
             >>> q([]).first(default=None) # returns None
@@ -921,7 +929,7 @@ class Query(Generic[T], Iterable[T]):
             # query is empty
             if default is MISSING:
                 # no default value provided
-                raise NoItemsFoundException()
+                raise QueryIsUnexpectedlyEmptyException()
             else:
                 return default  # type: ignore # default is not MISSING
         else:
@@ -947,7 +955,7 @@ class Query(Generic[T], Iterable[T]):
             >>> q([]).single()
             Traceback (most recent call last):
             ...
-            fliq.exceptions.NoItemsFoundException
+            fliq.exceptions.QueryIsUnexpectedlyEmptyException
             >>> q([1]).single(default=None)
             1
             >>> q([]).single(default=None) # returns None
@@ -955,11 +963,11 @@ class Query(Generic[T], Iterable[T]):
             >>> q([1, 2, 3]).single(default=None)
             Traceback (most recent call last):
             ...
-            fliq.exceptions.MultipleItemsFoundException
+            fliq.exceptions.MultipleElementsFoundException
 
         Raises:
-            NoItemsFoundException: In case the query is empty.
-            MultipleItemsFoundException: In case the query has more than one element.
+            QueryIsUnexpectedlyEmptyException: In case the query is empty.
+            MultipleElementsFoundException: In case the query has more than one element.
         """
         query = self.where(predicate)
         first_item = next(query, default)
@@ -970,12 +978,45 @@ class Query(Generic[T], Iterable[T]):
             # query has 0 or 1 items
             if default is MISSING and first_item is default:
                 # query is empty, user did not allow default
-                raise NoItemsFoundException()
+                raise QueryIsUnexpectedlyEmptyException()
             else:
                 return first_item  # type: ignore # MISSING isn't returned
         else:
             # query has more than 1 item
-            raise MultipleItemsFoundException()
+            raise MultipleElementsFoundException()
+
+    def at(self,
+           index: int,
+           default: MissingOrOptional[T] = MISSING) -> Optional[T]:
+        """
+        Returns the element in the query at the specified index, or a default value if the query is
+            too short.
+            If default is not provided, raises ElementNotFoundException in case the query
+            is too short.
+
+        Args:
+            index: The index of the element to return.
+            default: Optional. The default value to return in case the query is too short.
+                Defaults to raise an exception if the query is too short.
+
+        Examples:
+            >>> from fliq import q
+            >>> q([1, 2, 3]).at(0)
+            1
+            >>> q([]).at(0)
+            Traceback (most recent call last):
+            ...
+            fliq.exceptions.ElementNotFoundException
+            >>> q([1, 2, 3]).at(index=5, default=None) # returns None
+
+        Raises:
+            ElementNotFoundException: In case the query is too short.
+            QueryIsUnexpectedlyEmptyException: In case the query is empty.
+        """
+        try:
+            return self.skip(index).first(default=default)
+        except QueryIsUnexpectedlyEmptyException:
+            raise ElementNotFoundException()
 
     def sample(self,
                n: int = 1,
@@ -997,12 +1038,12 @@ class Query(Generic[T], Iterable[T]):
             n: Optional. The number of elements to sample. Defaults to 1.
             seed: Optional. The seed to use for the random sample. Defaults to None.
             budget_factor: Optional. Limits the number of attempts to sample n items,
-                as a factor of n. Defaults to 10x n.
+                as a factor of n. Defaults to 10, which means a budget of 10 * n.
                 None will disable budgeting, and may exhaust the iterable
                 (depending on stop_factor).
             stop_factor: Optional. The probability to stop re-sampling once the sample is full,
-                as a factor of n: 1 / ( stop_factor * n). Defaults to 1 / (10 * n).
-                None will disable early stopping, and may exhaust the iterable
+                as a factor of n: 1 / ( stop_factor * n). Defaults to 10, which means a factor of
+                1 / (10 * n). None will disable early stopping, and may exhaust the iterable
                 (depending on budget_factor).
 
         Note:

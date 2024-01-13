@@ -1,6 +1,6 @@
 import pytest
 
-from fliq.exceptions import NoItemsFoundException
+from fliq.exceptions import QueryIsUnexpectedlyEmptyException
 from fliq.tests.fliq_test_utils import Params
 from fliq import q
 
@@ -10,7 +10,7 @@ class TestSnap:
     def test_noSnap_differentPasses_iterableExhausted(self, iter_type, iterable, iterable_list):
         evens = q(iterable).where(lambda x: int(x) % 2 == 0)
         evens.single(lambda x: int(x) > 2)
-        with pytest.raises(NoItemsFoundException):
+        with pytest.raises(QueryIsUnexpectedlyEmptyException):
             evens.single(lambda x: int(x) < 0)
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())

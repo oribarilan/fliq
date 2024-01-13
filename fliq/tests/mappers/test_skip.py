@@ -25,3 +25,10 @@ class TestSkip:
                                    iterable,
                                    iterable_list):
         assert list(q(iterable).skip(n=3)) == iterable_list[3:]
+
+    @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
+    def test_take_hasMultipleItems_skipIsZero(self,
+                                              iter_type,
+                                              iterable,
+                                              iterable_list):
+        assert list(q(iterable).skip(n=0)) == iterable_list
