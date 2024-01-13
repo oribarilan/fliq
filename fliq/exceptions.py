@@ -2,13 +2,18 @@ class BaseQueryException(Exception):
     pass
 
 
-class MultipleItemsFoundException(BaseQueryException):
+class MultipleElementsFoundException(BaseQueryException):
     pass
 
 
-class NoItemsFoundException(BaseQueryException):
+class QueryIsUnexpectedlyEmptyException(BaseQueryException):
     pass
 
 
 class NotEnoughElementsException(BaseQueryException):
     pass
+
+
+class ElementNotFoundException(BaseQueryException):
+    pass
+

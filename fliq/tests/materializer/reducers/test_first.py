@@ -3,7 +3,7 @@ from unittest.mock import Mock
 import pytest
 
 from fliq import q
-from fliq.exceptions import NoItemsFoundException
+from fliq.exceptions import QueryIsUnexpectedlyEmptyException
 from fliq.tests.fliq_test_utils import Params
 
 
@@ -52,7 +52,7 @@ class TestFirst:
                               iter_type,
                               iterable,
                               iterable_list):
-        with pytest.raises(NoItemsFoundException):
+        with pytest.raises(QueryIsUnexpectedlyEmptyException):
             q(iterable).first()
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_single())
