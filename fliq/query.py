@@ -1031,17 +1031,17 @@ class Query(Generic[T], Iterable[T]):
                n: int = 1,
                seed: Optional[Hashable] = None,
                budget_factor: Optional[int] = 10,
-               stop_factor: Optional[int] = 10) -> Union[T, List[T]]:
+               stop_factor: Optional[int] = 10) -> List[T]:
         """
         Returns a random sample of n elements from the query.
-        If n is 1, returns a single item, otherwise returns a tuple (that can be unpacked).
+        Returns a list (that can be unpacked).
 
         Examples:
             >>> from fliq import q
             >>> q(range(10)).sample(n=2, seed=42)
             [0, 4]
             >>> q(range(10)).sample(n=1, seed=42)
-            1
+            [1]
 
         Args:
             n: Optional. The number of elements to sample. Defaults to 1.
@@ -1058,6 +1058,7 @@ class Query(Generic[T], Iterable[T]):
         Note:
             * To safely support infinite iterables, make sure you use
                 budget_factor and/or stop_factor (they are set by default).
+            * For a true random sample, make sure to set both budget_factor and stop_factor to None.
 
         Raises:
             NotEnoughItemsFoundException: In case the query is exhausted before n items are sampled.
@@ -1096,7 +1097,65 @@ class Query(Generic[T], Iterable[T]):
         if len(reservoir) < n:
             raise NotEnoughElementsException("too many items requested")
 
-        return reservoir[0] if n == 1 else reservoir
+        return reservoir
+
+    def binary_search(
+            self,
+            target: Union[T, U],
+            key: Optional[Selector[T, U]] = None,
+            default: MissingOrOptional[Union[T, U]] = MISSING) -> T:
+        """
+        Performs a binary search on the query.
+        Assumes the query is sorted in ascending order (according to the key, if provided).
+        Returns the first element that matches the target, or a default value if the target is not
+            found (or raises an exception if no default is provided).
+        Common use cases including searching using a key function, or searching without a key
+            (identity) and compare against a default value.
+
+
+        Args:
+            target: The target value to search for.
+            key: Optional. The selector function to apply to each element. Defaults to the identity.
+            default: Optional. The default value to return in case the target was not found.
+                Otherwise, raises an exception. Defaults to raise an exception.
+
+        Raises:
+            ElementNotFoundException: In case the target was not found and no default was provided.
+
+        Examples:
+            >>> from fliq import q
+            >>> from fliq.utils import Point
+            >>> q([1, 2, 3]).binary_search(target=2, default=None) is not None
+            True
+            >>> q([1, 2, 3]).binary_search(target=4, default=None) is not None
+            False
+            >>> q([1, 2, 3]).binary_search(target=4)
+            Traceback (most recent call last):
+            ...
+            fliq.exceptions.ElementNotFoundException
+            >>> q([Point(0, 0), Point(1, 1), Point(2, 2)]).binary_search(1, key=lambda p: p.x)
+            Point(x=1, y=1)
+        """
+        items = self._items
+        if not isinstance(self._items, collections.abc.Sequence):
+            items = list(self._items)
+        low = 0
+        high = len(items) - 1  # type: ignore # (items is a sequence)
+
+        while low <= high:
+            mid = (low + high) // 2
+            mid_val = items[mid] if key is None else key(items[mid])  # type: ignore # (indexable)
+            if mid_val == target:
+                return items[mid]  # type: ignore # (indexable & type T)
+            elif mid_val < target:
+                low = mid + 1
+            else:
+                high = mid - 1
+
+        if default is not MISSING:
+            return default  # type: ignore # default is not MISSING
+        else:
+            raise ElementNotFoundException()
 
     def count(self) -> int:
         """
@@ -1165,8 +1224,8 @@ class Query(Generic[T], Iterable[T]):
         For an optimized summation of numeric values, use `sum`.
 
         Examples:
-            >>> from fliq.tests.fliq_test_utils import Point
             >>> from fliq import q
+            >>> from fliq.utils import Point
             >>> q([Point(0, 0), Point(1, 1), Point(2, 2)]).aggregate(by=lambda a, b: a + b)
             Point(x=3, y=3)
             >>> q([Point(1, 1), Point(2, 2)]).aggregate(by=lambda a, b: a + b, initial=Point(0, 0))

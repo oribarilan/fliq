@@ -14,8 +14,9 @@ class TestSample:
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_single())
     def test_sample_sampleSingle_doesNotConsume(self, iter_type, iterable, iterable_list):
-        e0 = q(iterable).sample()
-        assert e0 == iterable_list[0]
+        sampled = q(iterable).sample()
+        assert sampled[0] == iterable_list[0]
+        assert len(sampled) == 1
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_single())
     def test_sample_sampleMoreThanSize_errorRaised(self, iter_type, iterable, iterable_list):
@@ -33,7 +34,8 @@ class TestSample:
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
     def test_sample_sampledOne_singleItemReturned(self, iter_type, iterable, iterable_list):
         sampled_item = q(iterable).sample(seed=42)
-        assert sampled_item == iterable_list[1]
+        assert sampled_item[0] == iterable_list[1]
+        assert len(sampled_item) == 1
 
     @pytest.mark.parametrize(Params.sig_iterable, Params.iterable_multi())
     def test_sample_sampledWithinSize_multipleItemsReturned(self,

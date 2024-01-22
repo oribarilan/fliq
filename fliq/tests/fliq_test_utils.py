@@ -35,15 +35,6 @@ def gen_people(num: int):
     ]
 
 
-@dataclass
-class Point:
-    x: int
-    y: int
-
-    def __add__(self, other):
-        return Point(self.x + other.x, self.y + other.y)
-
-
 class FliqTestUtils:
     @staticmethod
     def assertSmallerOrCloseTo(a: float,
