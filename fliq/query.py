@@ -1013,6 +1013,15 @@ class Query(Generic[T], Iterable[T]):
             ElementNotFoundException: In case the query is too short.
             QueryIsUnexpectedlyEmptyException: In case the query is empty.
         """
+        # if items can be accessed using index, do that
+        if isinstance(self._items, collections.abc.Sequence):
+            try:
+                return self._items[index]  # type: ignore # (item is of type T)
+            except IndexError:
+                if default is MISSING:
+                    raise ElementNotFoundException()
+                else:
+                    return default  # type: ignore # default is not MISSING
         try:
             return self.skip(index).first(default=default)
         except QueryIsUnexpectedlyEmptyException:
